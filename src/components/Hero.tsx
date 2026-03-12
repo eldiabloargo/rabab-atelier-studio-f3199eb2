@@ -15,7 +15,7 @@ export const Hero = () => {
       >
         <div className="overflow-hidden luxury-card shadow-2xl">
           <img
-            src={heroImage}
+            src="https://i.supaimg.com/23bbe892-53d3-41aa-b696-dcdb610fd822/442c5dbb-0c4f-4858-8d97-0c50c33a18c8.png"
             alt="Sculpture en plâtre par Rabab Atelier"
             className="w-full h-[70vh] object-cover"
             loading="eager"
