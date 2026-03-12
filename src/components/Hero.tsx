@@ -13,14 +13,15 @@ export const Hero = () => {
         transition={{ duration: 1.5, ease: "easeOut" }}
         className="relative w-full max-w-3xl mx-auto"
       >
-        <div className="overflow-hidden luxury-card shadow-2xl">
-          <img
-            src="https://i.supaimg.com/23bbe892-53d3-41aa-b696-dcdb610fd822/442c5dbb-0c4f-4858-8d97-0c50c33a18c8.png"
-            alt="Sculpture en plâtre par Rabab Atelier"
-            className="w-full h-[70vh] object-cover"
-            loading="eager"
-          />
-        </div>
+        
+<div className="relative animate-float animate-soft-glow">
+  <img 
+    src="/path-to-your-image.png" 
+    className="mask-art-edges object-contain w-full h-auto" 
+    alt="Rabab Atelier 3D"
+  />
+  <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent pointer-events-none" />
+</div>
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}
