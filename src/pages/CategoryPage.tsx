@@ -16,18 +16,6 @@ interface Product {
   category: string | null;
 }
 
-const SLUG_MAP: Record<string, string> = {
-  "cadeaux-de-naissance": "Cadeaux de naissance",
-  "decorations-du-ramadan": "Décorations du Ramadan",
-  "gift-box": "Gift Box",
-};
-
-const LABEL_MAP: Record<string, string> = {
-  "cadeaux-de-naissance": "cat.naissance",
-  "decorations-du-ramadan": "cat.ramadan",
-  "gift-box": "cat.giftbox",
-};
-
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
   visible: { opacity: 1, y: 0 },
@@ -39,26 +27,35 @@ const CategoryPage = () => {
   const [loading, setLoading] = useState(true);
   const { t, isArabic } = useLanguage();
 
-  const categoryName = slug ? SLUG_MAP[slug] : undefined;
-  const labelKey = slug ? LABEL_MAP[slug] : undefined;
+  // هاد الدالة كتحول الرابط لسمية عادية باش تقلب فـ الداتابيز
+  // مثلا "gift-box" كتولي "Gift Box"
+  const formatSlug = (s: string) => {
+    if (!s) return "";
+    return s.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  };
+
+  const categoryName = slug ? formatSlug(slug) : "";
 
   useEffect(() => {
     const fetchProducts = async () => {
       if (!categoryName) { setLoading(false); return; }
-      const { data } = await supabase
+      
+      const { data, error } = await supabase
         .from("products")
         .select("*")
-        .eq("category", categoryName)
+        .ilike("category", categoryName) // بحث ذكي بلا ما يهم واش الحروف كبيرة ولا صغيرة
         .order("created_at", { ascending: false });
+
       if (data) setProducts(data as unknown as Product[]);
       setLoading(false);
     };
     fetchProducts();
-  }, [categoryName]);
+  }, [categoryName, slug]);
 
   const getTitle = (p: Product) => (isArabic && p.title_ar ? p.title_ar : p.title);
   const getDesc = (p: Product) => (isArabic && p.description_ar ? p.description_ar : p.description);
 
+  // حافظت ليك على نفس ميساج الواتساب لي عجبك
   const getWhatsAppUrl = (name: string) => {
     const msg = isArabic
       ? `السلام عليكم، عجبتني هاد التحفة ${name} وبغيت نعرف مزيد من التفاصيل عليها من فضلك.`
@@ -95,7 +92,8 @@ const CategoryPage = () => {
           transition={{ duration: 0.8 }}
           className="text-3xl md:text-4xl font-serif text-gold-gradient text-center mb-16"
         >
-          {labelKey ? t(labelKey) : slug}
+          {/* هنا كيطلع العنوان لي جاي من الرابط أوتوماتيكيا */}
+          {categoryName}
         </motion.h1>
 
         {products.length === 0 ? (
