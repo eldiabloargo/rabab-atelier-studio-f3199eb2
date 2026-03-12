@@ -16,7 +16,7 @@ export const Hero = () => {
         
 <div className="relative animate-float animate-soft-glow">
   <img 
-    src="/path-to-your-image.png" 
+    src="https://i.supaimg.com/23bbe892-53d3-41aa-b696-dcdb610fd822/442c5dbb-0c4f-4858-8d97-0c50c33a18c8.png" 
     className="mask-art-edges object-contain w-full h-auto" 
     alt="Rabab Atelier 3D"
   />
