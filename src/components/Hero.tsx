@@ -14,13 +14,23 @@ export const Hero = () => {
         className="relative w-full max-w-3xl mx-auto"
       >
         
-<div className="relative animate-float animate-soft-glow">
-  <img 
-    src="https://i.supaimg.com/23bbe892-53d3-41aa-b696-dcdb610fd822/442c5dbb-0c4f-4858-8d97-0c50c33a18c8.png" 
-    className="mask-art-edges object-contain w-full h-auto" 
-    alt="Rabab Atelier 3D"
-  />
-  <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent pointer-events-none" />
+<div className="relative w-full max-w-lg mx-auto flex justify-center">
+ 
+  <div className="relative overflow-hidden rounded-xl shadow-sm">
+    <img 
+      src="https://i.supaimg.com/23bbe892-53d3-41aa-b696-dcdb610fd822/442c5dbb-0c4f-4858-8d97-0c50c33a18c8.png" 
+      className="object-contain w-full h-auto block" 
+      style={{
+       
+        maskImage: 'linear-gradient(to bottom, black 95%, transparent 100%), linear-gradient(to right, transparent, black 2%, black 98%, transparent)',
+        WebkitMaskImage: 'linear-gradient(to bottom, black 95%, transparent 100%), linear-gradient(to right, transparent, black 2%, black 98%, transparent)',
+      }}
+      alt="Rabab Atelier 3D Artwork"
+    />
+    
+   
+    <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-background to-transparent opacity-40 pointer-events-none" />
+  </div>
 </div>
 
         <motion.div
