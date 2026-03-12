@@ -18,7 +18,7 @@ export const Hero = () => {
  
   <div className="relative overflow-hidden rounded-xl shadow-sm">
     <img 
-      src="https://i.supaimg.com/23bbe892-53d3-41aa-b696-dcdb610fd822/442c5dbb-0c4f-4858-8d97-0c50c33a18c8.png" 
+      src="https://i.supaimg.com/23bbe892-53d3-41aa-b696-dcdb610fd822/83b7d020-9045-4460-b6a0-330c267a7fe1.png" 
       className="object-contain w-full h-auto block" 
       style={{
        
