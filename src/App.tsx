@@ -12,6 +12,7 @@ const Admin = lazy(() => import("./pages/Admin"));
 const Infos = lazy(() => import("./pages/Infos"));
 const Expositions = lazy(() => import("./pages/Expositions"));
 const CategoryPage = lazy(() => import("./pages/CategoryPage"));
+const SurMesure = lazy(() => import("./pages/SurMesure")); // زدنا هادي هنا
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
               <Route path="/infos" element={<Infos />} />
               <Route path="/expositions" element={<Expositions />} />
               <Route path="/category/:slug" element={<CategoryPage />} />
+              <Route path="/sur-mesure" element={<SurMesure />} /> {/* هي اللخرة قبل NotFound */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
