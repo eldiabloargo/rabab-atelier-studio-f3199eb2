@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Trash2, Pencil, Plus, Lock, Image as ImageIcon, X, ChevronDown, Tag, LogOut } from "lucide-react";
+import { Trash2, Pencil, Plus, Lock, Image as ImageIcon, X, LogOut, Save } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const Admin = () => {
@@ -17,9 +17,8 @@ const Admin = () => {
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"products" | "categories" | "settings">("products");
+  const [activeTab, setActiveTab] = useState<"products" | "categories">("products");
   const [newCategoryName, setNewCategoryName] = useState("");
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   const [form, setForm] = useState({
@@ -33,12 +32,8 @@ const Admin = () => {
   });
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
+    supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => setSession(session));
     return () => subscription.unsubscribe();
   }, []);
 
@@ -55,29 +50,13 @@ const Admin = () => {
     if (session) fetchAll();
   }, [session]);
 
-    const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
-    // هاد السطر هو اللي كيهضر مع سوبابيز
-    const { error } = await supabase.auth.signInWithPassword({ 
-      email: email.trim(), 
-      password: password.trim() 
-    });
-
-    if (error) {
-      toast({ 
-        title: "خطأ في الدخول", 
-        description: "تأكد من الإيميل والمودباس (rababAT2024)", 
-        variant: "destructive" 
-      });
-    } else {
-      toast({ title: "مرحباً بك حمزة", description: "تم تسجيل الدخول بنجاح" });
-      // الصفحة غاتريفرشا راسها والـ session غاتبان
-    }
+    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password: password.trim() });
+    if (error) toast({ title: "خطأ", description: "Email ou mot de passe incorrect", variant: "destructive" });
     setLoading(false);
   };
-
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,28 +99,72 @@ const Admin = () => {
   return (
     <div className="p-6 max-w-4xl mx-auto min-h-screen">
       <div className="flex justify-between items-center mb-10 border-b pb-4">
-        <h1 className="text-2xl font-serif text-gold-gradient">Dashboard</h1>
+        <h1 className="text-2xl font-serif text-gold-gradient">Dashboard - Rabab Atelier</h1>
         <Button variant="ghost" onClick={() => supabase.auth.signOut()} className="text-destructive"><LogOut className="w-5 h-5" /></Button>
       </div>
 
       <div className="flex gap-4 mb-8">
-        <Button variant={activeTab === "products" ? "default" : "outline"} onClick={() => setActiveTab("products")} className="flex-1 bg-gold">Produits</Button>
-        <Button variant={activeTab === "categories" ? "default" : "outline"} onClick={() => setActiveTab("categories")} className="flex-1">Catégories</Button>
+        <Button variant={activeTab === "products" ? "default" : "outline"} onClick={() => setActiveTab("products")} className={`flex-1 ${activeTab === "products" ? "bg-gold text-white" : ""}`}>Produits</Button>
+        <Button variant={activeTab === "categories" ? "default" : "outline"} onClick={() => setActiveTab("categories")} className={`flex-1 ${activeTab === "categories" ? "bg-gold text-white" : ""}`}>Catégories</Button>
       </div>
 
       {activeTab === "products" && (
         <div className="space-y-6">
-          {!showForm && <Button onClick={() => setShowForm(true)} className="w-full bg-gold text-white shadow-lg"><Plus className="mr-2" /> Ajouter un Produit</Button>}
-          
+          {!showForm ? (
+            <Button onClick={() => setShowForm(true)} className="w-full bg-gold text-white shadow-lg"><Plus className="mr-2" /> Ajouter un Produit</Button>
+          ) : (
+            <motion.form initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} onSubmit={handleSubmit} className="p-6 border rounded-xl bg-card space-y-4 shadow-xl">
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-bold">{editingId ? 'Modifier' : 'Nouveau Produit'}</h2>
+                <Button variant="ghost" size="sm" onClick={() => {setShowForm(false); setEditingId(null);}}><X /></Button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Titre (FR)</Label>
+                  <Input value={form.title} onChange={(e) => setForm({...form, title: e.target.value})} required />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-right block">العنوان (AR)</Label>
+                  <Input dir="rtl" value={form.title_ar} onChange={(e) => setForm({...form, title_ar: e.target.value})} />
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <Label>Image URL</Label>
+                  <Input value={form.image_url} onChange={(e) => setForm({...form, image_url: e.target.value})} placeholder="https://..." />
+                </div>
+                <div className="space-y-2">
+                  <Label>Prix</Label>
+                  <Input value={form.price} onChange={(e) => setForm({...form, price: e.target.value})} placeholder="200 DH" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Catégorie</Label>
+                  <select className="w-full p-2 rounded-md border bg-background" value={form.category} onChange={(e) => setForm({...form, category: e.target.value})}>
+                    <option value="">Sélectionner</option>
+                    {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Description (FR)</Label>
+                  <Textarea value={form.description} onChange={(e) => setForm({...form, description: e.target.value})} />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-right block">الوصف (AR)</Label>
+                  <Textarea dir="rtl" value={form.description_ar} onChange={(e) => setForm({...form, description_ar: e.target.value})} />
+                </div>
+              </div>
+              <Button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white"><Save className="mr-2 w-4 h-4" /> Enregistrer</Button>
+            </motion.form>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {products.map((p) => (
-              <div key={p.id} className="p-4 border rounded-xl luxury-card bg-card">
+              <div key={p.id} className="p-4 border rounded-xl bg-card shadow-sm">
                 <img src={p.image_url || "/placeholder.svg"} className="w-full h-32 object-cover rounded-lg mb-2" />
                 <h3 className="font-bold truncate">{p.title}</h3>
-                <p className="text-sm text-muted-foreground mb-4">{p.price || "Sur demande"}</p>
-                <div className="flex gap-2">
+                <p className="text-sm text-muted-foreground">{p.price || "Sur demande"}</p>
+                <div className="flex gap-2 mt-4">
                   <Button variant="outline" size="sm" className="flex-1" onClick={() => {setEditingId(p.id); setForm(p); setShowForm(true);}}><Pencil className="w-4 h-4" /></Button>
-                  <Button variant="destructive" size="sm" onClick={async () => {await supabase.from("products").delete().eq("id", p.id); fetchAll();}}><Trash2 className="w-4 h-4" /></Button>
+                  <Button variant="destructive" size="sm" onClick={async () => { if(confirm('Supprimer?')) { await supabase.from("products").delete().eq("id", p.id); fetchAll(); } }}><Trash2 className="w-4 h-4" /></Button>
                 </div>
               </div>
             ))}
@@ -152,15 +175,17 @@ const Admin = () => {
       {activeTab === "categories" && (
         <div className="space-y-4">
           <div className="flex gap-2 mb-6">
-            <Input placeholder="Nom de la catégorie" value={newCategoryName} onChange={(e) => setNewCategoryName(e.target.value)} />
-            <Button onClick={async () => {await supabase.from("categories").insert({name: newCategoryName}); setNewCategoryName(""); fetchAll();}} className="bg-gold">Ajouter</Button>
+            <Input placeholder="Nouveau nom de catégorie" value={newCategoryName} onChange={(e) => setNewCategoryName(e.target.value)} />
+            <Button onClick={async () => { if(newCategoryName) { await supabase.from("categories").insert({name: newCategoryName}); setNewCategoryName(""); fetchAll(); } }} className="bg-gold text-white">Ajouter</Button>
           </div>
-          {categories.map(c => (
-             <div key={c.id} className="flex justify-between p-4 border rounded-lg bg-card">
-                <span className="font-medium">{c.name}</span>
-                <Button variant="ghost" size="sm" onClick={async () => {await supabase.from("categories").delete().eq("id", c.id); fetchAll();}}><Trash2 className="w-4 h-4 text-destructive" /></Button>
-             </div>
-          ))}
+          <div className="grid gap-2">
+            {categories.map(c => (
+               <div key={c.id} className="flex justify-between items-center p-4 border rounded-lg bg-card shadow-sm">
+                  <span className="font-medium">{c.name}</span>
+                  <Button variant="ghost" size="sm" onClick={async () => { if(confirm('Supprimer la catégorie?')) { await supabase.from("categories").delete().eq("id", c.id); fetchAll(); } }}><Trash2 className="w-4 h-4 text-destructive" /></Button>
+               </div>
+            ))}
+          </div>
         </div>
       )}
     </div>
