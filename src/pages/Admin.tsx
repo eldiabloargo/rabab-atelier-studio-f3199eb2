@@ -55,13 +55,29 @@ const Admin = () => {
     if (session) fetchAll();
   }, [session]);
 
-  const handleLogin = async (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) toast({ title: "خطأ", description: "Email ou mot de passe incorrect", variant: "destructive" });
+    
+    // هاد السطر هو اللي كيهضر مع سوبابيز
+    const { error } = await supabase.auth.signInWithPassword({ 
+      email: email.trim(), 
+      password: password.trim() 
+    });
+
+    if (error) {
+      toast({ 
+        title: "خطأ في الدخول", 
+        description: "تأكد من الإيميل والمودباس (rababAT2024)", 
+        variant: "destructive" 
+      });
+    } else {
+      toast({ title: "مرحباً بك حمزة", description: "تم تسجيل الدخول بنجاح" });
+      // الصفحة غاتريفرشا راسها والـ session غاتبان
+    }
     setLoading(false);
   };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
