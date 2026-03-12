@@ -5,11 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Trash2, Pencil, Plus, Lock, Image as ImageIcon, X, ChevronDown, Tag } from "lucide-react";
+import { Trash2, Pencil, Plus, Lock, Image as ImageIcon, X, ChevronDown, Tag, LogOut } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-
-const ADMIN_PASSWORD = "rabab2024";
-const SESSION_KEY = "rabab_admin_auth";
 
 interface Product {
   id: string;
@@ -48,9 +45,8 @@ const emptyForm: ProductForm = {
 };
 
 const Admin = () => {
-  const [authenticated, setAuthenticated] = useState(() => {
-    return sessionStorage.getItem(SESSION_KEY) === "true";
-  });
+  const [session, setSession] = useState<any>(null);
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -64,12 +60,18 @@ const Admin = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
-  const ensureAnonAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      await supabase.auth.signInAnonymously();
-    }
-  };
+  useEffect(() => {
+    // التحقق من الجلسة الحالية
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const fetchProducts = async () => {
     const { data, error } = await supabase
@@ -102,26 +104,36 @@ const Admin = () => {
   };
 
   useEffect(() => {
-    if (authenticated) {
-      ensureAnonAuth().then(() => fetchAll());
+    if (session) {
+      fetchAll();
     }
-  }, [authenticated]);
+  }, [session]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
-      setAuthenticated(true);
-      sessionStorage.setItem(SESSION_KEY, "true");
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      toast({ title: "Erreur de connexion", description: "Email ou mot de passe incorrect", variant: "destructive" });
     } else {
-      toast({ title: "Mot de passe incorrect", variant: "destructive" });
+      toast({ title: "Bienvenue, Hamza !" });
     }
+    setLoading(false);
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    toast({ title: "Déconnecté" });
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
-    await ensureAnonAuth();
 
     const ext = file.name.split(".").pop();
     const fileName = `${Date.now()}.${ext}`;
@@ -151,8 +163,6 @@ const Admin = () => {
       return;
     }
 
-    await ensureAnonAuth();
-
     const productData = {
       title: form.title.trim(),
       title_ar: form.title_ar.trim() || null,
@@ -169,14 +179,14 @@ const Admin = () => {
         .update(productData)
         .eq("id", editingId);
       if (error) {
-        toast({ title: "Erreur", description: error.message, variant: "destructive" });
+        toast({ title: "Erreur RLS", description: "Vérifiez vos permissions Supabase", variant: "destructive" });
         return;
       }
       toast({ title: "Produit modifié ✓" });
     } else {
       const { error } = await supabase.from("products").insert(productData);
       if (error) {
-        toast({ title: "Erreur", description: error.message, variant: "destructive" });
+        toast({ title: "Erreur RLS", description: "Désactivez RLS ou ajoutez une Policy", variant: "destructive" });
         return;
       }
       toast({ title: "Produit ajouté ✓" });
@@ -203,7 +213,6 @@ const Admin = () => {
   };
 
   const handleDelete = async (id: string) => {
-    await ensureAnonAuth();
     const { error } = await supabase.from("products").delete().eq("id", id);
     if (error) {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
@@ -215,20 +224,11 @@ const Admin = () => {
 
   const handleAddCategory = async () => {
     const name = newCategoryName.trim();
-    if (!name) {
-      toast({ title: "Le nom est requis", variant: "destructive" });
-      return;
-    }
-
-    await ensureAnonAuth();
+    if (!name) return;
 
     const { error } = await supabase.from("categories").insert({ name });
     if (error) {
-      if (error.code === "23505") {
-        toast({ title: "Cette catégorie existe déjà", variant: "destructive" });
-      } else {
-        toast({ title: "Erreur", description: error.message, variant: "destructive" });
-      }
+      toast({ title: "Erreur", description: error.message, variant: "destructive" });
       return;
     }
     toast({ title: "Catégorie ajoutée ✓" });
@@ -237,7 +237,6 @@ const Admin = () => {
   };
 
   const handleDeleteCategory = async (id: string, name: string) => {
-    await ensureAnonAuth();
     const { error } = await supabase.from("categories").delete().eq("id", id);
     if (error) {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
@@ -247,29 +246,26 @@ const Admin = () => {
     fetchCategories();
   };
 
-  if (!authenticated) {
+  if (!session) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-sm"
-        >
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-sm">
           <div className="text-center mb-10">
             <Lock className="w-8 h-8 mx-auto mb-4 text-gold" />
-            <h1 className="text-2xl font-serif text-gold-gradient">Espace Admin</h1>
-            <p className="text-sm text-muted-foreground mt-2">Rabab Atelier</p>
+            <h1 className="text-2xl font-serif text-gold-gradient">Connexion Admin</h1>
+            <p className="text-sm text-muted-foreground mt-2">Accès sécurisé Supabase</p>
           </div>
           <form onSubmit={handleLogin} className="space-y-4">
-            <Input
-              type="password"
-              placeholder="Mot de passe"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="text-center rounded-lg"
-            />
-            <Button type="submit" className="w-full rounded-lg bg-gold hover:bg-gold-dark text-white">
-              Entrer
+            <div className="space-y-2">
+              <Label>Email</Label>
+              <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="votre@email.com" />
+            </div>
+            <div className="space-y-2">
+              <Label>Mot de passe</Label>
+              <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+            </div>
+            <Button type="submit" disabled={loading} className="w-full bg-gold hover:bg-gold-dark text-white">
+              {loading ? "Connexion..." : "Se connecter"}
             </Button>
           </form>
         </motion.div>
@@ -281,254 +277,74 @@ const Admin = () => {
     <div className="min-h-screen bg-background pb-20">
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border px-6 py-4">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
-          <h1 className="text-lg font-serif text-gold-gradient">Gestion Collection</h1>
-          <Button
-            size="sm"
-            variant="outline"
-            className="rounded-lg"
-            onClick={() => window.location.href = "/"}
-          >
-            Voir le site
-          </Button>
+          <h1 className="text-lg font-serif text-gold-gradient">Espace Admin</h1>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" onClick={() => window.location.href = "/"}>Site</Button>
+            <Button size="sm" variant="ghost" onClick={handleLogout} className="text-destructive"><LogOut className="w-4 h-4" /></Button>
+          </div>
         </div>
       </div>
 
-      {/* Tabs */}
       <div className="max-w-2xl mx-auto px-6 pt-4">
         <div className="flex gap-2 mb-6">
-          <Button
-            variant={activeTab === "products" ? "default" : "outline"}
-            className={`flex-1 rounded-lg gap-2 ${activeTab === "products" ? "bg-gold hover:bg-gold-dark text-white" : ""}`}
-            onClick={() => setActiveTab("products")}
-          >
-            <ImageIcon className="w-4 h-4" />
-            Produits
-          </Button>
-          <Button
-            variant={activeTab === "categories" ? "default" : "outline"}
-            className={`flex-1 rounded-lg gap-2 ${activeTab === "categories" ? "bg-gold hover:bg-gold-dark text-white" : ""}`}
-            onClick={() => setActiveTab("categories")}
-          >
-            <Tag className="w-4 h-4" />
-            Catégories
-          </Button>
+          <Button variant={activeTab === "products" ? "default" : "outline"} className={`flex-1 ${activeTab === "products" ? "bg-gold text-white" : ""}`} onClick={() => setActiveTab("products")}>Produits</Button>
+          <Button variant={activeTab === "categories" ? "default" : "outline"} className={`flex-1 ${activeTab === "categories" ? "bg-gold text-white" : ""}`} onClick={() => setActiveTab("categories")}>Catégories</Button>
         </div>
 
-        {/* Categories Tab */}
         {activeTab === "categories" && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+          <div className="space-y-4">
             <div className="flex gap-2">
-              <Input
-                value={newCategoryName}
-                onChange={(e) => setNewCategoryName(e.target.value)}
-                placeholder="Nom de la catégorie (ex: Captans)"
-                className="flex-1 rounded-lg"
-                onKeyDown={(e) => e.key === "Enter" && handleAddCategory()}
-              />
-              <Button
-                onClick={handleAddCategory}
-                className="rounded-lg bg-gold hover:bg-gold-dark text-white gap-2"
-              >
-                <Plus className="w-4 h-4" />
-                Ajouter
-              </Button>
+              <Input value={newCategoryName} onChange={(e) => setNewCategoryName(e.target.value)} placeholder="Nouvelle catégorie" />
+              <Button onClick={handleAddCategory} className="bg-gold text-white"><Plus /></Button>
             </div>
-
-            {loading ? (
-              <div className="flex justify-center py-10">
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                  className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full"
-                />
+            {categories.map(cat => (
+              <div key={cat.id} className="flex justify-between p-3 border rounded-lg bg-card">
+                <span>{cat.name}</span>
+                <Button variant="ghost" size="icon" onClick={() => handleDeleteCategory(cat.id, cat.name)}><Trash2 className="w-4 h-4 text-destructive" /></Button>
               </div>
-            ) : categories.length === 0 ? (
-              <p className="text-center text-muted-foreground py-10">Aucune catégorie.</p>
-            ) : (
-              <div className="space-y-2">
-                {categories.map((cat) => (
-                  <motion.div
-                    key={cat.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center justify-between p-4 border border-border rounded-lg bg-card"
-                  >
-                    <div className="flex items-center gap-3">
-                      <Tag className="w-4 h-4 text-muted-foreground" />
-                      <span className="font-medium text-foreground">{cat.name}</span>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDeleteCategory(cat.id, cat.name)}
-                    >
-                      <Trash2 className="w-4 h-4 text-destructive" />
-                    </Button>
-                  </motion.div>
-                ))}
-              </div>
-            )}
-          </motion.div>
+            ))}
+          </div>
         )}
 
-        {/* Products Tab */}
         {activeTab === "products" && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            {!showForm && (
-              <Button
-                onClick={() => {
-                  setForm(emptyForm);
-                  setEditingId(null);
-                  setShowForm(true);
-                }}
-                className="w-full h-14 text-base gap-3 mb-8 rounded-lg bg-gold hover:bg-gold-dark text-white"
-              >
-                <Plus className="w-5 h-5" />
-                Ajouter un produit
-              </Button>
+          <div>
+            {!showForm && <Button onClick={() => setShowForm(true)} className="w-full bg-gold text-white mb-6"><Plus className="mr-2" /> Ajouter un produit</Button>}
+            {showForm && (
+              <form onSubmit={handleSubmit} className="space-y-4 mb-8 p-4 border rounded-lg">
+                <Input value={form.title} onChange={(e) => setForm({...form, title: e.target.value})} placeholder="Titre (FR)" required />
+                <Input value={form.title_ar} onChange={(e) => setForm({...form, title_ar: e.target.value})} placeholder="Titre (AR)" dir="rtl" />
+                <Input value={form.price} onChange={(e) => setForm({...form, price: e.target.value})} placeholder="Prix (ex: 2500 MAD)" />
+                <select value={form.category} onChange={(e) => setForm({...form, category: e.target.value})} className="w-full p-2 border rounded-lg bg-background">
+                  <option value="">Choisir une catégorie</option>
+                  {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
+                </select>
+                <Textarea value={form.description} onChange={(e) => setForm({...form, description: e.target.value})} placeholder="Description (FR)" />
+                <Textarea value={form.description_ar} onChange={(e) => setForm({...form, description_ar: e.target.value})} placeholder="Description (AR)" dir="rtl" />
+                <div className="flex gap-2">
+                  <Input value={form.image_url} onChange={(e) => setForm({...form, image_url: e.target.value})} placeholder="URL Image" className="flex-1" />
+                  <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()}><ImageIcon /></Button>
+                  <input ref={fileInputRef} type="file" className="hidden" onChange={handleImageUpload} />
+                </div>
+                <div className="flex gap-2">
+                  <Button type="submit" className="flex-1 bg-gold text-white">Enregistrer</Button>
+                  <Button type="button" variant="ghost" onClick={() => setShowForm(false)}>Annuler</Button>
+                </div>
+              </form>
             )}
-
-            <AnimatePresence>
-              {showForm && (
-                <motion.form
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  onSubmit={handleSubmit}
-                  className="space-y-5 mb-10 overflow-hidden"
-                >
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-serif text-foreground">
-                      {editingId ? "Modifier le produit" : "Nouveau produit"}
-                    </h2>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => {
-                        setShowForm(false);
-                        setEditingId(null);
-                        setForm(emptyForm);
-                      }}
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
+            <div className="space-y-4">
+              {products.map(p => (
+                <div key={p.id} className="flex items-center gap-4 p-3 border rounded-lg luxury-card">
+                  <img src={p.image_url || ""} className="w-12 h-12 object-cover rounded" />
+                  <div className="flex-1">
+                    <h3 className="font-medium">{p.title}</h3>
+                    <p className="text-xs text-muted-foreground">{p.category} • {p.price}</p>
                   </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="title">Titre (FR) *</Label>
-                      <Input id="title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Ex: Éclosion" className="rounded-lg" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="title_ar">Titre (AR)</Label>
-                      <Input id="title_ar" value={form.title_ar} onChange={(e) => setForm({ ...form, title_ar: e.target.value })} placeholder="مثال: تفتح" dir="rtl" className="rounded-lg" />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="price">Prix (vide = Sur demande)</Label>
-                      <Input id="price" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="Ex: 2 400 MAD" className="rounded-lg" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="category">Catégorie</Label>
-                      <div className="relative">
-                        <select
-                          id="category"
-                          value={form.category}
-                          onChange={(e) => setForm({ ...form, category: e.target.value })}
-                          className="w-full h-10 px-3 rounded-lg border border-input bg-background text-sm font-sans appearance-none cursor-pointer"
-                        >
-                          <option value="">— Choisir —</option>
-                          {categories.map((c) => (
-                            <option key={c.id} value={c.name}>{c.name}</option>
-                          ))}
-                        </select>
-                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="description">Description (FR)</Label>
-                    <Textarea id="description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Matériaux, dimensions, usage..." rows={2} className="rounded-lg" />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="description_ar">Description (AR)</Label>
-                    <Textarea id="description_ar" value={form.description_ar} onChange={(e) => setForm({ ...form, description_ar: e.target.value })} placeholder="المواد، الأبعاد، الاستخدام..." rows={2} dir="rtl" className="rounded-lg" />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Image</Label>
-                    <div className="flex gap-2">
-                      <Input value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} placeholder="Coller un lien image ou uploader ↓" className="flex-1 rounded-lg" />
-                      <Button type="button" variant="outline" size="icon" className="rounded-lg" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
-                        <ImageIcon className="w-4 h-4" />
-                      </Button>
-                    </div>
-                    <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
-                    {uploading && <p className="text-xs text-muted-foreground">Téléchargement en cours...</p>}
-                    {form.image_url && (
-                      <img src={form.image_url} alt="Aperçu" className="w-full h-40 object-cover luxury-card mt-2" />
-                    )}
-                  </div>
-
-                  <Button type="submit" className="w-full h-12 rounded-lg bg-gold hover:bg-gold-dark text-white">
-                    {editingId ? "Enregistrer les modifications" : "Ajouter à la collection"}
-                  </Button>
-                </motion.form>
-              )}
-            </AnimatePresence>
-
-            {loading ? (
-              <div className="flex justify-center py-10">
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                  className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full"
-                />
-              </div>
-            ) : products.length === 0 ? (
-              <p className="text-center text-muted-foreground py-10">
-                Aucun produit pour le moment.
-              </p>
-            ) : (
-              <div className="space-y-4">
-                {products.map((product) => (
-                  <motion.div
-                    key={product.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center gap-4 p-4 border border-border luxury-card bg-card"
-                  >
-                    {product.image_url ? (
-                      <img src={product.image_url} alt={product.title} className="w-16 h-16 object-cover rounded-lg flex-shrink-0" />
-                    ) : (
-                      <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
-                        <ImageIcon className="w-6 h-6 text-muted-foreground" />
-                      </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-serif text-foreground truncate">{product.title}</h3>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {product.category || "Sans catégorie"} · {product.price || "Sur demande"}
-                      </p>
-                    </div>
-                    <div className="flex gap-1 flex-shrink-0">
-                      <Button variant="ghost" size="icon" onClick={() => handleEdit(product)}>
-                        <Pencil className="w-4 h-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => handleDelete(product.id)}>
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </Button>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            )}
-          </motion.div>
+                  <Button variant="ghost" size="icon" onClick={() => handleEdit(p)}><Pencil className="w-4 h-4" /></Button>
+                  <Button variant="ghost" size="icon" onClick={() => handleDelete(p.id)}><Trash2 className="w-4 h-4 text-destructive" /></Button>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
       </div>
     </div>
