@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Link } from "react-router-dom"; // ضروري باش نتحولو لصفحة جديدة
-import { Palette } from "lucide-react"; // آيكون زوينة للطلب الخاص
+import { Link } from "react-router-dom";
+import { Palette } from "lucide-react";
 
 export const Hero = () => {
   const { t, isArabic } = useLanguage();
@@ -60,12 +60,12 @@ export const Hero = () => {
           {t("nav.collection")}
         </a>
         
-        {/* الزر الجديد ديال Sur Mesure */}
+        {/* الرابط الجديد: منسجم مع القائمة ومتميز بالأيقونة */}
         <Link 
           to="/sur-mesure" 
-          className="flex items-center gap-2 text-gold font-medium border-b border-gold/30 pb-1 hover:border-gold transition-all duration-500"
+          className="flex items-center gap-2 hover:text-gold transition-all duration-500"
         >
-          <Palette className="w-4 h-4" />
+          <Palette className="w-4 h-4 text-gold/80" />
           {isArabic ? "طلب خاص" : "Sur Mesure"}
         </Link>
       </motion.nav>
