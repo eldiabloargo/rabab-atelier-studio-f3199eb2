@@ -11,7 +11,7 @@ export const Footer = () => {
           <div className="space-y-4">
             <h4 className="text-xl font-serif text-gold-gradient">Rabab Atelier</h4>
             <p className="text-sm text-muted-foreground font-sans leading-relaxed">
-              Casablanca, Maroc
+              Tantan, Maroc
             </p>
             <a
               href="https://wa.me/212679697964"
@@ -28,7 +28,7 @@ export const Footer = () => {
               {t("nav.expositions")}
             </Link>
             <a
-              href="https://instagram.com"
+              href="https://www.instagram.com/rabab.atelier?igsh=MTd5ZGZ6MnhzaGZoOA=="
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-gold transition-colors duration-500"
