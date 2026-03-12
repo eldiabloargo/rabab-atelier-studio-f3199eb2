@@ -1,9 +1,10 @@
 import { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
-import heroImage from "@/assets/hero-sculpture.jpg";
+import { Link } from "react-router-dom"; // ضروري باش نتحولو لصفحة جديدة
+import { Palette } from "lucide-react"; // آيكون زوينة للطلب الخاص
 
 export const Hero = () => {
-  const { t } = useLanguage();
+  const { t, isArabic } = useLanguage();
 
   return (
     <section className="relative min-h-screen flex flex-col items-center justify-center px-6">
@@ -13,25 +14,20 @@ export const Hero = () => {
         transition={{ duration: 1.5, ease: "easeOut" }}
         className="relative w-full max-w-3xl mx-auto"
       >
-        
-<div className="relative w-full max-w-lg mx-auto flex justify-center">
- 
-  <div className="relative overflow-hidden rounded-xl shadow-sm">
-    <img 
-      src="https://i.supaimg.com/23bbe892-53d3-41aa-b696-dcdb610fd822/83b7d020-9045-4460-b6a0-330c267a7fe1.png" 
-      className="object-contain w-full h-auto block" 
-      style={{
-       
-        maskImage: 'linear-gradient(to bottom, black 95%, transparent 100%), linear-gradient(to right, transparent, black 2%, black 98%, transparent)',
-        WebkitMaskImage: 'linear-gradient(to bottom, black 95%, transparent 100%), linear-gradient(to right, transparent, black 2%, black 98%, transparent)',
-      }}
-      alt="Rabab Atelier 3D Artwork"
-    />
-    
-   
-    <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-background to-transparent opacity-40 pointer-events-none" />
-  </div>
-</div>
+        <div className="relative w-full max-w-lg mx-auto flex justify-center">
+          <div className="relative overflow-hidden rounded-xl shadow-sm">
+            <img 
+              src="https://i.supaimg.com/23bbe892-53d3-41aa-b696-dcdb610fd822/83b7d020-9045-4460-b6a0-330c267a7fe1.png" 
+              className="object-contain w-full h-auto block" 
+              style={{
+                maskImage: 'linear-gradient(to bottom, black 95%, transparent 100%), linear-gradient(to right, transparent, black 2%, black 98%, transparent)',
+                WebkitMaskImage: 'linear-gradient(to bottom, black 95%, transparent 100%), linear-gradient(to right, transparent, black 2%, black 98%, transparent)',
+              }}
+              alt="Rabab Atelier 3D Artwork"
+            />
+            <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-background to-transparent opacity-40 pointer-events-none" />
+          </div>
+        </div>
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -52,7 +48,7 @@ export const Hero = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1, delay: 1.2 }}
-        className="mt-16 flex flex-wrap justify-center gap-x-8 gap-y-2 text-sm tracking-widest uppercase text-muted-foreground font-sans"
+        className="mt-16 flex flex-wrap justify-center gap-x-8 gap-y-4 text-sm tracking-widest uppercase text-muted-foreground font-sans"
       >
         <a href="#artisane" className="hover:text-gold transition-colors duration-500">
           {t("nav.artisane")}
@@ -63,6 +59,15 @@ export const Hero = () => {
         <a href="#collection" className="hover:text-gold transition-colors duration-500">
           {t("nav.collection")}
         </a>
+        
+        {/* الزر الجديد ديال Sur Mesure */}
+        <Link 
+          to="/sur-mesure" 
+          className="flex items-center gap-2 text-gold font-medium border-b border-gold/30 pb-1 hover:border-gold transition-all duration-500"
+        >
+          <Palette className="w-4 h-4" />
+          {isArabic ? "طلب خاص" : "Sur Mesure"}
+        </Link>
       </motion.nav>
     </section>
   );
