@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { ArrowLeft, MessageCircle } from "lucide-react";
+import { ArrowLeft, Eye } from "lucide-react";
 
 interface Product {
   id: string;
@@ -27,8 +27,6 @@ const CategoryPage = () => {
   const [loading, setLoading] = useState(true);
   const { t, isArabic } = useLanguage();
 
-  // هاد الدالة كتحول الرابط لسمية عادية باش تقلب فـ الداتابيز
-  // مثلا "gift-box" كتولي "Gift Box"
   const formatSlug = (s: string) => {
     if (!s) return "";
     return s.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
@@ -39,48 +37,33 @@ const CategoryPage = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       if (!categoryName) { setLoading(false); return; }
-      
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from("products")
         .select("*")
-        .ilike("category", categoryName) // بحث ذكي بلا ما يهم واش الحروف كبيرة ولا صغيرة
+        .ilike("category", categoryName)
         .order("created_at", { ascending: false });
-
       if (data) setProducts(data as unknown as Product[]);
       setLoading(false);
     };
     fetchProducts();
-  }, [categoryName, slug]);
+  }, [categoryName]);
 
   const getTitle = (p: Product) => (isArabic && p.title_ar ? p.title_ar : p.title);
-  const getDesc = (p: Product) => (isArabic && p.description_ar ? p.description_ar : p.description);
-
-  // حافظت ليك على نفس ميساج الواتساب لي عجبك
-  const getWhatsAppUrl = (name: string) => {
-    const msg = isArabic
-      ? `السلام عليكم، عجبتني هاد التحفة ${name} وبغيت نعرف مزيد من التفاصيل عليها من فضلك.`
-      : `Bonjour, je suis intéressé(e) par la pièce ${name}. J'aimerais avoir plus de détails.`;
-    return `https://wa.me/212679697964?text=${encodeURIComponent(msg)}`;
-  };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full"
-        />
+        <div className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
     <main className="min-h-screen bg-background">
-      <div className="max-w-4xl mx-auto px-6 py-20">
+      <div className="max-w-6xl mx-auto px-6 py-20">
         <Link
           to="/#collection"
-          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-gold transition-colors mb-12 tracking-widest uppercase font-sans"
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-gold transition-colors mb-12 uppercase font-sans tracking-widest"
         >
           <ArrowLeft className="w-4 h-4" />
           {t("category.back")}
@@ -89,10 +72,8 @@ const CategoryPage = () => {
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="text-3xl md:text-4xl font-serif text-gold-gradient text-center mb-16"
+          className="text-3xl md:text-5xl font-serif text-gold-gradient text-center mb-16"
         >
-          {/* هنا كيطلع العنوان لي جاي من الرابط أوتوماتيكيا */}
           {categoryName}
         </motion.h1>
 
@@ -101,11 +82,9 @@ const CategoryPage = () => {
             {t("category.empty")}
           </p>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {products.map((item) => {
               const title = getTitle(item);
-              const desc = getDesc(item);
-
               return (
                 <motion.div
                   key={item.id}
@@ -114,37 +93,32 @@ const CategoryPage = () => {
                   whileInView="visible"
                   viewport={{ once: true }}
                   transition={{ duration: 0.6 }}
-                  className="group"
                 >
-                  <div className="luxury-card overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-500">
-                    <div className="aspect-square overflow-hidden">
-                      <img
-                        src={item.image_url || "/placeholder.svg"}
-                        alt={title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                        loading="lazy"
-                      />
-                    </div>
-                    <div className="p-4 space-y-2 bg-card">
-                      <h3 className="font-serif text-foreground text-sm">{title}</h3>
-                      {desc && (
-                        <p className="text-xs text-muted-foreground font-sans line-clamp-2">{desc}</p>
-                      )}
-                      <div className="flex items-center justify-between pt-1">
-                        <span className="text-xs tracking-wider uppercase text-muted-foreground font-sans">
+                  {/* هنا فين زدنا الـ Link لي كيدي لـ ID البروداكت */}
+                  <Link to={`/product/${item.id}`} className="group block">
+                    <div className="luxury-card overflow-hidden bg-card rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 border border-gold/5">
+                      <div className="aspect-[4/5] overflow-hidden relative">
+                        <img
+                          src={item.image_url || "/placeholder.svg"}
+                          alt={title}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                          loading="lazy"
+                        />
+                        {/* Overlay كيبان فـ Hover */}
+                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <div className="bg-white/90 p-3 rounded-full text-gold scale-75 group-hover:scale-100 transition-transform duration-500">
+                            <Eye className="w-6 h-6" />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="p-4 space-y-2 text-center">
+                        <h3 className="font-serif text-foreground text-sm md:text-base line-clamp-1">{title}</h3>
+                        <p className="text-xs md:text-sm font-sans text-gold tracking-wider">
                           {item.price || t("collection.onDemand")}
-                        </span>
-                        <a
-                          href={getWhatsAppUrl(title)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-gold hover:text-gold-dark transition-colors"
-                        >
-                          <MessageCircle className="w-4 h-4" />
-                        </a>
+                        </p>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 </motion.div>
               );
             })}
