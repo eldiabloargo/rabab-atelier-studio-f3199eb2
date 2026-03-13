@@ -22,7 +22,7 @@ const CATEGORIES = [
     slug: "cadeaux-de-naissance",
     labelKey: "cat.naissance",
     introKey: "cat.naissance.intro",
-    fallbackImage: sculpture1,
+    fallbackImage: sculpture1, // هادي هي الصورة اللي غاتبقى ديما
   },
   {
     key: "Décorations du Ramadan",
@@ -62,10 +62,7 @@ export const Collection = () => {
     fetchProducts();
   }, []);
 
-  const getCategoryImage = (cat: typeof CATEGORIES[0]) => {
-    const product = products.find((p) => p.category === cat.key && p.image_url);
-    return product?.image_url || cat.fallbackImage;
-  };
+  // حيدنا الدالة القديمة getCategoryImage باش نخدمو بـ fallbackImage ديما
 
   const next = () => setActiveIndex((i) => (i + 1) % CATEGORIES.length);
   const prev = () => setActiveIndex((i) => (i - 1 + CATEGORIES.length) % CATEGORIES.length);
@@ -133,12 +130,12 @@ export const Collection = () => {
                         <div
                           className={`overflow-hidden rounded-full border-2 shadow-lg transition-all duration-500 ${
                             isActive
-                              ? "w-44 h-44 md:w-56 md:h-56 border-gold"
-                              : "w-32 h-32 md:w-40 md:h-40 border-border"
+                              ? "w-64 h-64 md:w-80 md:h-80 border-gold shadow-gold/20" // كبرنا الدوائر هنا
+                              : "w-40 h-40 md:w-48 md:h-48 border-border"
                           }`}
                         >
                           <img
-                            src={getCategoryImage(cat)}
+                            src={cat.fallbackImage} // التصويرة غاتبقى ديما هي اللي محطوطة ف Assets
                             alt={t(cat.labelKey)}
                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                           />
