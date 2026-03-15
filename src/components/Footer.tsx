@@ -1,4 +1,3 @@
-export const Footer = () => {
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Link } from "react-router-dom";
 import { Instagram, MessageCircle, MapPin, Phone } from "lucide-react";
