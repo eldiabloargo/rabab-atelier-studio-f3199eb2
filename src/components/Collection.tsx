@@ -50,10 +50,10 @@ export const Collection = () => {
         
         <header className="mb-24 text-center">
           <motion.span className="text-[10px] font-bold text-amber-700 uppercase tracking-[0.6em] block mb-4">
-            {isArabic ? "COLLECTION"}
+            {"COLLECTION"}
           </motion.span>
           <h2 className="text-5xl md:text-7xl font-serif text-stone-900 tracking-tighter italic">
-            Atelier Rabab
+            Rabab Atelier 
           </h2>
         </header>
 
@@ -111,7 +111,7 @@ export const Collection = () => {
                               {isArabic ? col.ar : col.en}
                             </h3>
                             <span className="text-amber-200 text-[10px] font-bold uppercase tracking-[0.4em]">
-                              {isArabic ? "ادخل الآن" : "Step Inside"}
+                              {isArabic ? "ادخل الآن" : "VOIR"}
                             </span>
                           </div>
                         </motion.div>
