@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+Import React, { createContext, useContext, useState, useEffect } from 'react';
 
+// التعريف التقني للمنتج داخل السلة
 export interface CartItem {
   id: string;
   title: string;
@@ -28,11 +29,13 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [items, setItems] = useState<CartItem[]>([]);
 
+  // Load from LocalStorage
   useEffect(() => {
     const saved = localStorage.getItem('rabab_cart');
     if (saved) setItems(JSON.parse(saved));
   }, []);
 
+  // Save to LocalStorage
   useEffect(() => {
     localStorage.setItem('rabab_cart', JSON.stringify(items));
   }, [items]);
@@ -55,7 +58,8 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const updateQuantity = (id: string, hex: string, delta: number) => {
     setItems(prev => prev.map(i => {
       if (i.id === id && i.selectedColor.hex === hex) {
-        return { ...i, quantity: Math.max(1, i.quantity + delta) };
+        const newQty = Math.max(1, i.quantity + delta);
+        return { ...i, quantity: newQty };
       }
       return i;
     }));
@@ -75,4 +79,4 @@ export const useCart = () => {
   const context = useContext(CartContext);
   if (!context) throw new Error("useCart must be used within CartProvider");
   return context;
-};
+}; 
