@@ -1,22 +1,22 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { Toaster as Sonner } from "@/components/ui/sonner";
+import { Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { CartProvider } from "@/contexts/CartContext"; 
 import { lazy, Suspense } from "react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
-import { Navbar } from "@/components/Navbar"; // تأكد أن هاد الملف موجود فـ src/components/Navbar.tsx
+import { Navbar } from "@/components/Navbar";
 
-// Lazy loading components
-const Index = lazy(() => import("./pages/Index"));
-const ProductDetail = lazy(() => import("./pages/ProductDetail"));
-const Admin = lazy(() => import("./pages/Admin"));
-const Infos = lazy(() => import("./pages/Infos"));
-const Expositions = lazy(() => import("./pages/Expositions"));
-const CategoryPage = lazy(() => import("./pages/CategoryPage"));
-const SurMesure = lazy(() => import("./pages/SurMesure"));
+// ✅ تصحيح الـ Lazy Loading ليناسب الـ Named Exports
+const Index = lazy(() => import("./pages/Index")); // هذا غالباً فيه export default Index
+const CategoryPage = lazy(() => import("./pages/CategoryPage").then(module => ({ default: module.CategoryPage })));
+const ProductDetail = lazy(() => import("./pages/ProductDetail").then(module => ({ default: module.ProductDetail })));
+const Admin = lazy(() => import("./pages/Admin").then(module => ({ default: module.Admin })));
+const Infos = lazy(() => import("./pages/Infos").then(module => ({ default: module.Infos })));
+const Expositions = lazy(() => import("./pages/Expositions").then(module => ({ default: module.Expositions })));
+const SurMesure = lazy(() => import("./pages/SurMesure").then(module => ({ default: module.SurMesure })));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -29,9 +29,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            {/* Navbar appearing on all pages */}
             <Navbar /> 
-
             <Suspense fallback={<LoadingSpinner />}>
               <Routes>
                 <Route path="/" element={<Index />} />
