@@ -8,7 +8,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { CartProvider } from "@/contexts/CartContext"; // 1. استيراد الكارط بروفايدر
 import { lazy, Suspense } from "react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
-import { Navlink} from ""@/components/Navlink";
+
 
 // Lazy loading components
 const Index = lazy(() => import("./pages/Index"));
