@@ -1,117 +1,124 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useMotionValue } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-const COLLECTIONS_CONFIG = [
-  { id: "cadeau-de-naissance", en: "Cadeau de Naissance", ar: "هدايا المواليد" },
-  { id: "decorations-de-ramadan", en: "Décorations de Ramadan", ar: "زينة رمضان" },
-  { id: "gift-box", en: "Gift Box", ar: "صناديق الهدايا" }
-];
-
 export const Collection = () => {
   const { isArabic } = useLanguage();
-  const [collectionImages, setCollectionImages] = useState<Record<string, string>>({});
+  const [categories, setCategories] = useState<any[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
 
+  // جلب الكاتيغوريز أوتوماتيكياً من الداتاباز
   useEffect(() => {
-    const fetchLatestImages = async () => {
-      const { data } = await supabase
-        .from("products")
-        .select("category, image_url")
-        .in("category", COLLECTIONS_CONFIG.map(c => c.en))
-        .order("created_at", { ascending: false });
+    const fetchCategories = async () => {
+      const { data, error } = await supabase
+        .from("categories")
+        .select("*")
+        .order("name", { ascending: true });
 
-      if (data) {
-        const images: Record<string, string> = {};
-        data.forEach(item => {
-          if (item.category && !images[item.category]) {
-            images[item.category] = item.image_url || "";
-          }
-        });
-        setCollectionImages(images);
+      if (!error && data) {
+        setCategories(data);
       }
+      setLoading(false);
     };
-    fetchLatestImages();
+    fetchCategories();
   }, []);
 
-  // سيستيم الـ Auto-Scroll: كل 4 ثواني كتبدل الكوليكشن
+  // سيستيم الـ Auto-Scroll مع إمكانية التوقيف عند التفاعل
   useEffect(() => {
+    if (categories.length === 0) return;
     const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % COLLECTIONS_CONFIG.map(c => c.en).length);
-    }, 4000);
+      setCurrentIndex((prev) => (prev + 1) % categories.length);
+    }, 5000); // 5 ثواني باش الكليان يلحق يشوف
     return () => clearInterval(timer);
-  }, []);
+  }, [categories]);
+
+  // دالة لتغيير السلايد يدوياً (عن طريق الضغط أو السحب مستقبلاً)
+  const handleNext = () => setCurrentIndex((prev) => (prev + 1) % categories.length);
+  const handlePrev = () => setCurrentIndex((prev) => (prev - 1 + categories.length) % categories.length);
+
+  if (loading || categories.length === 0) return null;
 
   return (
-    <section id="collection" className="py-32 bg-white overflow-hidden">
+    <section id="collection" className="py-24 bg-white overflow-hidden select-none">
       <div className="max-w-7xl mx-auto px-6">
-        
-        <header className="mb-24 text-center">
-          <motion.span className="text-[10px] font-bold text-amber-700 uppercase tracking-[0.6em] block mb-4">
-            {"COLLECTION"}
+
+        <header className="mb-16 text-center">
+          <motion.span 
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            className="text-[10px] font-black text-amber-700 uppercase tracking-[0.6em] block mb-4"
+          >
+            {isArabic ? "المجموعات" : "COLLECTIONS"}
           </motion.span>
-          <h2 className="text-5xl md:text-7xl font-serif text-stone-900 tracking-tighter italic">
-            Rabab Atelier 
+          <h2 className="text-4xl md:text-6xl font-serif text-stone-900 tracking-tighter italic">
+            L'Art de Vivre
           </h2>
         </header>
 
-        {/* Container ديال السلايدر */}
-        <div className="relative flex justify-center items-center h-[500px]">
+        {/* السلايدر الديناميكي */}
+        <div className="relative flex justify-center items-center h-[450px] md:h-[550px]">
           <AnimatePresence mode="popLayout">
-            {COLLECTIONS_CONFIG.map((col, index) => {
-              // حساب الـ Position بالنسبة للدائرة اللي في الوسط
-              const position = (index - currentIndex + COLLECTIONS_CONFIG.length) % COLLECTIONS_CONFIG.length;
+            {categories.map((cat, index) => {
+              const position = (index - currentIndex + categories.length) % categories.length;
               
-              // كنبينو غير اللي في الوسط (0)، واليمن (1)، واليسار (2)
+              // الحسابات باش تبان الدائرة فـ الوسط والخرين فـ الجناب
               const isCenter = position === 0;
-              const isRight = position === 1;
-              const isLeft = position === 2;
+              const isNext = position === 1;
+              const isPrev = position === categories.length - 1;
 
-              if (!isCenter && !isRight && !isLeft) return null;
+              // كنبينو فقط 3 دوائر باش الصفحة تبقى خفيفة ومرتبة
+              if (!isCenter && !isNext && !isPrev) return null;
 
               return (
                 <motion.div
-                  key={col.id}
-                  initial={{ opacity: 0, x: isRight ? 200 : -200, scale: 0.5 }}
+                  key={cat.id}
+                  drag="x" // إمكانية السحب باليد
+                  dragConstraints={{ left: 0, right: 0 }}
+                  onDragEnd={(_, info) => {
+                    if (info.offset.x > 50) handlePrev();
+                    if (info.offset.x < -50) handleNext();
+                  }}
+                  initial={{ opacity: 0, scale: 0.8, x: isNext ? 300 : -300 }}
                   animate={{ 
-                    opacity: isCenter ? 1 : 0.3, 
-                    x: isCenter ? 0 : (isRight ? 350 : -350), 
-                    scale: isCenter ? 1 : 0.6,
-                    zIndex: isCenter ? 10 : 0,
-                    filter: isCenter ? "blur(0px)" : "blur(4px)"
+                    opacity: isCenter ? 1 : 0.35, 
+                    x: isCenter ? 0 : (isNext ? (window.innerWidth > 768 ? 400 : 250) : (window.innerWidth > 768 ? -400 : -250)), 
+                    scale: isCenter ? 1 : 0.5,
+                    zIndex: isCenter ? 20 : 10,
+                    filter: isCenter ? "blur(0px)" : "blur(2px)"
                   }}
                   exit={{ opacity: 0, scale: 0.5 }}
-                  transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-                  className="absolute"
+                  transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                  className="absolute cursor-grab active:cursor-grabbing"
                 >
                   <Link 
-                    to={`/category/${col.id}`} 
-                    className={`block aspect-square w-[300px] md:w-[450px] overflow-hidden rounded-full border-[15px] transition-all duration-700
-                      ${isCenter ? 'border-stone-50 shadow-2xl' : 'border-transparent cursor-default pointer-events-none'}`}
+                    to={`/category/${cat.name.toLowerCase().replace(/\s+/g, '-')}`} 
+                    className={`block aspect-square w-[280px] md:w-[480px] overflow-hidden rounded-full border-[12px] md:border-[20px] transition-all duration-700
+                      ${isCenter ? 'border-stone-50 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)]' : 'border-transparent pointer-events-none'}`}
                   >
-                    <div className="relative w-full h-full">
+                    <div className="relative w-full h-full group">
                       <img
-                        src={collectionImages[col.en] || "/placeholder.svg"}
-                        alt={col.en}
-                        className="w-full h-full object-cover"
+                        src={cat.image_url || "/placeholder.svg"}
+                        alt={cat.name}
+                        className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110"
                       />
-                      
-                      {/* الكتابة كتبان غير في الدائرة اللي في الوسط */}
+
+                      {/* معلومات الكاتيغوري (فرنسية/عربية) */}
                       {isCenter && (
                         <motion.div 
                           initial={{ opacity: 0 }} 
                           animate={{ opacity: 1 }}
-                          transition={{ delay: 0.5 }}
-                          className="absolute inset-0 bg-stone-900/30 flex flex-col items-center justify-center text-center p-8"
+                          className="absolute inset-0 bg-stone-900/20 flex flex-col items-center justify-center text-center p-8 backdrop-blur-[1px]"
                         >
-                          <div className="border-y border-white/30 py-6 w-full backdrop-blur-[2px]">
-                            <h3 className="text-white text-2xl md:text-4xl font-serif mb-2 tracking-wide">
-                              {isArabic ? col.ar : col.en}
+                          <div className="space-y-2 translate-y-4">
+                            <h3 className="text-white text-2xl md:text-4xl font-serif tracking-tight">
+                              {cat.name}
                             </h3>
-                            <span className="text-amber-200 text-[10px] font-bold uppercase tracking-[0.4em]">
-                              {isArabic ? "ادخل الآن" : "VOIR"}
+                            <div className="w-10 h-[1px] bg-amber-400 mx-auto opacity-60" />
+                            <span className="text-amber-100 text-[9px] font-black uppercase tracking-[0.5em] block pt-2">
+                              {isArabic ? "اكتشف" : "DÉCOUVRIR"}
                             </span>
                           </div>
                         </motion.div>
@@ -124,14 +131,21 @@ export const Collection = () => {
           </AnimatePresence>
         </div>
 
-        {/* Indicator ديال السلايدر تحت الدوائر */}
-        <div className="flex justify-center gap-3 mt-12">
-          {COLLECTIONS_CONFIG.map((_, i) => (
-            <div 
-              key={i}
-              className={`h-1 transition-all duration-500 rounded-full ${i === currentIndex ? 'w-8 bg-amber-700' : 'w-2 bg-stone-200'}`}
-            />
-          ))}
+        {/* Indicators & Manual Controls */}
+        <div className="flex flex-col items-center gap-8 mt-8">
+          <div className="flex justify-center gap-3">
+            {categories.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrentIndex(i)}
+                className={`h-1.5 transition-all duration-500 rounded-full ${i === currentIndex ? 'w-10 bg-amber-700' : 'w-2 bg-stone-200'}`}
+              />
+            ))}
+          </div>
+          
+          <p className="text-[10px] text-stone-400 font-bold uppercase tracking-widest animate-pulse">
+            {isArabic ? "اسحب للتنقل" : "Glissez pour explorer"}
+          </p>
         </div>
       </div>
     </section>
