@@ -26,4 +26,3 @@ const NavLink = forwardRef<HTMLAnchorElement, NavLinkCompatProps>(
 NavLink.displayName = "NavLink";
 
 export { NavLink }; 
-ها الكود لي فيها دبا شوف بغيت سلة تكون من داكشي الرفيع والخرجة ديالها من للجنب تكون نقية
