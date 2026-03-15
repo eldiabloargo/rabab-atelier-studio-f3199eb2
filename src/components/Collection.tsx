@@ -14,7 +14,7 @@ interface Product {
   category: string | null;
 }
 
-const Collection = () => {
+export const Collection = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const { isArabic } = useLanguage();
