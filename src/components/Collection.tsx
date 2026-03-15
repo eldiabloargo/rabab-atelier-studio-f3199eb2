@@ -1,191 +1,140 @@
-import { motion } from "framer-motion";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
+import { motion } from "motion/react"; // استعملت motion/react كيفما العادة
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Link } from "react-router-dom";
-import sculpture1 from "@/assets/sculpture-1.jpg";
-import sculpture2 from "@/assets/sculpture-2.jpg";
-import sculpture3 from "@/assets/sculpture-3.jpg";
+import { ArrowLeft, Plus } from "lucide-react";
 
 interface Product {
   id: string;
   title: string;
   title_ar: string | null;
+  price: string | null;
   image_url: string | null;
   category: string | null;
 }
 
-const CATEGORIES = [
-  {
-    key: "Cadeaux de naissance",
-    slug: "cadeaux-de-naissance",
-    labelKey: "cat.naissance",
-    introKey: "cat.naissance.intro",
-    fallbackImage: sculpture1, // هادي هي الصورة اللي غاتبقى ديما
-  },
-  {
-    key: "Décorations du Ramadan",
-    slug: "decorations-du-ramadan",
-    labelKey: "cat.ramadan",
-    introKey: "cat.ramadan.intro",
-    fallbackImage: sculpture2,
-  },
-  {
-    key: "Gift Box",
-    slug: "gift-box",
-    labelKey: "cat.giftbox",
-    introKey: "cat.giftbox.intro",
-    fallbackImage: sculpture3,
-  },
-];
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0 },
-};
-
-export const Collection = () => {
+const CategoryPage = () => {
+  const { slug } = useParams<{ slug: string }>();
   const [products, setProducts] = useState<Product[]>([]);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const { t, isArabic } = useLanguage();
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [loading, setLoading] = useState(true);
+  const { isArabic } = useLanguage();
+
+  const formatSlug = (s: string) => {
+    if (!s) return "";
+    return s.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  };
+
+  const categoryName = slug ? formatSlug(slug) : "";
 
   useEffect(() => {
     const fetchProducts = async () => {
+      if (!categoryName) { setLoading(false); return; }
       const { data } = await supabase
         .from("products")
-        .select("id, title, title_ar, image_url, category")
+        .select("*")
+        .ilike("category", categoryName)
         .order("created_at", { ascending: false });
-      if (data) setProducts(data as unknown as Product[]);
+      if (data) setProducts(data as any);
+      setLoading(false);
     };
     fetchProducts();
-  }, []);
+  }, [categoryName]);
 
-  // حيدنا الدالة القديمة getCategoryImage باش نخدمو بـ fallbackImage ديما
+  const getTitle = (p: Product) => (isArabic && p.title_ar ? p.title_ar : p.title);
 
-  const next = () => setActiveIndex((i) => (i + 1) % CATEGORIES.length);
-  const prev = () => setActiveIndex((i) => (i - 1 + CATEGORIES.length) % CATEGORIES.length);
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="w-6 h-6 border-2 border-stone-900 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
-    <section id="collection" className="py-32 px-6 bg-background overflow-hidden">
-      <div className="max-w-4xl mx-auto">
-        <motion.h2
-          variants={fadeUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 1, ease: "easeOut" }}
-          className="text-3xl md:text-4xl font-serif text-gold-gradient mb-6 text-center"
+    <main className={`min-h-screen bg-white pb-20 ${isArabic ? 'text-right' : 'text-left'}`} dir={isArabic ? 'rtl' : 'ltr'}>
+      <div className="max-w-6xl mx-auto px-6 pt-24">
+        
+        {/* Back Button - Minimal App Style */}
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 text-[10px] font-bold text-stone-400 hover:text-stone-900 transition-all uppercase tracking-[0.2em] mb-12"
         >
-          {t("collection.title")}
-        </motion.h2>
+          <ArrowLeft className={`w-4 h-4 ${isArabic ? 'rotate-180' : ''}`} />
+          {isArabic ? "الرجوع للرئيسية" : "Back Home"}
+        </Link>
 
-        <motion.p
-          variants={fadeUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-center text-muted-foreground font-sans text-sm mb-16 max-w-md mx-auto"
-        >
-          {isArabic ? "اكتشفوا مجموعاتنا الفريدة" : "Découvrez nos collections uniques"}
-        </motion.p>
+        {/* Category Title - Elegant & Subtle */}
+        <header className="mb-16 text-center space-y-2">
+          <motion.h1
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-3xl md:text-4xl font-bold font-serif text-stone-900 tracking-tight"
+          >
+            {categoryName}
+          </motion.h1>
+          <div className="h-1 w-12 bg-amber-600 mx-auto rounded-full" />
+        </header>
 
-        {/* Circular Carousel */}
-        <div className="relative" ref={containerRef}>
-          <div className="flex items-center justify-center gap-6 md:gap-12">
-            {/* Left arrow */}
-            <button
-              onClick={prev}
-              className="flex-shrink-0 w-10 h-10 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:text-gold hover:border-gold transition-all duration-300"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-
-            {/* Carousel items */}
-            <div className="flex items-center justify-center gap-6 md:gap-10">
-              {CATEGORIES.map((cat, index) => {
-                const isActive = index === activeIndex;
-                const distance = Math.abs(index - activeIndex);
-
-                return (
-                  <motion.div
-                    key={cat.key}
-                    animate={{
-                      scale: isActive ? 1 : 0.75,
-                      opacity: isActive ? 1 : distance > 1 ? 0.3 : 0.5,
-                    }}
-                    transition={{ duration: 0.5, ease: "easeOut" }}
-                    className={`flex flex-col items-center ${isActive ? "z-10" : "z-0"} ${
-                      !isActive ? "hidden md:flex" : ""
-                    }`}
-                  >
-                    <p className="text-sm font-serif text-foreground mb-4 text-center tracking-wide">
-                      {t(cat.labelKey)}
-                    </p>
-
-                    <Link to={`/category/${cat.slug}`}>
-                      <div className="relative group cursor-pointer">
-                        <div
-                          className={`overflow-hidden rounded-full border-2 shadow-lg transition-all duration-500 ${
-                            isActive
-                              ? "w-64 h-64 md:w-80 md:h-80 border-gold shadow-gold/20" // كبرنا الدوائر هنا
-                              : "w-40 h-40 md:w-48 md:h-48 border-border"
-                          }`}
-                        >
-                          <img
-                            src={cat.fallbackImage} // التصويرة غاتبقى ديما هي اللي محطوطة ف Assets
-                            alt={t(cat.labelKey)}
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                          />
+        {products.length === 0 ? (
+          <div className="py-20 text-center space-y-4">
+            <p className="text-stone-400 font-light italic">
+              {isArabic ? "لا توجد منتجات في هذا القسم حالياً" : "No products in this category yet"}
+            </p>
+          </div>
+        ) : (
+          /* Grid - 2 columns on mobile, 3/4 on desktop */
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
+            {products.map((item) => {
+              const title = getTitle(item);
+              return (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <Link to={`/product/${item.id}`} className="group block">
+                    {/* Card Container */}
+                    <div className="bg-white rounded-[2.2rem] p-2 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-stone-50 transition-all duration-500 hover:shadow-[0_10px_30px_rgba(0,0,0,0.05)]">
+                      
+                      {/* Image - App Style Ratio */}
+                      <div className="aspect-[4/5] rounded-[1.8rem] overflow-hidden bg-stone-100 relative">
+                        <img
+                          src={item.image_url || "/placeholder.svg"}
+                          alt={title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                          loading="lazy"
+                        />
+                        
+                        {/* Quick Add Button - App UI Style */}
+                        <div className="absolute bottom-3 right-3 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                           <div className="bg-white p-2 rounded-full shadow-lg text-stone-900 border border-stone-100">
+                              <Plus className="w-4 h-4" />
+                           </div>
                         </div>
-                        {/* Animated arrow */}
-                        {isActive && (
-                          <motion.div
-                            animate={{ y: [0, 6, 0] }}
-                            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                            className="absolute -bottom-8 left-1/2 -translate-x-1/2"
-                          >
-                            <svg width="20" height="12" viewBox="0 0 20 12" className="text-gold">
-                              <path d="M1 1L10 10L19 1" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" />
-                            </svg>
-                          </motion.div>
-                        )}
                       </div>
-                    </Link>
 
-                    <p className="text-xs text-muted-foreground font-sans italic mt-10 max-w-[180px] text-center leading-relaxed">
-                      {t(cat.introKey)}
-                    </p>
-                  </motion.div>
-                );
-              })}
-            </div>
-
-            {/* Right arrow */}
-            <button
-              onClick={next}
-              className="flex-shrink-0 w-10 h-10 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:text-gold hover:border-gold transition-all duration-300"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
+                      {/* Content - Small & Premium Typography */}
+                      <div className="p-4 space-y-1 text-center">
+                        <h3 className="text-[13px] font-medium text-stone-900 tracking-tight line-clamp-1">
+                          {title}
+                        </h3>
+                        <p className="text-[11px] font-bold text-amber-900 tracking-wide">
+                          {item.price ? `${item.price} DH` : (isArabic ? "عند الطلب" : "On Demand")}
+                        </p>
+                      </div>
+                    </div>
+                  </Link>
+                </motion.div>
+              );
+            })}
           </div>
-
-          {/* Dots indicator */}
-          <div className="flex justify-center gap-2 mt-12">
-            {CATEGORIES.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setActiveIndex(index)}
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                  index === activeIndex ? "bg-gold w-6" : "bg-border"
-                }`}
-              />
-            ))}
-          </div>
-        </div>
+        )}
       </div>
-    </section>
+    </main>
   );
 };
+
+export default CategoryPage;
