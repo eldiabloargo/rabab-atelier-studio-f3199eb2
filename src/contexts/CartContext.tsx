@@ -1,4 +1,4 @@
-Import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 // التعريف التقني للمنتج داخل السلة
 export interface CartItem {
@@ -29,19 +29,26 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [items, setItems] = useState<CartItem[]>([]);
 
-  // Load from LocalStorage
+  // تحميل البيانات من LocalStorage عند بداية التشغيل
   useEffect(() => {
     const saved = localStorage.getItem('rabab_cart');
-    if (saved) setItems(JSON.parse(saved));
+    if (saved) {
+      try {
+        setItems(JSON.parse(saved));
+      } catch (e) {
+        console.error("Error parsing cart data:", e);
+      }
+    }
   }, []);
 
-  // Save to LocalStorage
+  // حفظ البيانات في LocalStorage عند كل تغيير
   useEffect(() => {
     localStorage.setItem('rabab_cart', JSON.stringify(items));
   }, [items]);
 
   const addToCart = (newItem: CartItem) => {
     setItems(prev => {
+      // التأكد واش البرودوي ديجا كاين بنفس الـ ID ونفس اللون
       const existing = prev.find(i => i.id === newItem.id && i.selectedColor.hex === newItem.selectedColor.hex);
       if (existing) {
         return prev.map(i => (i.id === newItem.id && i.selectedColor.hex === newItem.selectedColor.hex) 
@@ -66,6 +73,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const clearCart = () => setItems([]);
+  
   const total = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
   return (
@@ -77,6 +85,8 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
 export const useCart = () => {
   const context = useContext(CartContext);
-  if (!context) throw new Error("useCart must be used within CartProvider");
+  if (!context) {
+    throw new Error("useCart must be used within a CartProvider");
+  }
   return context;
-}; 
+};
