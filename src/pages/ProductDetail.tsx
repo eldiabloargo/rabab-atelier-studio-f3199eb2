@@ -11,7 +11,7 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
-// تعريف الـ Type باش الكود يكون نقي
+// التعريف الخاص بالبيانات
 interface Product {
   id: string;
   title: string;
@@ -25,7 +25,7 @@ interface Product {
   images_gallery: string[];
   video_url?: string;
   category: string;
-  colors?: string[]; // مصفوفة الألوان مثلاً ["#FF0000", "#000000"]
+  colors?: string[];
 }
 
 const ProductDetail = () => {
@@ -41,7 +41,6 @@ const ProductDetail = () => {
       const { data } = await supabase.from("products").select("*").eq("id", id).single();
       if (data) {
         setProduct(data);
-        // اختيار أول لون تلقائياً إذا وجد
         if (data.colors && data.colors.length > 0) setSelectedColor(data.colors[0]);
       }
       setLoading(false);
@@ -55,7 +54,7 @@ const ProductDetail = () => {
     </div>
   );
 
-  if (!product) return <div className="text-center py-20 font-sans">Produit introuvable</div>;
+  if (!product) return <div className="text-center py-20 font-sans italic text-stone-400">Produit introuvable</div>;
 
   const allMedia = [
     { type: 'image', url: product.image_url },
@@ -67,11 +66,10 @@ const ProductDetail = () => {
   const shortDesc = isArabic && product.description_ar ? product.description_ar : product.description;
   const fullDesc = isArabic && product.full_description_ar ? product.full_description_ar : product.full_description;
 
-  // إرسال الطلب مع اللون المختار
   const handleWhatsAppOrder = () => {
     const message = isArabic 
-      ? `السلام عليكم، مهتم بطلب: ${title} ${selectedColor ? `بألوان: ${selectedColor}` : ''}`
-      : `Bonjour, je suis intéressé par: ${title} ${selectedColor ? `(Couleur: ${selectedColor})` : ''}`;
+      ? `السلام عليكم، أريد طلب: ${title} ${selectedColor ? `(اللون: ${selectedColor})` : ''}`
+      : `Bonjour, je souhaite commander: ${title} ${selectedColor ? `(Couleur: ${selectedColor})` : ''}`;
     window.open(`https://wa.me/212679697964?text=${encodeURIComponent(message)}`, "_blank");
   };
 
@@ -79,35 +77,37 @@ const ProductDetail = () => {
     <main className={`min-h-screen bg-[#fafaf9] pb-20 font-sans ${isArabic ? 'text-right' : 'text-left'}`} dir={isArabic ? 'rtl' : 'ltr'}>
       <div className="max-w-7xl mx-auto px-4 md:px-8 pt-24">
         
-        <button onClick={() => navigate(-1)} className="group flex items-center gap-2 text-stone-500 hover:text-stone-900 mb-8 transition-all font-medium">
-          <ArrowLeft className={`w-5 h-5 transition-transform group-hover:-translate-x-1 ${isArabic ? 'rotate-180 group-hover:translate-x-1' : ''}`} /> 
-          {isArabic ? "رجوع للمجموعة" : "Retour à la collection"}
+        {/* زر الرجوع */}
+        <button onClick={() => navigate(-1)} className="group flex items-center gap-2 text-stone-400 hover:text-stone-900 mb-8 transition-all font-medium">
+          <ArrowLeft className={`w-5 h-5 transition-transform ${isArabic ? 'rotate-180 group-hover:translate-x-1' : 'group-hover:-translate-x-1'}`} /> 
+          {isArabic ? "رجوع للمجموعة" : "Retour"}
         </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          {/* الجانب الأيسر: Swiper */}
-          <div className="lg:col-span-7 space-y-4">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="relative aspect-square rounded-[2.5rem] overflow-hidden shadow-2xl bg-white border border-stone-100">
+          
+          {/* الجانب الأيسر: ميديا المنتج */}
+          <div className="lg:col-span-7 space-y-6">
+            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="relative aspect-square rounded-[2rem] overflow-hidden shadow-xl bg-white border border-stone-100">
               <Swiper modules={[Navigation, Pagination, Autoplay]} navigation pagination={{ clickable: true }} className="h-full w-full group">
                 {allMedia.map((item, index) => (
                   <SwiperSlide key={index}>
                     {item.type === 'video' ? (
                       <video controls className="h-full w-full object-contain bg-black"><source src={item.url} type="video/mp4" /></video>
                     ) : (
-                      <img src={item.url} alt={title} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" />
+                      <img src={item.url} alt={title} className="w-full h-full object-cover" />
                     )}
                   </SwiperSlide>
                 ))}
               </Swiper>
             </motion.div>
 
-            {/* Badges الثقة */}
-            <div className="grid grid-cols-3 gap-2 py-4">
-               {[{ icon: <ShieldCheck className="w-4 h-4" />, text: isArabic ? "جودة ممتازة" : "Qualité Premium" },
-                 { icon: <Truck className="w-4 h-4" />, text: isArabic ? "شحن سريع" : "Livraison" },
-                 { icon: <Sparkles className="w-4 h-4" />, text: isArabic ? "صنع يدوي" : "Fait main" }
+            {/* مميزات سريعة */}
+            <div className="grid grid-cols-3 gap-4">
+               {[{ icon: <ShieldCheck className="w-5 h-5" />, text: isArabic ? "جودة مضمونة" : "Qualité" },
+                 { icon: <Truck className="w-5 h-5" />, text: isArabic ? "توصيل آمن" : "Livraison" },
+                 { icon: <Sparkles className="w-5 h-5" />, text: isArabic ? "صناعة يدوية" : "Fait main" }
                ].map((item, i) => (
-                 <div key={i} className="flex flex-col items-center p-3 bg-white rounded-2xl border border-stone-100 text-[10px] text-stone-500 font-bold uppercase gap-2">
+                 <div key={i} className="flex flex-col items-center p-4 bg-white rounded-2xl border border-stone-50 text-[10px] text-stone-400 font-bold uppercase tracking-wider gap-2">
                    <div className="text-amber-600">{item.icon}</div>
                    {item.text}
                  </div>
@@ -115,52 +115,62 @@ const ProductDetail = () => {
             </div>
           </div>
 
-          {/* الجانب الأيمن: المعلومات */}
-          <motion.div initial={{ opacity: 0, x: isArabic ? -30 : 30 }} animate={{ opacity: 1, x: 0 }} className="lg:col-span-5">
-            <div className="sticky top-28 space-y-8">
+          {/* الجانب الأيمن: معلومات المنتج */}
+          <motion.div initial={{ opacity: 0, x: isArabic ? -20 : 20 }} animate={{ opacity: 1, x: 0 }} className="lg:col-span-5">
+            <div className="sticky top-28 space-y-10">
               <div className="space-y-4">
-                <span className="inline-block px-4 py-1 rounded-full bg-amber-50 text-amber-700 text-xs font-bold tracking-widest lowercase">
+                <span className="text-amber-700 text-[10px] font-bold tracking-[0.3em] uppercase opacity-70">
                   {product.category}
                 </span>
-                <h1 className="text-4xl font-bold text-stone-900 font-serif leading-tight">{title}</h1>
-                <p className="text-3xl font-medium text-amber-900">{product.price} DH</p>
+                <h1 className="text-4xl font-bold text-stone-900 font-serif">{title}</h1>
+                <p className="text-3xl font-light text-stone-900">{product.price} DH</p>
               </div>
 
-              {/* اختيار الألوان - هادي هي الـ Feature اللي كانت ناقصاك */}
+              {/* اختيار الألوان - نسخة محسنة ومصغرة */}
               {product.colors && product.colors.length > 0 && (
                 <div className="space-y-4">
-                  <h3 className="text-sm font-bold text-stone-800 uppercase tracking-wider">
-                    {isArabic ? "اختر اللون:" : "Choisir la couleur:"}
-                  </h3>
-                  <div className="flex gap-3">
+                  <div className="flex justify-between items-end">
+                    <h3 className="text-[10px] font-bold text-stone-400 uppercase tracking-widest">
+                      {isArabic ? "اللون المختار" : "Teinte"}
+                    </h3>
+                    <span className="text-xs font-medium text-stone-600 uppercase">
+                      {selectedColor}
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-3">
                     {product.colors.map((color) => (
                       <button
                         key={color}
                         onClick={() => setSelectedColor(color)}
-                        className={`w-10 h-10 rounded-full border-2 transition-all ${selectedColor === color ? 'border-amber-600 scale-110 shadow-lg' : 'border-transparent'}`}
+                        className={`w-7 h-7 rounded-full transition-all duration-300 ${
+                          selectedColor === color 
+                          ? 'ring-2 ring-stone-900 ring-offset-2 scale-110' 
+                          : 'hover:scale-110 border border-stone-200'
+                        }`}
                         style={{ backgroundColor: color }}
-                        title={color}
                       />
                     ))}
                   </div>
                 </div>
               )}
 
-              <div className="p-6 bg-stone-50 rounded-3xl border border-stone-100 italic text-stone-600">
+              {/* وصف قصير */}
+              <div className="p-6 bg-stone-50 rounded-2xl border border-stone-100 italic text-stone-500 text-lg">
                 "{shortDesc}"
               </div>
 
-              <div className="pt-6 space-y-4">
+              {/* أزرار الطلب */}
+              <div className="pt-4 space-y-4">
                 <Button 
                   onClick={handleWhatsAppOrder}
-                  className="w-full bg-stone-900 hover:bg-stone-800 text-white h-16 rounded-2xl gap-3 text-lg font-bold transition-all active:scale-95 shadow-xl shadow-stone-200"
+                  className="w-full bg-stone-900 hover:bg-stone-800 text-white h-16 rounded-2xl gap-3 text-lg font-bold shadow-lg transition-all active:scale-[0.98]"
                 >
                   <MessageCircle className="w-6 h-6" /> 
-                  {isArabic ? "طلب المنتج الآن" : "Commander maintenant"}
+                  {isArabic ? "اطلب الآن عبر واتساب" : "Commander via WhatsApp"}
                 </Button>
                 
-                <p className="text-center text-xs text-stone-400">
-                  {isArabic ? "سيتم توجيهك مباشرة للواتساب لتأكيد طلبك" : "Vous serez redirigé vers WhatsApp"}
+                <p className="text-center text-[11px] text-stone-400 uppercase tracking-tighter">
+                  {isArabic ? "صناعة مغربية بكل حب وفخر" : "Artisanat Marocain avec passion"}
                 </p>
               </div>
             </div>
