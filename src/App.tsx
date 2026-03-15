@@ -1,14 +1,14 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
-import { NavLink } from "./NavLink";
+import { Navbar } from ""@/components/Navbar";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { CartProvider } from "@/contexts/CartContext"; // 1. استيراد الكارط بروفايدر
 import { lazy, Suspense } from "react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
-import { Navbar } from "@/components/Navbar"; // 2. استيراد النافبار اللي فيه أيقونة السلة
+import { Navlink} from ""@/components/Navlink";
 
 // Lazy loading components
 const Index = lazy(() => import("./pages/Index"));
