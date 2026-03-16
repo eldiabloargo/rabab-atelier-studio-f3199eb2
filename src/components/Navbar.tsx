@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { ShoppingBag, Menu, X } from "lucide-react";
+import { ShoppingBag, Menu, X, Home } from "lucide-react";
 import { CartDrawer } from "./CartDrawer"; 
-import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
+import { motion, AnimatePresence, useScroll } from "framer-motion";
 
 export const Navbar = () => {
   const { items } = useCart();
@@ -13,47 +13,99 @@ export const Navbar = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   
-  
   const { scrollY } = useScroll();
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     return scrollY.onChange((latest) => {
-      setIsScrolled(latest > 50);
+      setIsScrolled(latest > 60);
     });
   }, [scrollY]);
 
   const itemsCount = items.reduce((acc, item) => acc + item.quantity, 0);
 
+  // إغلاق المنيو عند تغيير الصفحة
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname]);
+
   return (
     <>
-      <motion.nav 
-        initial={false}
-        animate={{
-          height: isScrolled ? "70px" : "90px",
-          backgroundColor: isScrolled ? "rgba(255, 255, 255, 0.85)" : "rgba(255, 255, 255, 0)",
-          backdropFilter: isScrolled ? "blur(12px)" : "blur(0px)",
-          borderBottomColor: isScrolled ? "rgba(0,0,0,0.05)" : "rgba(0,0,0,0)",
-        }}
-        className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 border-b flex items-center`}
-      >
-        <div className="max-w-7xl mx-auto px-6 md:px-10 w-full flex items-center justify-between">
-          
-          {/* Left: Menu Icon (Compact) */}
-          <div className="flex-1 flex items-center">
-            <button 
-              className="p-2 text-stone-900 hover:opacity-50 transition-opacity" 
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              {isMenuOpen ? <X size={20} strokeWidth={1.5} /> : <Menu size={20} strokeWidth={1.5} />}
-            </button>
+      <div className="fixed top-0 left-0 right-0 z-[100] p-4 md:p-6 pointer-events-none">
+        <motion.nav 
+          initial={false}
+          animate={{
+            width: isScrolled ? "100%" : "95%",
+            maxWidth: isScrolled ? "100%" : "1200px",
+            y: isScrolled ? -10 : 0, // تعويض الـ Padding فاش كيكون Scroll
+            borderRadius: isScrolled ? "0px" : "24px",
+            backgroundColor: isScrolled ? "rgba(255, 255, 255, 0.9)" : "white",
+            boxShadow: isScrolled ? "0 4px 20px rgba(0,0,0,0.05)" : "0 10px 40px rgba(0,0,0,0.08)",
+          }}
+          className="mx-auto h-16 md:h-20 flex items-center bg-white pointer-events-auto transition-all duration-500 overflow-visible border border-stone-100/50 backdrop-blur-md"
+        >
+          <div className="w-full px-6 flex items-center justify-between">
+            
+            {/* Left: Home & Menu */}
+            <div className="flex-1 flex items-center gap-4">
+              <button 
+                className="p-2 text-stone-900 hover:text-amber-700 transition-colors" 
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+              >
+                {isMenuOpen ? <X size={20} strokeWidth={1.5} /> : <Menu size={20} strokeWidth={1.5} />}
+              </button>
+              
+              {/* زر الرئيسية السريع - Accueil */}
+              <NavLink to="/" className="hidden md:flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 transition-colors">
+                <Home size={14} strokeWidth={1.5} />
+                {isArabic ? "الرئيسية" : "Accueil"}
+              </NavLink>
+            </div>
+
+            {/* Center: Logo */}
+            <div className="flex justify-center items-center">
+              <NavLink to="/" className="text-center group">
+                <span className="block font-serif text-lg md:text-xl tracking-tighter text-stone-900">
+                  Atelier <span className="text-amber-600 italic">Rabab</span>
+                </span>
+                {!isScrolled && (
+                  <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[7px] uppercase tracking-[0.4em] text-stone-300 block -mt-1">
+                    Maroc
+                  </motion.span>
+                )}
+              </NavLink>
+            </div>
+
+            {/* Right: Cart */}
+            <div className="flex-1 flex items-center justify-end">
+              <button 
+                onClick={() => setIsCartOpen(true)} 
+                className="relative flex items-center gap-2 group p-2"
+              >
+                <ShoppingBag size={18} strokeWidth={1.5} className="text-stone-900 group-hover:text-amber-700 transition-colors" />
+                {itemsCount > 0 && (
+                  <span className="text-[10px] font-bold text-stone-900">
+                    ({itemsCount})
+                  </span>
+                )}
+              </button>
+            </div>
           </div>
 
-          {/* Center: Brand Identity - أصغر وأكثر أناقة */}
+          {/* Mobile/Overlay Menu */}
+          <AnimatePresence>
+            {isMenuOpen && (
+              <motion.div 
+                initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 15, scale: 0.95 }}
+                className="absolute top-[110%] left-0 right-0 bg-white/95 backdrop-blur-2xl rounded-[2rem] p-8 shadow-2xl border border-stone-100 flex flex-col gap-6"
+              >
+             {/* Center: Brand Identity - أصغر وأكثر أناقة */}
           <div className="flex justify-center items-center shrink-0">
             <NavLink to="/" className="text-center group">
               <span className={`block font-serif tracking-tighter transition-all duration-500 ${isScrolled ? 'text-lg md:text-xl' : 'text-xl md:text-2xl'}`}>
-                Rabab <span className="text-amber-600 italic">Atelier</span>
+                Rabab <span className="text-amber-600 Atelier">Rabab</span>
               </span>
               {!isScrolled && (
                 <motion.span 
@@ -65,52 +117,23 @@ export const Navbar = () => {
               )}
             </NavLink>
           </div>
-
-          {/* Right: Cart Action */}
-          <div className="flex-1 flex items-center justify-end gap-4">
-            <button 
-              onClick={() => setIsCartOpen(true)} 
-              className="relative p-2 flex items-center gap-2 group"
-            >
-              <ShoppingBag size={18} strokeWidth={1.5} className="text-stone-900 group-hover:text-amber-700 transition-colors" />
-              {itemsCount > 0 && (
-                <span className="text-[10px] font-bold text-stone-900">
-                  ({itemsCount})
-                </span>
-              )}
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile Menu Overlay - Clean & Minimal */}
-        <AnimatePresence>
-          {isMenuOpen && (
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="absolute top-full left-4 right-4 mt-2 bg-white/95 backdrop-blur-2xl rounded-3xl p-8 shadow-2xl border border-stone-100 lg:w-[400px] lg:left-auto"
-            >
-              <div className={`flex flex-col gap-8 ${isArabic ? 'text-right' : 'text-left'}`}>
-                {[
-                  { to: "/collection", label: isArabic ? "المجموعة الكاملة" : "La Collection" },
-                  { to: "/sur-mesure", label: isArabic ? "طلب خاص" : "Sur Mesure" },
-                  { to: "/expositions", label: isArabic ? "المعارض" : "Expositions" }
-                ].map((link) => (
-                  <NavLink 
-                    key={link.to} 
-                    to={link.to} 
-                    onClick={() => setIsMenuOpen(false)}
-                    className="text-xs font-bold uppercase tracking-[0.3em] text-stone-400 hover:text-stone-900 transition-colors"
-                  >
-                    {link.label}
+                    <Home size={16} className="text-amber-600" />
+                    {isArabic ? "الرئيسية" : "Accueil"}
                   </NavLink>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.nav>
+                  <NavLink to="/collection" className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 transition-colors">
+                    {isArabic ? "المجموعة" : "La Collection"}
+                  </NavLink>
+                  <NavLink to="/sur-mesure" className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 transition-colors">
+                    {isArabic ? "طلب خاص" : "Sur Mesure"}
+                  </NavLink>
+                  <div className="h-[1px] bg-stone-50 w-full my-2" />
+                  <p className="text-[8px] text-stone-300 uppercase tracking-[0.5em]">{isArabic ? "تواصل معنا" : "Contact"}</p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.nav>
+      </div>
 
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </>
