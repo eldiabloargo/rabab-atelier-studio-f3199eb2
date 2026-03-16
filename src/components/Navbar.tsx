@@ -108,7 +108,7 @@ export const Navbar = () => {
                     <Home size={16} className="text-amber-600" />
                     {isArabic ? "الرئيسية" : "Accueil"}
                   </NavLink>
-                  <NavLink to="/collection" className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 transition-colors">
+                  <NavLink to="/category/all" className={({ isActive }) => `text-[10px] font-bold uppercase tracking-[0.2em] transition-all ${isActive ? 'text-amber-700' : 'text-stone-400 hover:text-stone-900'}`}
                     {isArabic ? "المجموعة" : "La Collection"}
                   </NavLink>
                   <NavLink to="/sur-mesure" className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 transition-colors">
