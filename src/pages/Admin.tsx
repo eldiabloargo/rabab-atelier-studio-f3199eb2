@@ -28,6 +28,7 @@ export const Admin = () => {
   // Collection Form States
   const [newCatName, setNewCatName] = useState("");
   const [newCatImage, setNewCatImage] = useState("");
+  const [editingCatId, setEditingCatId] = useState<string | null>(null); // التعديل المطلوب
 
   const { toast } = useToast();
 
@@ -64,11 +65,20 @@ export const Admin = () => {
     e.preventDefault();
     if (!newCatName) return;
     setLoading(true);
-    const { error } = await supabase.from("categories").insert([{ name: newCatName, image_url: newCatImage }]);
+    
+    const catData = { name: newCatName, image_url: newCatImage };
+    
+    // التعديل هنا: واش Update ولا Insert
+    const { error } = editingCatId 
+      ? await supabase.from("categories").update(catData).eq("id", editingCatId)
+      : await supabase.from("categories").insert([catData]);
+
     if (!error) {
-      setNewCatName(""); setNewCatImage("");
+      setNewCatName(""); 
+      setNewCatImage("");
+      setEditingCatId(null);
       fetchAll();
-      toast({ title: "Collection Ajoutée" });
+      toast({ title: editingCatId ? "Collection Modifiée" : "Collection Ajoutée" });
     }
     setLoading(false);
   };
@@ -93,7 +103,6 @@ export const Admin = () => {
 
   return (
     <div className="pt-24 pb-16 px-4 max-w-4xl mx-auto font-sans">
-      {/* Navigation */}
       <div className="flex items-center justify-between mb-12 bg-white/90 backdrop-blur-md p-3 rounded-3xl border border-stone-100 sticky top-6 z-50 shadow-sm">
         <div className="flex gap-2">
           <button onClick={() => setActiveTab("products")} className={`px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'products' ? 'bg-stone-900 text-white shadow-lg' : 'text-stone-400'}`}>Inventaire</button>
@@ -105,7 +114,6 @@ export const Admin = () => {
       <AnimatePresence mode="wait">
         {activeTab === "products" ? (
           <motion.div key="prod" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            {/* ... الكود ديال الـ Products اللي صايبنا قبيلة بقا هو هو ... */}
             {!showForm ? (
                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                  <button onClick={() => setShowForm(true)} className="aspect-[4/5] border-2 border-dashed border-stone-200 rounded-[2rem] flex flex-col items-center justify-center text-stone-300 hover:border-stone-900 transition-all bg-white/50">
@@ -131,7 +139,6 @@ export const Admin = () => {
                     setLoading(false);
                 }} className="bg-white p-10 rounded-[3rem] border border-stone-100 shadow-2xl space-y-10">
                     <div className="flex justify-between items-center"><h2 className="font-serif italic text-3xl">Détails Produit</h2><button type="button" onClick={() => setShowForm(false)}><X className="w-7 h-7 text-stone-300" /></button></div>
-                    {/* فورم المنتوجات (نفس اللي صايبنا) */}
                     <div className="grid md:grid-cols-2 gap-8">
                         <div className="space-y-2"><Label className="text-[10px] font-black uppercase opacity-40">Titre (FR)</Label><Input value={form.title} onChange={e => setForm({...form, title: e.target.value})} className="h-14 rounded-2xl bg-stone-50 border-none" /></div>
                         <div className="space-y-2 text-right"><Label className="text-[10px] font-black uppercase opacity-40">العنوان (AR)</Label><Input dir="rtl" value={form.title_ar} onChange={e => setForm({...form, title_ar: e.target.value})} className="h-14 rounded-2xl bg-stone-50 border-none" /></div>
@@ -145,31 +152,33 @@ export const Admin = () => {
                             </select>
                         </div>
                     </div>
-                    {/* ... باقي فورم المنتوجات ... */}
                     <Button type="submit" disabled={loading} className="w-full h-16 bg-stone-900 rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.4em]">Enregistrer le Produit</Button>
                 </motion.form>
             )}
           </motion.div>
         ) : (
           <motion.div key="cat" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-2xl mx-auto space-y-12">
-            {/* CREATE NEW COLLECTION */}
             <div className="bg-white p-10 rounded-[2.5rem] border border-stone-100 shadow-xl space-y-8">
-              <div className="flex items-center gap-3">
-                <FolderPlus className="w-5 h-5 text-amber-700" />
-                <h2 className="font-serif italic text-2xl">Nouvelle Collection</h2>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <FolderPlus className="w-5 h-5 text-amber-700" />
+                  <h2 className="font-serif italic text-2xl">{editingCatId ? "Modifier Collection" : "Nouvelle Collection"}</h2>
+                </div>
+                {editingCatId && (
+                  <button onClick={() => { setEditingCatId(null); setNewCatName(""); setNewCatImage(""); }} className="text-[9px] font-black text-stone-400 hover:text-red-500 tracking-tighter transition-colors">ANNULER</button>
+                )}
               </div>
               <form onSubmit={handleAddCategory} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Input placeholder="Nom (ex: Cadeaux de Naissance)" value={newCatName} onChange={e => setNewCatName(e.target.value)} className="h-14 rounded-2xl bg-stone-50 border-none px-6" required />
-                    <Input placeholder="Image URL (Optionnel)" value={newCatImage} onChange={e => setNewCatImage(e.target.value)} className="h-14 rounded-2xl bg-stone-50 border-none px-6" />
+                    <Input placeholder="Nom" value={newCatName} onChange={e => setNewCatName(e.target.value)} className="h-14 rounded-2xl bg-stone-50 border-none px-6" required />
+                    <Input placeholder="Image URL" value={newCatImage} onChange={e => setNewCatImage(e.target.value)} className="h-14 rounded-2xl bg-stone-50 border-none px-6" />
                 </div>
-                <Button type="submit" disabled={loading} className="w-full h-14 bg-stone-900 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg hover:bg-black">
-                  {loading ? 'Ajout...' : 'Ajouter à la Liste'}
+                <Button type="submit" disabled={loading} className="w-full h-14 bg-stone-900 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg hover:bg-black transition-all">
+                  {loading ? 'Traitement...' : editingCatId ? 'Mettre à jour' : 'Ajouter à la Liste'}
                 </Button>
               </form>
             </div>
 
-            {/* LIST COLLECTIONS */}
             <div className="space-y-4">
               <span className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-400 ml-4">Mouvements Actuels</span>
               <div className="grid gap-3">
@@ -181,9 +190,20 @@ export const Admin = () => {
                       </div>
                       <span className="font-bold text-[11px] uppercase tracking-widest text-stone-700">{cat.name}</span>
                     </div>
-                    <Button size="icon" variant="ghost" className="rounded-full text-stone-200 hover:text-red-500 hover:bg-red-50 transition-all" onClick={async () => { if(confirm('Supprimer cette collection?')) { await supabase.from("categories").delete().eq("id", cat.id); fetchAll(); } }}>
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    <div className="flex gap-1">
+                      {/* التعديل المطلوب: زر القلم */}
+                      <Button size="icon" variant="ghost" className="rounded-full text-stone-200 hover:text-amber-600 hover:bg-amber-50" 
+                        onClick={() => { 
+                          setEditingCatId(cat.id); 
+                          setNewCatName(cat.name); 
+                          setNewCatImage(cat.image_url || "");
+                        }}>
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                      <Button size="icon" variant="ghost" className="rounded-full text-stone-200 hover:text-red-500 hover:bg-red-50 transition-all" onClick={async () => { if(confirm('Supprimer?')) { await supabase.from("categories").delete().eq("id", cat.id); fetchAll(); } }}>
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </motion.div>
                 ))}
               </div>
