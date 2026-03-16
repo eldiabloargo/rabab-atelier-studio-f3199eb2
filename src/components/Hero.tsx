@@ -1,74 +1,113 @@
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Link } from "react-router-dom";
-import { Palette } from "lucide-react";
+import { Palette, Sparkles } from "lucide-react";
 
 export const Hero = () => {
   const { t, isArabic } = useLanguage();
+  const { scrollY } = useScroll();
+  
+  // تأثير اختفاء تدريجي عند النزول (Parallax & Fade)
+  const y = useTransform(scrollY, [0, 500], [0, 100]);
+  const opacity = useTransform(scrollY, [0, 300], [1, 0]);
 
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-center px-6">
+    <section className="relative min-h-[110vh] flex flex-col items-center justify-center px-6 overflow-hidden bg-[#fafaf9]">
+      
+      {/* Background Glow - لمسة فنية خفيفة */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-100/30 blur-[120px] rounded-full pointer-events-none" />
+
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1.5, ease: "easeOut" }}
-        className="relative w-full max-w-3xl mx-auto"
+        style={{ y, opacity }}
+        className="relative z-10 w-full max-w-5xl mx-auto flex flex-col items-center"
       >
-        <div className="relative w-full max-w-lg mx-auto flex justify-center">
-          <div className="relative overflow-hidden rounded-xl shadow-sm">
+        {/* Main Artwork Container */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1] }}
+          className="relative w-full max-w-xl group"
+        >
+          <div className="relative overflow-hidden rounded-[2rem] transition-transform duration-1000 group-hover:scale-[1.02]">
             <img 
               src="https://i.supaimg.com/23bbe892-53d3-41aa-b696-dcdb610fd822/83b7d020-9045-4460-b6a0-330c267a7fe1.png" 
-              className="object-contain w-full h-auto block" 
+              className="object-contain w-full h-auto block drop-shadow-2xl" 
               style={{
-                maskImage: 'linear-gradient(to bottom, black 95%, transparent 100%), linear-gradient(to right, transparent, black 2%, black 98%, transparent)',
-                WebkitMaskImage: 'linear-gradient(to bottom, black 95%, transparent 100%), linear-gradient(to right, transparent, black 2%, black 98%, transparent)',
+                maskImage: 'linear-gradient(to bottom, black 90%, transparent 100%)',
+                WebkitMaskImage: 'linear-gradient(to bottom, black 90%, transparent 100%)',
               }}
-              alt="Rabab Atelier 3D Artwork"
+              alt="Rabab Atelier Artwork"
             />
-            <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-background to-transparent opacity-40 pointer-events-none" />
           </div>
-        </div>
+          
+          {/* Decorative Sparkle */}
+          <motion.div 
+            animate={{ opacity: [0.3, 0.6, 0.3], scale: [1, 1.1, 1] }}
+            transition={{ duration: 4, repeat: Infinity }}
+            className="absolute -top-4 -right-4 text-amber-500/40"
+          >
+            <Sparkles size={32} />
+          </motion.div>
+        </motion.div>
 
+        {/* Text Content */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, delay: 0.6, ease: "easeOut" }}
-          className="mt-12 text-center"
+          transition={{ duration: 1.2, delay: 0.8, ease: "easeOut" }}
+          className="mt-16 text-center space-y-6"
         >
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif tracking-tight leading-tight text-gold-gradient">
+          <div className="flex items-center justify-center gap-4 mb-2">
+            <div className="h-[1px] w-8 bg-stone-200" />
+            <span className="text-[10px] font-black tracking-[0.6em] text-stone-400 uppercase">Est. 2026</span>
+            <div className="h-[1px] w-8 bg-stone-200" />
+          </div>
+
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-serif tracking-tighter leading-[0.9] text-stone-900 italic">
             {t("hero.title")}
           </h1>
-          <p className="mt-4 text-lg md:text-xl font-sans text-muted-foreground tracking-wide">
+          
+          <p className="max-w-md mx-auto text-stone-500 text-sm md:text-base font-light tracking-[0.1em] leading-relaxed italic opacity-80">
             {t("hero.subtitle")}
           </p>
         </motion.div>
       </motion.div>
 
+      {/* Luxury Minimal Nav */}
       <motion.nav
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1, delay: 1.2 }}
-        className="mt-16 flex flex-wrap justify-center gap-x-8 gap-y-4 text-sm tracking-widest uppercase text-muted-foreground font-sans"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, delay: 1.5 }}
+        className="mt-24 flex flex-wrap justify-center items-center gap-x-12 gap-y-6"
       >
-        <a href="#artisane" className="hover:text-gold transition-colors duration-500">
-          {t("nav.artisane")}
-        </a>
-        <a href="#ateliers" className="hover:text-gold transition-colors duration-500">
-          {t("nav.ateliers")}
-        </a>
-        <a href="#collection" className="hover:text-gold transition-colors duration-500">
-          {t("nav.collection")}
-        </a>
-        
-        {/* الرابط الجديد: منسجم مع القائمة ومتميز بالأيقونة */}
+        {["artisane", "ateliers", "collection"].map((item) => (
+          <a 
+            key={item}
+            href={`#${item}`} 
+            className="text-[10px] font-black uppercase tracking-[0.4em] text-stone-400 hover:text-amber-800 transition-all duration-500 relative group"
+          >
+            {t(`nav.${item}`)}
+            <span className="absolute -bottom-2 left-0 w-0 h-[1px] bg-amber-600 transition-all duration-500 group-hover:w-full" />
+          </a>
+        ))}
+
         <Link 
           to="/sur-mesure" 
-          className="flex items-center gap-2 hover:text-gold transition-all duration-500"
+          className="flex items-center gap-3 px-6 py-3 rounded-full border border-amber-100 bg-amber-50/30 text-[10px] font-black uppercase tracking-[0.3em] text-amber-900 hover:bg-amber-900 hover:text-white transition-all duration-700 group shadow-sm"
         >
-          <Palette className="w-4 h-4 text-gold/80" />
+          <Palette className="w-3.5 h-3.5 transition-transform group-hover:rotate-12" />
           {isArabic ? "طلب خاص" : "Sur Mesure"}
         </Link>
       </motion.nav>
+
+      {/* Scroll Indicator */}
+      <motion.div 
+        animate={{ y: [0, 10, 0] }}
+        transition={{ duration: 2, repeat: Infinity }}
+        className="absolute bottom-10 flex flex-col items-center gap-2 opacity-20"
+      >
+        <div className="w-[1px] h-12 bg-stone-900" />
+      </motion.div>
     </section>
   );
 };
