@@ -18,6 +18,8 @@ const Admin = lazy(() => import("./pages/Admin").then(module => ({ default: modu
 const Infos = lazy(() => import("./pages/Infos").then(module => ({ default: module.Infos })));
 const Expositions = lazy(() => import("./pages/Expositions").then(module => ({ default: module.Expositions })));
 const SurMesure = lazy(() => import("./pages/SurMesure").then(module => ({ default: module.SurMesure })));
+const Checkout = lazy(() => import("./pages/Checkout").then(module => ({ default: module.Checkout })));
+
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
