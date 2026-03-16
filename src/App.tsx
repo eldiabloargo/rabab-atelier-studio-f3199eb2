@@ -50,6 +50,7 @@ const AnimatedRoutes = () => {
         <Route path="/expositions" element={<PageTransition><Expositions /></PageTransition>} />
         <Route path="/category/:slug" element={<PageTransition><CategoryPage /></PageTransition>} />
         <Route path="/sur-mesure" element={<PageTransition><SurMesure /></PageTransition>} />
+        <Route path="/checkout" element={<PageTransition><Checkout /></PageTransition>} />
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
     </AnimatePresence>
