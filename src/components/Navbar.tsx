@@ -24,7 +24,6 @@ export const Navbar = () => {
 
   const itemsCount = items.reduce((acc, item) => acc + item.quantity, 0);
 
-  // إغلاق المنيو عند تغيير الصفحة
   useEffect(() => {
     setIsMenuOpen(false);
   }, [location.pathname]);
@@ -37,46 +36,49 @@ export const Navbar = () => {
           animate={{
             width: isScrolled ? "100%" : "95%",
             maxWidth: isScrolled ? "100%" : "1200px",
-            y: isScrolled ? -10 : 0, // تعويض الـ Padding فاش كيكون Scroll
+            y: isScrolled ? -15 : 0,
             borderRadius: isScrolled ? "0px" : "24px",
-            backgroundColor: isScrolled ? "rgba(255, 255, 255, 0.9)" : "white",
+            backgroundColor: isScrolled ? "rgba(255, 255, 255, 0.95)" : "white",
             boxShadow: isScrolled ? "0 4px 20px rgba(0,0,0,0.05)" : "0 10px 40px rgba(0,0,0,0.08)",
           }}
-          className="mx-auto h-16 md:h-20 flex items-center bg-white pointer-events-auto transition-all duration-500 overflow-visible border border-stone-100/50 backdrop-blur-md"
+          className="mx-auto h-16 md:h-20 flex items-center bg-white pointer-events-auto transition-all duration-500 border border-stone-100/50 backdrop-blur-md relative"
         >
           <div className="w-full px-6 flex items-center justify-between">
             
-            {/* Left: Home & Menu */}
+            {/* Left: Menu & Home */}
             <div className="flex-1 flex items-center gap-4">
               <button 
                 className="p-2 text-stone-900 hover:text-amber-700 transition-colors" 
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
               >
-                {isMenuOpen ? <X size={20} strokeWidth={1.5} /> : <Menu size={20} strokeWidth={1.5} />}
+                {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
               </button>
               
-              {/* زر الرئيسية السريع - Accueil */}
               <NavLink to="/" className="hidden md:flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 transition-colors">
-                <Home size={14} strokeWidth={1.5} />
+                <Home size={14} />
                 {isArabic ? "الرئيسية" : "Accueil"}
               </NavLink>
             </div>
 
-            {/* Center: Logo */}
-            <div className="flex justify-center items-center">
-              <NavLink to="/" className="text-center group">
-                <span className="block font-serif text-lg md:text-xl tracking-tighter text-stone-900">
-                  Atelier <span className="text-amber-600 italic">Rabab</span>
+            {/* Center: Brand Identity (الشكل القديم اللي بغيتي) */}
+            <div className="flex justify-center items-center shrink-0">
+              <NavLink to="/" className="text-center group flex flex-col items-center">
+                <span className={`block font-serif tracking-tighter transition-all duration-500 text-stone-900 ${isScrolled ? 'text-lg md:text-xl' : 'text-xl md:text-2xl'}`}>
+                  Rabab <span className="text-amber-600 italic">Atelier</span>
                 </span>
                 {!isScrolled && (
-                  <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[7px] uppercase tracking-[0.4em] text-stone-300 block -mt-1">
+                  <motion.span 
+                    initial={{ opacity: 0 }} 
+                    animate={{ opacity: 1 }}
+                    className="text-[7px] uppercase tracking-[0.5em] text-stone-400 block -mt-1"
+                  >
                     Maroc
                   </motion.span>
                 )}
               </NavLink>
             </div>
 
-            {/* Right: Cart */}
+            {/* Right: Cart Action */}
             <div className="flex-1 flex items-center justify-end">
               <button 
                 onClick={() => setIsCartOpen(true)} 
@@ -92,31 +94,17 @@ export const Navbar = () => {
             </div>
           </div>
 
-          {/* Mobile/Overlay Menu */}
+          {/* Mobile Menu Overlay - مصحح بالكامل */}
           <AnimatePresence>
             {isMenuOpen && (
               <motion.div 
-                initial={{ opacity: 0, y: 15, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 15, scale: 0.95 }}
-                className="absolute top-[110%] left-0 right-0 bg-white/95 backdrop-blur-2xl rounded-[2rem] p-8 shadow-2xl border border-stone-100 flex flex-col gap-6"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 15 }}
+                className="absolute top-[110%] left-0 right-0 bg-white/98 backdrop-blur-2xl rounded-[2rem] p-8 shadow-2xl border border-stone-100 flex flex-col gap-6 pointer-events-auto"
               >
-             {/* Center: Brand Identity - أصغر وأكثر أناقة */}
-          <div className="flex justify-center items-center shrink-0">
-            <NavLink to="/" className="text-center group">
-              <span className={`block font-serif tracking-tighter transition-all duration-500 ${isScrolled ? 'text-lg md:text-xl' : 'text-xl md:text-2xl'}`}>
-                Rabab <span className="text-amber-600 Atelier">Rabab</span>
-              </span>
-              {!isScrolled && (
-                <motion.span 
-                  initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                  className="text-[7px] uppercase tracking-[0.5em] text-stone-400 block -mt-1"
-                >
-                  Maroc
-                </motion.span>
-              )}
-            </NavLink>
-          </div>
+                <div className={`flex flex-col gap-6 ${isArabic ? 'text-right' : 'text-left'}`}>
+                  <NavLink to="/" className="text-xs font-bold uppercase tracking-widest text-stone-900 flex items-center gap-3">
                     <Home size={16} className="text-amber-600" />
                     {isArabic ? "الرئيسية" : "Accueil"}
                   </NavLink>
@@ -126,8 +114,6 @@ export const Navbar = () => {
                   <NavLink to="/sur-mesure" className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 transition-colors">
                     {isArabic ? "طلب خاص" : "Sur Mesure"}
                   </NavLink>
-                  <div className="h-[1px] bg-stone-50 w-full my-2" />
-                  <p className="text-[8px] text-stone-300 uppercase tracking-[0.5em]">{isArabic ? "تواصل معنا" : "Contact"}</p>
                 </div>
               </motion.div>
             )}
