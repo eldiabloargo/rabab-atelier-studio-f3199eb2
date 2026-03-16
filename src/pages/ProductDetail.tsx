@@ -9,8 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, EffectFade } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
+import { toast } from "@/hooks/use-toast";
 
-// Swiper Styles
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
@@ -34,10 +34,9 @@ export const ProductDetail = () => {
         .select("*")
         .eq("id", id)
         .single();
-      
+
       if (data) {
         setProduct(data);
-        // اختيار أول لون أوتوماتيكياً من المصفوفة الجديدة
         if (data.colors && data.colors.length > 0) {
           setSelectedColor(data.colors[0]);
         }
@@ -49,7 +48,6 @@ export const ProductDetail = () => {
 
   const handleColorSelect = (color: any) => {
     setSelectedColor(color);
-    // إذا كان اللون مرتبط بصورة معينة في السلايدر
     if (color.image_index !== undefined && swiperRef.current) {
       swiperRef.current.slideTo(color.image_index);
     }
@@ -60,79 +58,69 @@ export const ProductDetail = () => {
     addToCart({
       id: product.id,
       title: product.title,
-      title_ar: product.title_ar,
+      title_ar: product.title_ar || product.title,
       price: product.price,
       image: product.image_url,
       selectedColor: selectedColor,
       quantity: 1
     });
-    // تنبيه بسيط عند الإضافة
-    toast({ title: isArabic ? "تمت الإضافة" : "Ajouté au panier" });
+    toast({ 
+      title: isArabic ? "تمت الإضافة" : "Ajouté",
+      description: isArabic ? "المنتج الآن في حقيبتك" : "L'article est dans votre panier"
+    });
   };
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-white">
-      <motion.div 
-        animate={{ rotate: 360 }} 
-        transition={{ repeat: Infinity, duration: 1, ease: "linear" }} 
-        className="w-10 h-10 border-2 border-stone-100 border-t-amber-600 rounded-full" 
-      />
+      <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }} 
+        className="w-8 h-8 border-t-2 border-amber-600 rounded-full" />
     </div>
   );
 
   if (!product) return <div className="text-center py-40 font-serif italic text-stone-400">Article introuvable</div>;
 
-  // تجميع كل الميديا (الصورة الأساسية + الغاليري + الفيديو)
   const allMedia = [
     { type: 'image', url: product.image_url },
     ...(Array.isArray(product.images_gallery) ? product.images_gallery.map((url: string) => ({ type: 'image', url })) : []),
     ...(product.video_url ? [{ type: 'video', url: product.video_url }] : [])
   ];
 
-  const title = isArabic && product.title_ar ? product.title_ar : product.title;
+  const title = isArabic ? (product.title_ar || product.title) : (product.title || product.title_ar);
+  const description = isArabic ? (product.description_ar || product.description) : (product.description || product.description_ar);
 
   return (
-    <main className={`min-h-screen bg-white pb-32 ${isArabic ? 'text-right' : 'text-left'}`} dir={isArabic ? 'rtl' : 'ltr'}>
-      <div className="max-w-6xl mx-auto px-6 pt-32">
-
-        {/* Navigation */}
-        <button 
-          onClick={() => navigate(-1)} 
-          className="group inline-flex items-center gap-3 text-stone-400 hover:text-stone-900 mb-12 transition-all"
-        >
-          <div className="p-2 rounded-full border border-stone-100 group-hover:bg-stone-50 group-hover:border-stone-900 transition-all">
-            <ArrowLeft className={`w-4 h-4 ${isArabic ? 'rotate-180' : ''}`} />
-          </div>
-          <span className="text-[10px] font-bold uppercase tracking-[0.2em]">{isArabic ? "العودة" : "Retour"}</span>
+    <main className={`min-h-screen bg-white pb-20 ${isArabic ? 'text-right' : 'text-left'}`} dir={isArabic ? 'rtl' : 'ltr'}>
+      {/* Top Navigation Bar - Sticky & Minimal */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md px-6 py-4 flex justify-between items-center border-b border-stone-50">
+        <button onClick={() => navigate(-1)} className="p-2 hover:bg-stone-50 rounded-full transition-colors">
+          <ArrowLeft className={`w-5 h-5 text-stone-900 ${isArabic ? 'rotate-180' : ''}`} />
         </button>
+        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-stone-400">Atelier Rabab</span>
+        <div className="w-9" /> {/* Spacer */}
+      </nav>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-start">
+      <div className="max-w-6xl mx-auto px-6 pt-24 md:pt-32">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
 
-          {/* Visuals - Premium Slider */}
-          <div className="space-y-8">
+          {/* Visual Section */}
+          <div className="space-y-6">
             <motion.div 
-              initial={{ opacity: 0, y: 20 }} 
-              animate={{ opacity: 1, y: 0 }} 
-              className="relative aspect-[4/5] rounded-[2.5rem] md:rounded-[4rem] overflow-hidden bg-stone-50 shadow-2xl border border-stone-100"
+              initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }}
+              className="relative aspect-[4/5] rounded-[2rem] overflow-hidden bg-stone-50 shadow-sm border border-stone-100"
             >
               <Swiper 
                 onSwiper={(swiper) => (swiperRef.current = swiper)}
                 modules={[Navigation, Pagination, EffectFade]} 
                 effect="fade"
-                pagination={{ clickable: true, dynamicBullets: true }}
+                pagination={{ clickable: true }}
                 className="h-full w-full"
               >
                 {allMedia.map((item, index) => (
                   <SwiperSlide key={index}>
                     {item.type === 'video' ? (
-                      <div className="relative h-full w-full">
-                        <video className="h-full w-full object-cover" autoPlay muted loop playsInline>
-                          <source src={item.url} type="video/mp4" />
-                        </video>
-                        <div className="absolute top-6 right-6 p-3 bg-white/20 backdrop-blur-md rounded-full">
-                           <PlayCircle className="w-5 h-5 text-white" />
-                        </div>
-                      </div>
+                      <video className="h-full w-full object-cover" autoPlay muted loop playsInline>
+                        <source src={item.url} type="video/mp4" />
+                      </video>
                     ) : (
                       <img src={item.url} alt={title} className="w-full h-full object-cover" />
                     )}
@@ -141,93 +129,79 @@ export const ProductDetail = () => {
               </Swiper>
             </motion.div>
 
-            {/* Quality Badges */}
-            <div className="grid grid-cols-3 gap-4">
-               {[{ icon: <ShieldCheck className="w-4 h-4" />, text: isArabic ? "أصلي" : "Authentique" },
-                 { icon: <Truck className="w-4 h-4" />, text: isArabic ? "توصيل" : "Livraison" },
-                 { icon: <Sparkles className="w-4 h-4" />, text: isArabic ? "صنع يدوي" : "Fait Main" }
+            {/* Badges - Smaller & More Elegant */}
+            <div className="grid grid-cols-3 gap-3">
+               {[
+                 { icon: <ShieldCheck className="w-3.5 h-3.5" />, text: isArabic ? "أصلي" : "Authentique" },
+                 { icon: <Truck className="w-3.5 h-3.5" />, text: isArabic ? "توصيل" : "Livraison" },
+                 { icon: <Sparkles className="w-3.5 h-3.5" />, text: isArabic ? "صنع يدوي" : "Artisanal" }
                ].map((item, i) => (
-                 <div key={i} className="flex flex-col items-center justify-center gap-3 py-6 bg-stone-50/30 rounded-[2rem] border border-stone-100/50">
-                   <div className="text-amber-700">{item.icon}</div>
-                   <span className="text-[8px] md:text-[9px] font-black uppercase tracking-[0.2em] text-stone-400">{item.text}</span>
+                 <div key={i} className="flex flex-col items-center gap-2 py-4 bg-stone-50/50 rounded-2xl border border-stone-100/30">
+                   <div className="text-amber-700/70">{item.icon}</div>
+                   <span className="text-[7px] font-black uppercase tracking-widest text-stone-400">{item.text}</span>
                  </div>
                ))}
             </div>
           </div>
 
-          {/* Product Content */}
-          <div className="lg:sticky lg:top-32 space-y-12">
-            <div className="space-y-6">
-              <div className="flex items-center gap-3">
-                <div className="h-[1px] w-8 bg-amber-600" />
-                <span className="text-[10px] font-bold text-amber-700 uppercase tracking-[0.4em]">
+          {/* Product Details Section */}
+          <div className="space-y-10">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <span className="text-[9px] font-black text-amber-700 uppercase tracking-[0.3em] bg-amber-50 px-3 py-1 rounded-full">
                   {product.category}
                 </span>
               </div>
-              
-              <h1 className="text-4xl md:text-6xl font-serif text-stone-900 tracking-tighter leading-tight italic">
+              <h1 className="text-3xl md:text-5xl font-serif text-stone-900 tracking-tighter leading-tight italic">
                 {title}
               </h1>
-              
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-light text-stone-900">{product.price}</span>
-                <span className="text-sm font-bold uppercase tracking-widest text-stone-400 underline decoration-amber-500/30">MAD</span>
+                <span className="text-2xl font-light text-stone-900">{product.price}</span>
+                <span className="text-[10px] font-bold text-stone-400">MAD</span>
               </div>
             </div>
 
-            {/* Color Selection - Unified with Admin */}
+            {/* Color Selection - Minimalist */}
             {product.colors && product.colors.length > 0 && (
-              <div className="space-y-6 bg-stone-50/50 p-8 rounded-[2.5rem] border border-stone-100">
+              <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-[10px] font-black text-stone-400 uppercase tracking-widest">
-                    {isArabic ? "اختر اللون" : "Choisir Couleur"}
+                  <span className="text-[9px] font-black text-stone-400 uppercase tracking-widest">Couleurs</span>
+                  <span className="text-[10px] font-bold text-stone-900 italic">
+                    {selectedColor ? (isArabic ? selectedColor.name_ar : selectedColor.name_en) : ""}
                   </span>
-                  <AnimatePresence mode="wait">
-                    <motion.span 
-                      key={selectedColor?.hex}
-                      initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
-                      className="text-[11px] font-bold text-amber-800 uppercase tracking-tighter"
-                    >
-                      {selectedColor ? (isArabic ? selectedColor.name_ar : selectedColor.name_en) : ""}
-                    </motion.span>
-                  </AnimatePresence>
                 </div>
-                <div className="flex flex-wrap gap-4">
+                <div className="flex flex-wrap gap-3">
                   {product.colors.map((color: any, index: number) => (
                     <button
                       key={index}
                       onClick={() => handleColorSelect(color)}
-                      className={`w-12 h-12 rounded-full transition-all duration-500 relative flex items-center justify-center p-1 ${
+                      className={`w-10 h-10 rounded-full transition-all duration-300 relative flex items-center justify-center ${
                         selectedColor?.hex === color.hex 
-                        ? 'ring-1 ring-stone-900 ring-offset-4 scale-110 shadow-lg' 
-                        : 'hover:scale-110 border border-white shadow-sm'
+                        ? 'ring-2 ring-stone-900 ring-offset-2' 
+                        : 'border border-stone-100 hover:scale-105'
                       }`}
                       style={{ backgroundColor: color.hex }}
-                    >
-                      {selectedColor?.hex === color.hex && (
-                        <motion.div layoutId="colorInner" className="w-full h-full rounded-full border-2 border-white/20" />
-                      )}
-                    </button>
+                    />
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Description Section */}
-            <div className="space-y-4">
-               <h4 className="text-[10px] font-black text-stone-900 uppercase tracking-[0.3em]">Details</h4>
-               <p className="text-lg text-stone-600 leading-relaxed font-serif font-light">
-                 {isArabic ? product.description_ar : product.description}
+            {/* Description */}
+            <div className="space-y-3 pt-4 border-t border-stone-50">
+               <h4 className="text-[9px] font-black text-stone-300 uppercase tracking-widest italic">Description</h4>
+               <p className="text-base text-stone-600 leading-relaxed font-serif font-light">
+                 {description}
                </p>
             </div>
 
-            {/* CTA */}
-            <div className="pt-8">
+            {/* Action Button - Floating Feel */}
+            <div className="pt-6">
               <Button 
                 onClick={handleAddToCart}
-                className="w-full bg-stone-900 hover:bg-stone-800 text-white h-20 rounded-[2rem] gap-4 text-xs font-bold uppercase tracking-[0.3em] shadow-[0_20px_40px_rgba(0,0,0,0.1)] transition-all active:scale-[0.98]"
+                className="w-full bg-stone-900 hover:bg-stone-800 text-white h-16 rounded-2xl gap-3 text-[10px] font-bold uppercase tracking-[0.3em] shadow-xl shadow-stone-100 transition-all active:scale-[0.98]"
               >
-                <ShoppingBag className="w-5 h-5" /> 
+                <ShoppingBag className="w-4 h-4" /> 
                 {isArabic ? "إضافة إلى الحقيبة" : "Ajouter au Panier"}
               </Button>
             </div>
