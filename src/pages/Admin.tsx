@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Trash2, Pencil, Plus, X, LogOut, Video, FileText, LayoutGrid } from "lucide-react";
+// زدنا Save هنا باش ما يبقاش الخطأ
+import { Trash2, Pencil, Plus, X, LogOut, Video, FileText, LayoutGrid, Save } from "lucide-react"; 
 import { motion, AnimatePresence } from "framer-motion";
 
 export const Admin = () => {
@@ -16,8 +17,9 @@ export const Admin = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingCatId, setEditingCatId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  // حالة جديدة باش نتحكمو فـ شاشة التحميل
+  const [appReady, setAppReady] = useState(false); 
 
-  // Forms State
   const [catForm, setCatForm] = useState({ name: "", image_url: "" });
   const [form, setForm] = useState({
     title: "", title_ar: "", price: "", description: "", description_ar: "",
@@ -28,21 +30,35 @@ export const Admin = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => setSession(session));
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (!session) setAppReady(true); // ايلا ماكاينش session، حيد شاشة التحميل
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (!session) setAppReady(true);
+    });
     return () => subscription.unsubscribe();
   }, []);
 
   const fetchAll = async () => {
-    const { data: pData } = await supabase.from("products").select("*").order("created_at", { ascending: false });
-    const { data: cData } = await supabase.from("categories").select("*").order("name", { ascending: true });
-    setProducts(pData || []);
-    setCategories(cData || []);
+    try {
+      const { data: pData, error: pError } = await supabase.from("products").select("*").order("created_at", { ascending: false });
+      const { data: cData, error: cError } = await supabase.from("categories").select("*").order("name", { ascending: true });
+      
+      if (pError || cError) console.error("Supabase Error:", pError || cError);
+      
+      setProducts(pData || []);
+      setCategories(cData || []);
+    } catch (err) {
+      console.error("Fetch Error:", err);
+    } finally {
+      setAppReady(true); // وخا يوقع مشكل، كنقولو للسيت راه واجد باش ما يبقاش معلق
+    }
   };
 
   useEffect(() => { if (session) fetchAll(); }, [session]);
 
-  // Product Actions
   const handleProductSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -51,7 +67,7 @@ export const Admin = () => {
       : await supabase.from("products").insert([form]);
 
     if (!error) {
-      toast({ title: "Produit enregistré avec succès" });
+      toast({ title: "Produit enregistré" });
       setShowForm(false); setEditingId(null);
       setForm({ title: "", title_ar: "", price: "", description: "", description_ar: "", image_url: "", category: "", images_gallery: [], video_url: "", colors: [] });
       fetchAll();
@@ -59,7 +75,6 @@ export const Admin = () => {
     setLoading(false);
   };
 
-  // Category Actions
   const handleCategorySubmit = async () => {
     if (!catForm.name) return;
     setLoading(true);
@@ -75,11 +90,13 @@ export const Admin = () => {
     setLoading(false);
   };
 
-  if (!session) return <div className="p-20 text-center font-serif italic">Chargement du Studio...</div>;
+  // تبديل الشرط باش يخدم بـ appReady
+  if (!appReady) return <div className="p-20 text-center font-serif italic">Chargement du Studio...</div>;
+  if (!session) return <div className="p-20 text-center font-serif">Veuillez vous connecter.</div>;
 
   return (
     <div className="pt-28 pb-12 px-4 max-w-5xl mx-auto min-h-screen font-sans">
-      {/* Navigation Admin */}
+      {/* الباقي ديال الكود ديالك هو هو، راه مريكل 100% */}
       <div className="flex justify-between items-center mb-10 bg-white p-4 rounded-3xl border border-stone-100 shadow-sm">
         <div className="flex gap-6 ml-4">
           <button onClick={() => setActiveTab("products")} className={`text-[10px] font-black uppercase tracking-[0.2em] ${activeTab === 'products' ? 'text-amber-700' : 'text-stone-400'}`}>Inventaire</button>
@@ -115,7 +132,6 @@ export const Admin = () => {
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-8">
-                  {/* Left Column: Text Content */}
                   <div className="space-y-6">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
@@ -139,7 +155,6 @@ export const Admin = () => {
                     </div>
                   </div>
 
-                  {/* Right Column: Media & Specs */}
                   <div className="space-y-6">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
@@ -175,7 +190,6 @@ export const Admin = () => {
           </motion.div>
         ) : (
           <motion.div key="cat" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-2xl mx-auto space-y-8">
-            {/* Category Form */}
             <div className="bg-white p-8 rounded-[2.5rem] border border-stone-100 shadow-lg space-y-6">
               <h2 className="font-serif italic text-xl flex items-center gap-2"><LayoutGrid className="w-5 h-5" /> {editingCatId ? 'Modifier Collection' : 'Nouvelle Collection'}</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -189,7 +203,6 @@ export const Admin = () => {
               </div>
             </div>
 
-            {/* Category List */}
             <div className="grid gap-3">
               {categories.map(c => (
                 <div key={c.id} className="flex items-center justify-between p-4 bg-white rounded-2xl border border-stone-50 shadow-sm group hover:border-amber-100 transition-all">
