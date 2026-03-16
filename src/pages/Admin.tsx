@@ -4,14 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Trash2, Pencil, Plus, X, LogOut, Video, FileText, LayoutGrid, Save, Lock, Image as ImageIcon } from "lucide-react"; 
+import { Trash2, Pencil, Plus, X, LogOut, Video, ImageIcon, Palette } from "lucide-react"; 
 import { motion, AnimatePresence } from "framer-motion";
 
 export const Admin = () => {
   const [session, setSession] = useState<any>(null);
   const [appReady, setAppReady] = useState(false);
   const [loading, setLoading] = useState(false);
-  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -20,35 +19,30 @@ export const Admin = () => {
   const [activeTab, setActiveTab] = useState<"products" | "categories">("products");
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editingCatId, setEditingCatId] = useState<string | null>(null);
+  
+  // States for Gallery & Colors
+  const [newGalleryUrl, setNewGalleryUrl] = useState("");
+  const [newColor, setNewColor] = useState("#94724a"); // اللون الافتراضي (الترابي)
 
   const { toast } = useToast();
 
-  const [catForm, setCatForm] = useState({ name: "", image_url: "" });
   const [form, setForm] = useState({
     title: "", title_ar: "", price: "", description: "", description_ar: "",
     image_url: "", category: "", images_gallery: [] as string[],
-    video_url: "", colors: [] as any[]
+    video_url: "", colors: [] as string[] // دبا الألوان غاتسيفا كـ Array ديال الـ HEX codes
   });
 
-  const [newGalleryUrl, setNewGalleryUrl] = useState("");
-
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setAppReady(true);
-    });
+    supabase.auth.getSession().then(({ data: { session } }) => { setSession(session); setAppReady(true); });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => setSession(session));
     return () => subscription.unsubscribe();
   }, []);
 
   const fetchAll = async () => {
-    try {
-      const { data: pData } = await supabase.from("products").select("*").order("created_at", { ascending: false });
-      const { data: cData } = await supabase.from("categories").select("*").order("name", { ascending: true });
-      setProducts(pData || []);
-      setCategories(cData || []);
-    } catch (err) { console.error(err); }
+    const { data: pData } = await supabase.from("products").select("*").order("created_at", { ascending: false });
+    const { data: cData } = await supabase.from("categories").select("*").order("name", { ascending: true });
+    setProducts(pData || []);
+    setCategories(cData || []);
   };
 
   useEffect(() => { if (session) fetchAll(); }, [session]);
@@ -61,188 +55,132 @@ export const Admin = () => {
     setLoading(false);
   };
 
-  const addGalleryImage = () => {
-    if (newGalleryUrl.trim()) {
-      setForm({ ...form, images_gallery: [...form.images_gallery, newGalleryUrl] });
-      setNewGalleryUrl("");
+  const addColor = () => {
+    if (!form.colors.includes(newColor)) {
+      setForm({ ...form, colors: [...form.colors, newColor] });
     }
   };
 
-  if (!appReady) return <div className="p-20 text-center font-serif italic text-stone-400">Initialisation...</div>;
+  if (!appReady) return null;
 
   if (!session) return (
-    <div className="min-h-screen flex items-center justify-center bg-stone-50 px-6">
-      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-white p-10 rounded-[2.5rem] shadow-2xl border border-stone-100 w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="bg-amber-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 text-amber-700 shadow-inner">
-            <Lock className="w-8 h-8" />
-          </div>
-          <h1 className="font-serif italic text-3xl text-stone-800">Atelier Rabab</h1>
-          <p className="text-stone-400 text-sm mt-3 uppercase tracking-[0.2em] font-bold">Studio Admin</p>
-        </div>
-        <form onSubmit={handleLogin} className="space-y-6">
-          <div className="space-y-2">
-            <Label className="text-xs font-bold uppercase ml-1 text-stone-500">Email Professionnel</Label>
-            <Input type="email" value={email} onChange={e => setEmail(e.target.value)} className="rounded-2xl h-14 bg-stone-50 border-none text-base" placeholder="admin@rabab.ma" required />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-xs font-bold uppercase ml-1 text-stone-500">Mot de passe</Label>
-            <Input type="password" value={password} onChange={e => setPassword(e.target.value)} className="rounded-2xl h-14 bg-stone-50 border-none text-base" placeholder="••••••••" required />
-          </div>
-          <Button type="submit" disabled={loading} className="w-full h-14 bg-stone-900 rounded-2xl mt-6 text-sm font-bold uppercase tracking-widest hover:bg-amber-900 transition-all">
-            {loading ? "Vérification..." : "Entrer dans le Studio"}
-          </Button>
-        </form>
-      </motion.div>
+    <div className="min-h-screen flex items-center justify-center bg-stone-50 p-6">
+      <form onSubmit={handleLogin} className="bg-white p-8 rounded-3xl shadow-lg border border-stone-100 w-full max-w-sm space-y-4">
+        <h1 className="text-center font-serif italic text-xl mb-6">Atelier Rabab Login</h1>
+        <Input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} className="h-12 rounded-xl" required />
+        <Input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} className="h-12 rounded-xl" required />
+        <Button type="submit" disabled={loading} className="w-full h-12 bg-stone-900 rounded-xl uppercase text-xs font-bold tracking-widest">Ouvrir le Studio</Button>
+      </form>
     </div>
   );
 
   return (
-    <div className="pt-28 pb-12 px-4 max-w-5xl mx-auto min-h-screen font-sans bg-stone-50/30">
-      {/* Header Admin */}
-      <div className="flex justify-between items-center mb-10 bg-white p-5 rounded-[2rem] border border-stone-100 shadow-sm">
-        <div className="flex gap-8 ml-4">
-          <button onClick={() => setActiveTab("products")} className={`text-xs font-black uppercase tracking-[0.15em] transition-colors ${activeTab === 'products' ? 'text-amber-800' : 'text-stone-300 hover:text-stone-500'}`}>Inventaire</button>
-          <button onClick={() => setActiveTab("categories")} className={`text-xs font-black uppercase tracking-[0.15em] transition-colors ${activeTab === 'categories' ? 'text-amber-800' : 'text-stone-300 hover:text-stone-500'}`}>Collections</button>
-        </div>
-        <Button variant="ghost" onClick={() => supabase.auth.signOut()} className="text-stone-300 hover:text-red-500"><LogOut className="w-5 h-5" /></Button>
+    <div className="pt-24 pb-10 px-4 max-w-4xl mx-auto font-sans">
+      <div className="flex gap-4 mb-8 bg-white p-2 rounded-2xl border border-stone-100 w-fit mx-auto shadow-sm">
+        <button onClick={() => setActiveTab("products")} className={`px-6 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === 'products' ? 'bg-stone-900 text-white' : 'text-stone-400'}`}>Produits</button>
+        <button onClick={() => setActiveTab("categories")} className={`px-6 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === 'categories' ? 'bg-stone-900 text-white' : 'text-stone-400'}`}>Collections</button>
       </div>
 
       <AnimatePresence mode="wait">
-        {activeTab === "products" ? (
+        {activeTab === "products" && (
           <motion.div key="prod" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             {!showForm ? (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <button onClick={() => setShowForm(true)} className="aspect-square border-2 border-dashed border-stone-200 rounded-[2.5rem] flex flex-col items-center justify-center text-stone-400 hover:border-amber-500 hover:text-amber-600 hover:bg-amber-50/30 transition-all group">
-                  <Plus className="w-8 h-8 mb-3 group-hover:scale-110 transition-transform" />
-                  <span className="text-[10px] font-bold uppercase tracking-widest">Nouveau Produit</span>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <button onClick={() => setShowForm(true)} className="aspect-square border-2 border-dashed border-stone-200 rounded-3xl flex flex-col items-center justify-center text-stone-300 hover:border-stone-900 transition-all">
+                  <Plus className="w-6 h-6 mb-2" />
+                  <span className="text-[9px] font-bold uppercase tracking-widest">Nouveau</span>
                 </button>
                 {products.map(p => (
-                  <div key={p.id} className="relative group aspect-square bg-white rounded-[2.5rem] overflow-hidden border border-stone-100 shadow-sm">
-                    <img src={p.image_url} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                    <div className="absolute inset-0 bg-stone-900/40 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-3 transition-all">
-                      <Button size="icon" variant="secondary" className="rounded-full w-10 h-10" onClick={() => { setForm(p); setEditingId(p.id); setShowForm(true); }}><Pencil className="w-4 h-4" /></Button>
-                      <Button size="icon" variant="destructive" className="rounded-full w-10 h-10" onClick={() => { if(confirm('Supprimer?')) supabase.from("products").delete().eq("id", p.id).then(fetchAll) }}><Trash2 className="w-4 h-4" /></Button>
+                  <div key={p.id} className="relative aspect-square bg-white rounded-3xl overflow-hidden border border-stone-100 shadow-sm group">
+                    <img src={p.image_url} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-2 transition-all">
+                      <Button size="icon" className="rounded-full w-8 h-8" onClick={() => { setForm(p); setEditingId(p.id); setShowForm(true); }}><Pencil className="w-3 h-3" /></Button>
+                      <Button size="icon" variant="destructive" className="rounded-full w-8 h-8" onClick={() => { if(confirm('Supprimer?')) supabase.from("products").delete().eq("id", p.id).then(fetchAll) }}><Trash2 className="w-3 h-3" /></Button>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <motion.form onSubmit={async (e) => {
+              <form onSubmit={async (e) => {
                 e.preventDefault();
                 setLoading(true);
                 const { error } = editingId ? await supabase.from("products").update(form).eq("id", editingId) : await supabase.from("products").insert([form]);
-                if (!error) { setShowForm(false); setEditingId(null); setForm({ title: "", title_ar: "", price: "", description: "", description_ar: "", image_url: "", category: "", images_gallery: [], video_url: "", colors: [] }); fetchAll(); toast({ title: "Studio mis à jour" }); }
+                if (!error) { setShowForm(false); setEditingId(null); fetchAll(); toast({ title: "Enregistré" }); }
                 setLoading(false);
-              }} className="bg-white p-10 rounded-[3rem] border border-stone-100 shadow-2xl space-y-10">
+              }} className="bg-white p-8 rounded-[2rem] border border-stone-100 shadow-xl space-y-6">
                 
-                <div className="flex justify-between items-center border-b border-stone-50 pb-6">
-                  <h2 className="font-serif italic text-2xl text-stone-800">Édition de l'Œuvre</h2>
-                  <button type="button" onClick={() => { setShowForm(false); setEditingId(null); }} className="text-stone-300 hover:text-stone-900"><X className="w-6 h-6" /></button>
+                <div className="flex justify-between items-center border-b pb-4">
+                  <h2 className="font-serif italic text-xl">Détails du Produit</h2>
+                  <button type="button" onClick={() => setShowForm(false)} className="text-stone-400 hover:text-black"><X /></button>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-12">
-                  <div className="space-y-8">
-                    <div className="grid grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <Label className="text-[11px] font-bold uppercase text-stone-400 ml-1">Titre (FR)</Label>
-                        <Input value={form.title} onChange={e => setForm({...form, title: e.target.value})} className="rounded-2xl h-14 bg-stone-50 border-none text-base font-medium" />
-                      </div>
-                      <div className="space-y-2 text-right">
-                        <Label className="text-[11px] font-bold uppercase text-stone-400 mr-1">العنوان (AR)</Label>
-                        <Input dir="rtl" value={form.title_ar} onChange={e => setForm({...form, title_ar: e.target.value})} className="rounded-2xl h-14 bg-stone-50 border-none text-base font-medium" />
-                      </div>
+                {/* Titres & Description */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1"><Label className="text-[9px] font-bold uppercase opacity-50">Titre (FR)</Label><Input value={form.title} onChange={e => setForm({...form, title: e.target.value})} className="rounded-xl h-10" /></div>
+                  <div className="space-y-1 text-right"><Label className="text-[9px] font-bold uppercase opacity-50">العنوان (AR)</Label><Input dir="rtl" value={form.title_ar} onChange={e => setForm({...form, title_ar: e.target.value})} className="rounded-xl h-10" /></div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1"><Label className="text-[9px] font-bold uppercase opacity-50">Description (FR)</Label><textarea value={form.description} onChange={e => setForm({...form, description: e.target.value})} className="w-full h-20 p-3 rounded-xl border border-stone-200 text-sm resize-none" /></div>
+                  <div className="space-y-1 text-right"><Label className="text-[9px] font-bold uppercase opacity-50">الوصف (AR)</Label><textarea dir="rtl" value={form.description_ar} onChange={e => setForm({...form, description_ar: e.target.value})} className="w-full h-20 p-3 rounded-xl border border-stone-200 text-sm text-right resize-none" /></div>
+                </div>
+
+                {/* Specs */}
+                <div className="grid grid-cols-3 gap-4">
+                   <div className="space-y-1"><Label className="text-[9px] font-bold uppercase opacity-50">Prix</Label><Input value={form.price} onChange={e => setForm({...form, price: e.target.value})} className="rounded-xl h-10 font-bold" /></div>
+                   <div className="space-y-1 col-span-2"><Label className="text-[9px] font-bold uppercase opacity-50">Collection</Label>
+                    <select value={form.category} onChange={e => setForm({...form, category: e.target.value})} className="w-full h-10 rounded-xl border border-stone-200 px-3 text-sm">
+                      <option value="">Sélectionner</option>
+                      {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Media Section */}
+                <div className="grid md:grid-cols-2 gap-6 pt-2">
+                  {/* Gallery */}
+                  <div className="space-y-2 border-r pr-4">
+                    <Label className="text-[9px] font-bold uppercase opacity-50 flex items-center gap-2"><ImageIcon className="w-3 h-3" /> Galerie Photos (+)</Label>
+                    <div className="flex gap-2">
+                      <Input value={newGalleryUrl} onChange={e => setNewGalleryUrl(e.target.value)} className="rounded-xl h-10 flex-1 text-xs" placeholder="URL..." />
+                      <Button type="button" onClick={() => { if(newGalleryUrl) { setForm({...form, images_gallery: [...form.images_gallery, newGalleryUrl]}); setNewGalleryUrl(""); } }} className="h-10 w-10 rounded-xl bg-stone-900"><Plus className="w-4 h-4" /></Button>
                     </div>
-                    <div className="space-y-2">
-                      <Label className="text-[11px] font-bold uppercase text-stone-400 ml-1">Description (FR)</Label>
-                      <textarea value={form.description} onChange={e => setForm({...form, description: e.target.value})} className="w-full min-h-[140px] p-5 rounded-2xl bg-stone-50 border-none text-base resize-none" />
-                    </div>
-                    <div className="space-y-2 text-right">
-                      <Label className="text-[11px] font-bold uppercase text-stone-400 mr-1">الوصف (AR)</Label>
-                      <textarea dir="rtl" value={form.description_ar} onChange={e => setForm({...form, description_ar: e.target.value})} className="w-full min-h-[140px] p-5 rounded-2xl bg-stone-50 border-none text-base resize-none" />
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {form.images_gallery.map((url, idx) => (
+                        <div key={idx} className="bg-stone-50 px-2 py-1 rounded-md text-[8px] font-bold flex items-center gap-2 border">IMG {idx + 1} <button type="button" onClick={() => setForm({...form, images_gallery: form.images_gallery.filter((_, i) => i !== idx)})} className="text-red-500">×</button></div>
+                      ))}
                     </div>
                   </div>
 
-                  <div className="space-y-8">
-                    <div className="grid grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <Label className="text-[11px] font-bold uppercase text-stone-400 ml-1">Prix (MAD)</Label>
-                        <Input value={form.price} onChange={e => setForm({...form, price: e.target.value})} className="rounded-2xl h-14 border-stone-100 text-lg font-bold" />
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-[11px] font-bold uppercase text-stone-400 ml-1">Collection</Label>
-                        <select value={form.category} onChange={e => setForm({...form, category: e.target.value})} className="w-full h-14 rounded-2xl border-stone-100 bg-white px-4 text-sm font-semibold">
-                          <option value="">Sélectionner</option>
-                          {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
-                        </select>
-                      </div>
+                  {/* Colors - Premium Version */}
+                  <div className="space-y-2">
+                    <Label className="text-[9px] font-bold uppercase opacity-50 flex items-center gap-2"><Palette className="w-3 h-3" /> Palette Couleurs</Label>
+                    <div className="flex gap-2 items-center">
+                      <input type="color" value={newColor} onChange={e => setNewColor(e.target.value)} className="w-10 h-10 rounded-lg border-none cursor-pointer bg-transparent" />
+                      <Input value={newColor} onChange={e => setNewColor(e.target.value)} className="h-10 w-24 text-xs font-mono" />
+                      <Button type="button" onClick={addColor} variant="outline" className="h-10 rounded-xl border-stone-900 text-[10px] font-bold">Ajouter</Button>
                     </div>
-
-                    <div className="space-y-2">
-                      <Label className="text-[11px] font-bold uppercase text-stone-400 ml-1 flex items-center gap-2"><Video className="w-4 h-4 text-amber-600" /> Vidéo URL</Label>
-                      <Input value={form.video_url} onChange={e => setForm({...form, video_url: e.target.value})} className="rounded-2xl bg-stone-50 border-none h-14 text-sm" placeholder="Lien MP4 ou YouTube" />
-                    </div>
-
-                    <div className="space-y-4">
-                      <Label className="text-[11px] font-bold uppercase text-stone-400 ml-1 flex items-center gap-2"><ImageIcon className="w-4 h-4 text-amber-600" /> Galerie Images</Label>
-                      <div className="flex gap-2">
-                        <Input value={newGalleryUrl} onChange={e => setNewGalleryUrl(e.target.value)} className="rounded-2xl h-14 border-stone-100 flex-1 text-sm" placeholder="URL de l'image supplémentaire..." />
-                        <Button type="button" onClick={addGalleryImage} className="h-14 w-14 rounded-2xl bg-stone-900"><Plus /></Button>
-                      </div>
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {form.images_gallery.map((img, idx) => (
-                          <div key={idx} className="bg-stone-100 px-3 py-2 rounded-xl text-[10px] font-bold flex items-center gap-2 text-stone-600">
-                            Image {idx + 1}
-                            <button type="button" onClick={() => setForm({...form, images_gallery: form.images_gallery.filter((_, i) => i !== idx)})}><X className="w-3 h-3 text-red-500" /></button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label className="text-[11px] font-bold uppercase text-stone-400 ml-1">Image de Couverture (Principale)</Label>
-                      <Input value={form.image_url} onChange={e => setForm({...form, image_url: e.target.value})} className="rounded-2xl border-stone-100 h-14 text-sm" />
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {form.colors?.map((hex, idx) => (
+                        <div key={idx} className="group relative w-6 h-6 rounded-full border border-stone-200 shadow-sm" style={{ backgroundColor: hex }}>
+                          <button type="button" onClick={() => setForm({...form, colors: form.colors.filter((_, i) => i !== idx)})} className="absolute -top-1 -right-1 bg-white rounded-full w-3 h-3 text-[8px] flex items-center justify-center border shadow-sm opacity-0 group-hover:opacity-100 transition-opacity">×</button>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
 
-                <Button type="submit" disabled={loading} className="w-full h-16 bg-stone-900 rounded-[1.5rem] text-sm font-black uppercase tracking-[0.4em] shadow-xl hover:bg-amber-900 transition-all">
-                  {loading ? 'Synchronisation...' : 'Enregistrer le Produit'}
+                {/* Additional Media */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1"><Label className="text-[9px] font-bold uppercase opacity-50 flex items-center gap-2"><Video className="w-3 h-3" /> Vidéo</Label><Input value={form.video_url} onChange={e => setForm({...form, video_url: e.target.value})} className="rounded-xl h-10 text-xs" /></div>
+                  <div className="space-y-1"><Label className="text-[9px] font-bold uppercase opacity-50">Image Principale</Label><Input value={form.image_url} onChange={e => setForm({...form, image_url: e.target.value})} className="rounded-xl h-10 text-xs" /></div>
+                </div>
+
+                <Button type="submit" disabled={loading} className="w-full h-12 bg-stone-900 rounded-xl text-xs font-black uppercase tracking-[0.4em] shadow-lg hover:shadow-none transition-all">
+                  {loading ? 'Sincronisation...' : 'Enregistrer le Produit'}
                 </Button>
-              </motion.form>
+              </form>
             )}
-          </motion.div>
-        ) : (
-          <motion.div key="cat" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-2xl mx-auto space-y-10">
-             <div className="bg-white p-10 rounded-[2.5rem] border border-stone-100 shadow-xl space-y-8">
-              <h2 className="font-serif italic text-2xl flex items-center gap-3"><LayoutGrid className="w-6 h-6 text-amber-700" /> Collections</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Input placeholder="Nom de collection" value={catForm.name} onChange={e => setCatForm({...catForm, name: e.target.value})} className="rounded-2xl h-14 bg-stone-50 border-none font-medium" />
-                <div className="flex gap-2">
-                  <Input placeholder="Image URL" value={catForm.image_url} onChange={e => setCatForm({...catForm, image_url: e.target.value})} className="rounded-2xl h-14 bg-stone-50 border-none flex-1 font-medium" />
-                  <Button onClick={async () => {
-                    const { error } = editingCatId ? await supabase.from("categories").update(catForm).eq("id", editingCatId) : await supabase.from("categories").insert([catForm]);
-                    if(!error) { setCatForm({name: "", image_url: ""}); setEditingCatId(null); fetchAll(); toast({title: "Collection à jour"}); }
-                  }} className="bg-stone-900 h-14 w-14 rounded-2xl">
-                    {editingCatId ? <Save className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
-                  </Button>
-                </div>
-              </div>
-            </div>
-            <div className="grid gap-4">
-              {categories.map(c => (
-                <div key={c.id} className="flex items-center justify-between p-5 bg-white rounded-3xl border border-stone-50 shadow-sm group hover:border-amber-100 transition-all">
-                  <div className="flex items-center gap-5">
-                    <img src={c.image_url || "/placeholder.svg"} className="w-16 h-16 rounded-full object-cover shadow-inner border-2 border-white" />
-                    <span className="text-xs font-black uppercase tracking-widest text-stone-700">{c.name}</span>
-                  </div>
-                  <div className="flex gap-3">
-                    <Button variant="ghost" size="icon" className="rounded-full w-10 h-10 text-stone-300 hover:text-amber-600" onClick={() => { setCatForm({ name: c.name, image_url: c.image_url }); setEditingCatId(c.id); }}><Pencil className="w-4 h-4" /></Button>
-                    <Button variant="ghost" size="icon" className="rounded-full w-10 h-10 text-stone-300 hover:text-red-500" onClick={() => { if(confirm('Supprimer?')) supabase.from("categories").delete().eq("id", c.id).then(fetchAll) }}><Trash2 className="w-4 h-4" /></Button>
-                  </div>
-                </div>
-              ))}
-            </div>
           </motion.div>
         )}
       </AnimatePresence>
