@@ -21,42 +21,53 @@ export const CategoryPage = () => {
   const [loading, setLoading] = useState(true);
   const { isArabic } = useLanguage();
 
-  // تحويل الـ slug لـ اسم كاتيغوري صالح للبحث
-  const categoryNameFromSlug = slug?.split('-').join(' ');
-
   useEffect(() => {
     const fetchCategoryAndProducts = async () => {
       setLoading(true);
-      if (!categoryNameFromSlug) return;
-
-      // 1. جلب بيانات الكاتيغوري (بما فيها الصورة اللي درنا فـ الأدمين)
-      const { data: catData } = await supabase
-        .from("categories")
-        .select("*")
-        .ilike("name", categoryNameFromSlug)
-        .single();
       
-      if (catData) setCategoryData(catData);
+      // 1. تحديد واش كنقلبو على كولشي ولا كاتيغوري محددة
+      const isAll = slug === 'all';
+      const categoryNameFromSlug = slug?.split('-').join(' ');
 
-      // 2. جلب المنتجات اللي تابعة لهاد الكاتيغوري
-      const { data, error } = await supabase
-        .from("products")
-        .select("*")
-        .ilike("category", categoryNameFromSlug)
-        .order("created_at", { ascending: false });
+      // 2. جلب بيانات الكاتيغوري (فقط إيلا ما كانتش "all")
+      if (!isAll && categoryNameFromSlug) {
+        const { data: catData } = await supabase
+          .from("categories")
+          .select("*")
+          .ilike("name", categoryNameFromSlug)
+          .single();
+
+        if (catData) setCategoryData(catData);
+      } else {
+        // إيلا كانت "all"، نعطيوها عنوان وصورة افتراضية فخمة
+        setCategoryData({
+          name: isArabic ? "المجموعة الكاملة" : "La Collection",
+          image_url: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=2000" // صورة خلفية فخمة للكل
+        });
+      }
+
+      // 3. جلب المنتجات (اللوجيك الجديد للربط التلقائي)
+      let query = supabase.from("products").select("*");
+
+      if (!isAll && categoryNameFromSlug) {
+        // إيلا كان كاتيغوري محدد، دير Filter
+        query = query.ilike("category", categoryNameFromSlug);
+      }
+
+      const { data, error } = await query.order("created_at", { ascending: false });
 
       if (data) setProducts(data as any);
       setLoading(false);
     };
 
     fetchCategoryAndProducts();
-  }, [categoryNameFromSlug]);
+  }, [slug, isArabic]); // استعملنا slug هنا لضمان تحديث الصفحة فورا
 
   const getTitle = (p: Product) => (isArabic && p.title_ar ? p.title_ar : p.title);
 
   return (
     <main className={`min-h-screen bg-white ${isArabic ? 'text-right' : 'text-left'}`} dir={isArabic ? 'rtl' : 'ltr'}>
-      
+
       {/* Dynamic Header Section */}
       <div className="relative h-[50vh] flex items-center justify-center bg-stone-900 overflow-hidden">
         <AnimatePresence>
@@ -84,14 +95,14 @@ export const CategoryPage = () => {
             <ArrowLeft className={`w-3 h-3 ${isArabic ? 'rotate-180' : ''}`} />
             {isArabic ? "العودة" : "Retour"}
           </Link>
-          
+
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             className="space-y-2"
           >
             <h1 className="text-5xl md:text-7xl font-serif text-stone-900 tracking-tighter italic capitalize">
-              {categoryData?.name || categoryNameFromSlug}
+              {categoryData?.name}
             </h1>
             <p className="text-amber-700 text-[10px] font-black uppercase tracking-[0.5em]">
               {products.length} {isArabic ? "قطع مختارة" : "Articles Sélectionnés"}
@@ -134,25 +145,19 @@ export const CategoryPage = () => {
                 >
                   <Link to={`/product/${item.id}`} className="group block">
                     <div className="relative space-y-6">
-                      {/* Image Container with Custom Shadow */}
                       <div className="aspect-[4/5] overflow-hidden rounded-[3rem] bg-stone-50 relative shadow-[0_20px_40px_rgba(0,0,0,0.03)] border border-stone-100 transition-all duration-700 group-hover:shadow-[0_30px_60px_rgba(0,0,0,0.08)] group-hover:-translate-y-2">
                         <img
                           src={item.image_url || "/placeholder.svg"}
                           alt={title}
                           className="w-full h-full object-cover transition-transform duration-[1.5s] group-hover:scale-110"
                         />
-
-                        {/* Hover Overlay */}
                         <div className="absolute inset-0 bg-stone-900/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                        
                         <div className="absolute bottom-6 right-6 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
                            <div className="bg-white p-4 rounded-full shadow-xl">
                               <Plus className="w-5 h-5 text-stone-900" />
                            </div>
                         </div>
                       </div>
-
-                      {/* Info - Centered & Clean */}
                       <div className="text-center space-y-2">
                         <h3 className="text-sm font-serif text-stone-800 tracking-tight italic">
                           {title}
