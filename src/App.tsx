@@ -38,7 +38,8 @@ const App = () => (
                 <Route path="/infos" element={<Infos />} />
                 <Route path="/expositions" element={<Expositions />} />
                 <Route path="/category/:slug" element={<CategoryPage />} />
-                <Route path="/sur-mesure" element={<SurMesure />} />
+             <Route path="/collection" element={<Collection />} />    
+<Route path="/sur-mesure" element={<SurMesure />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
