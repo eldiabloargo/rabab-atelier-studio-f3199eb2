@@ -1,94 +1,105 @@
 import { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { ArrowLeft, MapPin } from "lucide-react";
+import { ArrowLeft, MapPin, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 40 },
+  hidden: { opacity: 0, y: 30 },
   visible: { opacity: 1, y: 0 },
 };
 
-const stagger = {
-  visible: { transition: { staggerChildren: 0.2 } },
-};
-
 const Expositions = () => {
-  const { isArabic } = useLanguage();
+  // استخراج الدالة t و isArabic مع حماية في حالة كان الـ Context غير متوفر
+  const lang = useLanguage();
+  const isArabic = lang?.isArabic || false;
+  const t = lang?.t;
 
-  // البيانات محطوطة هنا مباشرة باش متبقاش الصفحة بيضاء
+  // دالة مساعدة لجلب النص بأمان
+  const getText = (key: string, fallback: string) => {
+    if (t) {
+      const translated = t(key);
+      return translated !== key ? translated : fallback;
+    }
+    return fallback;
+  };
+
   const expos = [
     {
-      title: isArabic ? "معرض أكادير الدولي" : "Exposition Internationale d'Agadir",
-      desc: isArabic 
-        ? "مشاركة متميزة عرضنا فيها أحدث إبداعاتنا في الديكور المنزلي التقليدي بلمسة عصرية."
-        : "Une participation distinguée où nous avons présenté nos dernières créations en décoration artisanale.",
-      location: isArabic ? "أكادير، المغرب" : "Agadir, Maroc",
+      title: getText("expo.agadir.title", isArabic ? "معرض أكادير الدولي" : "Exposition d'Agadir"),
+      desc: getText("expo.agadir.desc", isArabic ? "مشاركة متميزة عرضنا فيها أرقى لمسات الديكور المنزلي." : "Une immersion dans l'art de vivre marocain à travers nos créations."),
+      location: isArabic ? "أكادير" : "Agadir",
+      date: "2025"
     },
     {
-      title: isArabic ? "موسم طانطان العالمي" : "Moussem de Tan-Tan",
-      desc: isArabic 
-        ? "حضور في قلب التراث الصحراوي المغربي، احتفاءً بالصناعة التقليدية الأصيلة."
-        : "Une présence au cœur du patrimoine saharien, célébrant l'artisanat authentique du Maroc.",
-      location: isArabic ? "طانطان، المغرب" : "Tan-Tan, Maroc",
-    },
-    {
-      title: isArabic ? "لقاء الصحراء للابتكار" : "Rencontre Sahara Innovation",
-      desc: isArabic 
-        ? "تكريم خاص لمنتجاتنا كأفضل تصميم يجمع بين الأصالة والحداثة."
-        : "Prix spécial pour nos produits alliant design moderne et savoir-faire ancestral.",
-      location: isArabic ? "الصحراء، المغرب" : "Sahara, Maroc",
-    },
+      title: getText("expo.tantan.title", isArabic ? "موسم طانطان العالمي" : "Moussem de Tan-Tan"),
+      desc: getText("expo.tantan.desc", isArabic ? "احتفاء بالتراث الأصيل وجمالية الصناعة التقليدية الصحراوية." : "Célébration de l'artisanat saharien et de notre héritage ancestral."),
+      location: isArabic ? "طانطان" : "Tan-Tan",
+      date: "2024"
+    }
   ];
 
   return (
-    <main className="min-h-screen bg-stone-50">
-      <div className="max-w-3xl mx-auto px-6 py-20">
+    <main className="min-h-screen bg-[#fafaf9] selection:bg-stone-200">
+      <div className="max-w-4xl mx-auto px-6 py-24">
+        
+        {/* زر الرجوع بلمسة ناعمة */}
         <Link
           to="/"
-          className={`inline-flex items-center gap-2 text-sm text-stone-400 hover:text-amber-700 transition-colors mb-16 tracking-widest uppercase font-sans ${isArabic ? 'flex-row-reverse' : ''}`}
+          className={`group inline-flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] text-stone-400 hover:text-stone-900 transition-all mb-20 ${isArabic ? 'flex-row-reverse' : ''}`}
         >
-          <ArrowLeft className={`w-4 h-4 ${isArabic ? 'rotate-180' : ''}`} />
+          <ArrowLeft className={`w-4 h-4 transition-transform group-hover:-translate-x-1 ${isArabic ? 'rotate-180 group-hover:translate-x-1' : ''}`} />
           {isArabic ? "الرئيسية" : "Accueil"}
         </Link>
 
-        <motion.div initial="hidden" animate="visible" variants={stagger} className="space-y-20">
-          <motion.div variants={fadeUp} transition={{ duration: 1 }} className="text-center space-y-4">
-            <h1 className="text-4xl md:text-5xl font-serif text-stone-800 italic">
-              {isArabic ? "معارضنا" : "Expositions"}
+        <motion.div initial="hidden" animate="visible" transition={{ staggerChildren: 0.1 }} className="space-y-24">
+          
+          {/* Header بتصميم Minimalist */}
+          <motion.div variants={fadeUp} className="space-y-6 text-center">
+            <div className="flex justify-center mb-4">
+              <Sparkles className="w-5 h-5 text-stone-300" />
+            </div>
+            <h1 className="text-5xl md:text-6xl font-serif italic text-stone-800 leading-tight">
+              {getText("expo.title", isArabic ? "معارضنا" : "Expositions")}
             </h1>
-            <p className="text-lg text-stone-400 font-sans">
-              {isArabic ? "لحظات من الفخر والإبداع" : "Nos moments de fierté et de création"}
+            <div className="w-12 h-[1px] bg-stone-200 mx-auto my-6" />
+            <p className="text-stone-400 font-sans tracking-wide max-w-lg mx-auto leading-relaxed">
+              {getText("expo.subtitle", isArabic ? "سجل من الإبداع والتميز في كبرى المحافل" : "Récit de nos escales créatives à travers le Royaume")}
             </p>
           </motion.div>
 
-          <div className="space-y-10">
+          {/* القائمة بتصميم Luxury Cards */}
+          <div className="grid gap-16">
             {expos.map((expo, index) => (
               <motion.div
                 key={index}
                 variants={fadeUp}
-                transition={{ duration: 0.8 }}
-                className="bg-white border border-stone-100 p-8 space-y-4 hover:shadow-2xl transition-all duration-500 rounded-[2.5rem]"
+                className={`group relative grid md:grid-cols-[1fr_auto_2fr] gap-8 items-center ${isArabic ? 'md:text-right' : 'md:text-left'}`}
               >
-                <div className={`flex items-start justify-between gap-4 ${isArabic ? 'flex-row-reverse' : ''}`}>
-                  <div className={isArabic ? 'text-right' : 'text-left'}>
-                    <h2 className="text-xl md:text-2xl font-serif text-stone-800 leading-snug">
-                      {expo.title}
-                    </h2>
-                    <div className={`flex items-center gap-2 text-[10px] text-amber-600 font-sans tracking-[0.3em] uppercase mt-2 ${isArabic ? 'flex-row-reverse' : ''}`}>
-                      <MapPin className="w-3 h-3" />
-                      {expo.location}
-                    </div>
-                  </div>
-                  <div className="flex-shrink-0 w-16 h-16 rounded-2xl bg-stone-50 flex items-center justify-center">
-                    <MapPin className="w-6 h-6 text-stone-200" />
-                  </div>
+                {/* التاريخ كخلفية خفيفة */}
+                <div className={`hidden md:block text-4xl font-serif italic text-stone-100 transition-colors group-hover:text-stone-200 ${isArabic ? 'text-left' : 'text-right'}`}>
+                  {expo.date}
                 </div>
-                <p className={`text-sm text-stone-500 font-sans leading-relaxed ${isArabic ? 'text-right' : 'text-left'}`}>
-                  {expo.desc}
-                </p>
+
+                {/* فاصل عمودي ناعم */}
+                <div className="hidden md:block w-[1px] h-20 bg-stone-100 group-hover:bg-amber-200 transition-colors" />
+
+                {/* محتوى المعرض */}
+                <div className="space-y-4">
+                  <div className={`flex items-center gap-3 text-amber-700/60 ${isArabic ? 'flex-row-reverse' : ''}`}>
+                    <MapPin className="w-3 h-3" />
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em]">{expo.location}</span>
+                  </div>
+                  <h2 className="text-2xl md:text-3xl font-serif text-stone-800 group-hover:text-amber-900 transition-colors">
+                    {expo.title}
+                  </h2>
+                  <p className="text-stone-500 font-sans text-sm leading-relaxed max-w-xl">
+                    {expo.desc}
+                  </p>
+                </div>
               </motion.div>
             ))}
           </div>
+
         </motion.div>
       </div>
     </main>
