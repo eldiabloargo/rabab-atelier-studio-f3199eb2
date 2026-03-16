@@ -1,3 +1,4 @@
+mport { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/contexts/CartContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -10,6 +11,7 @@ export const CartDrawer = ({ isOpen, onClose }: { isOpen: boolean, onClose: () =
   const { isArabic, t } = useLanguage();
   const [isGift, setIsGift] = useState(false);
   const [giftMsg, setGiftMsg] = useState("");
+  const navigate = useNavigate(); 
 
   const handleWhatsAppOrder = () => {
     const phoneNumber = "212679697964";
@@ -56,12 +58,15 @@ export const CartDrawer = ({ isOpen, onClose }: { isOpen: boolean, onClose: () =
                   {items.length} {isArabic ? "تحف مختارة" : "Pièces Sélectionnées"}
                 </p>
               </div>
-              <button 
-                onClick={onClose} 
-                className="group w-12 h-12 flex items-center justify-center rounded-full border border-stone-100 bg-white hover:border-stone-900 transition-all duration-500"
-              >
-                <X className="w-4 h-4 text-stone-400 group-hover:text-stone-900 group-hover:rotate-90 transition-all duration-500" />
-              </button>
+              <Button 
+  className="w-full" 
+  onClick={() => {
+    onClose();
+    navigate("/checkout");
+  }}
+>
+  {isArabic ? "إتمام الطلب" : "Commander"}
+</Button>
             </div>
 
             {/* Product List */}
