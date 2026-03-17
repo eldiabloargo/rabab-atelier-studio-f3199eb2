@@ -10,7 +10,6 @@ import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { Navbar } from "@/components/Navbar";
 import { AnimatePresence, motion } from "framer-motion";
 
-// تصحيح الـ Imports لضمان التوافق التام
 const Index = lazy(() => import("./pages/Index"));
 const Expositions = lazy(() => import("./pages/Expositions").then(m => ({ default: m.Expositions })));
 const SurMesure = lazy(() => import("./pages/SurMesure").then(m => ({ default: m.SurMesure })));
@@ -25,12 +24,7 @@ const ScrollToTop = () => {
 };
 
 const PageTransition = ({ children }: { children: React.ReactNode }) => (
-  <motion.div
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    exit={{ opacity: 0 }}
-    transition={{ duration: 0.3 }}
-  >
+  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
     {children}
   </motion.div>
 );
