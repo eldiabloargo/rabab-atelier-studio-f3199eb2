@@ -1,6 +1,6 @@
 import { Hero } from "@/components/Hero";
-import { ProductDetail } from "@/components/ProductDetail";
-import { CategoryPage} from "@/components/CategoryPage";
+import { ProductDetail } from "@/pages/ProductDetail";
+import { CategoryPage} from "@/pages/CategoryPage";
 import { Artisane } from "@/components/Artisane";
 import { Footer } from "@/components/Footer";
 
