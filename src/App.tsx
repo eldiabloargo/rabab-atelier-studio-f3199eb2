@@ -10,7 +10,7 @@ import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { Navbar } from "@/components/Navbar";
 import { AnimatePresence, motion } from "framer-motion";
 
-// تصحيح الـ Imports: استعملنا الطريقة الأضمن
+// تصحيح الـ Imports لضمان التوافق التام
 const Index = lazy(() => import("./pages/Index"));
 const Expositions = lazy(() => import("./pages/Expositions").then(m => ({ default: m.Expositions })));
 const SurMesure = lazy(() => import("./pages/SurMesure").then(m => ({ default: m.SurMesure })));
@@ -24,17 +24,28 @@ const ScrollToTop = () => {
   return null;
 };
 
+const PageTransition = ({ children }: { children: React.ReactNode }) => (
+  <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    transition={{ duration: 0.3 }}
+  >
+    {children}
+  </motion.div>
+);
+
 const AnimatedRoutes = () => {
   const location = useLocation();
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<Index />} />
-        <Route path="/expositions" element={<Expositions />} />
-        <Route path="/sur-mesure" element={<SurMesure />} />
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/product/:id" element={<ProductDetail />} />
-        <Route path="/category/:slug" element={<CategoryPage />} />
+        <Route path="/" element={<PageTransition><Index /></PageTransition>} />
+        <Route path="/expositions" element={<PageTransition><Expositions /></PageTransition>} />
+        <Route path="/sur-mesure" element={<PageTransition><SurMesure /></PageTransition>} />
+        <Route path="/checkout" element={<PageTransition><Checkout /></PageTransition>} />
+        <Route path="/product/:id" element={<PageTransition><ProductDetail /></PageTransition>} />
+        <Route path="/category/:slug" element={<PageTransition><CategoryPage /></PageTransition>} />
       </Routes>
     </AnimatePresence>
   );
