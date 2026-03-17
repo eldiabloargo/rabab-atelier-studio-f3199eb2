@@ -21,7 +21,7 @@ export const Checkout = () => {
 
   return (
     <main className={`min-h-screen bg-[#fafaf9] pt-32 pb-20 ${isArabic ? 'text-right' : 'text-left'}`} dir={isArabic ? 'rtl' : 'ltr'}>
-      <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-16">
+      <div className="max-w-6xl mx-auto px-4 md:px-6 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16">
         
         {/* معلومات التوصيل */}
         <div className="lg:col-span-7 space-y-10">
@@ -45,7 +45,8 @@ export const Checkout = () => {
         </div>
 
         {/* ملخص السلة */}
-        <div className="lg:col-span-5 bg-white p-8 rounded-[2.5rem] border border-stone-100 h-fit sticky top-32">
+        <<div className="lg:col-span-5 order-1 lg:order-2">
+    <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-stone-100 sticky top-24">
           <h2 className="text-xl font-serif mb-8">{isArabic ? "ملخص الحقيبة" : "Résumé du Panier"}</h2>
           <div className="space-y-6">
             {items.map((item) => (
