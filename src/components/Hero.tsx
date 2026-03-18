@@ -57,7 +57,7 @@ export const Hero = () => {
         >
           <div className="flex items-center justify-center gap-4 mb-2">
             <div className="h-[1px] w-8 bg-stone-200" />
-            <span className="text-[10px] font-black tracking-[0.6em] text-stone-400 uppercase">Est. 2026</span>
+            <span className="text-[10px] font-black tracking-[0.6em] text-stone-400 uppercase">THIS IS</span>
             <div className="h-[1px] w-8 bg-stone-200" />
           </div>
 
