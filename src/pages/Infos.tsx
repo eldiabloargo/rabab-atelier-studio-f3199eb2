@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { MessageCircle, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useEffect } from "react"; // إضافة الـ useEffect
+import { useEffect } from "react";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -16,17 +16,14 @@ const stagger = {
 export const Infos = () => {
   const { t, isArabic } = useLanguage();
 
-  // الكود اللي كيخبي الـ Navbar ويرجعو
   useEffect(() => {
     const navbar = document.querySelector('nav');
     if (navbar) {
       navbar.style.display = 'none';
     }
-    
-    // هادي كترجع الـ Navbar ملي كتخرج من الصفحة
     return () => {
       if (navbar) {
-        navbar.style.display = 'flex'; // تأكدت أنها 'flex' حيت غالبا هكا داير ليها فـ Navbar.tsx
+        navbar.style.display = 'flex';
       }
     };
   }, []);
@@ -45,21 +42,23 @@ export const Infos = () => {
   return (
     <main className="h-screen w-full bg-[#fafaf9] overflow-hidden flex flex-col justify-center">
       <div className="max-w-4xl mx-auto px-8 w-full">
+        {/* نقصت الفراغ تحت زر العودة من mb-8 لـ mb-4 */}
         <Link
           to="/"
-          className={`inline-flex items-center gap-2 text-[10px] text-stone-400 hover:text-stone-900 transition-colors mb-8 tracking-[0.3em] uppercase font-sans ${isArabic ? 'flex-row-reverse' : ''}`}
+          className={`inline-flex items-center gap-2 text-[10px] text-stone-400 hover:text-stone-900 transition-colors mb-4 tracking-[0.3em] uppercase font-sans ${isArabic ? 'flex-row-reverse' : ''}`}
         >
           <ArrowLeft className={`w-3 h-3 ${isArabic ? 'rotate-180' : ''}`} />
           {isArabic ? "الرئيسية" : "Accueil"}
         </Link>
 
+        {/* نقصت الفراغ بين الأقسام من space-y-12 لـ space-y-8 */}
         <motion.div
           initial="hidden"
           animate="visible"
           variants={stagger}
-          className="space-y-12"
+          className="space-y-8"
         >
-          <motion.div variants={fadeUp} className="text-center space-y-2">
+          <motion.div variants={fadeUp} className="text-center space-y-1">
             <h1 className="text-3xl md:text-5xl font-serif text-stone-900 tracking-tighter font-medium">
               {t("infos.title")}
             </h1>
@@ -68,17 +67,18 @@ export const Infos = () => {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+          {/* نقصت الفراغات بين الخطوات */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10">
             {steps.map((step) => (
               <motion.div
                 key={step.num}
                 variants={fadeUp}
-                className="space-y-4 text-center md:text-left rtl:md:text-right"
+                className="space-y-3 text-center md:text-left rtl:md:text-right"
               >
                 <span className="text-3xl font-serif text-amber-600/20 block leading-none">
                   {step.num}
                 </span>
-                <div className="space-y-2">
+                <div className="space-y-1">
                   <h2 className="text-lg font-serif text-stone-800 font-medium">{step.title}</h2>
                   <p className="text-xs leading-relaxed text-stone-500 font-sans font-light">
                     {step.desc}
@@ -88,8 +88,9 @@ export const Infos = () => {
             ))}
           </div>
 
-          <motion.div variants={fadeUp} className="text-center pt-8 border-t border-stone-100">
-            <h3 className="text-sm font-serif text-stone-400 mb-6 italic tracking-tight">{t("infos.contact")}</h3>
+          {/* نقصت الفراغ فوق زر الواتساب من pt-8 لـ pt-6 */}
+          <motion.div variants={fadeUp} className="text-center pt-6 border-t border-stone-100">
+            <h3 className="text-sm font-serif text-stone-400 mb-4 italic tracking-tight">{t("infos.contact")}</h3>
             <a
               href={whatsappUrl}
               target="_blank"
