@@ -16,6 +16,7 @@ const Index = () => {
       <div className="space-y-16 md:space-y-32">
         <Collection /> 
         <Artisane />
+        <Ateliers />
       </div>
       <Footer />
     </motion.div>
