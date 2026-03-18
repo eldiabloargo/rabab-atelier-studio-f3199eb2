@@ -4,12 +4,12 @@ import { MessageCircle, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 40 },
+  hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0 },
 };
 
 const stagger = {
-  visible: { transition: { staggerChildren: 0.2 } },
+  visible: { transition: { staggerChildren: 0.1 } },
 };
 
 export const Infos = () => {
@@ -27,13 +27,14 @@ export const Infos = () => {
   const whatsappUrl = `https://wa.me/212679697964?text=${encodeURIComponent(whatsappMsg)}`;
 
   return (
-    <main className="min-h-screen bg-background">
-      <div className="max-w-3xl mx-auto px-6 py-20">
+    <main className="h-screen w-full bg-[#fafaf9] overflow-hidden flex flex-col justify-center">
+      <div className="max-w-4xl mx-auto px-8 w-full">
+        {/* زر العودة صغار باش ما ياخدش مساحة */}
         <Link
           to="/"
-          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-gold transition-colors mb-16 tracking-widest uppercase font-sans"
+          className={`inline-flex items-center gap-2 text-[10px] text-stone-400 hover:text-stone-900 transition-colors mb-8 tracking-[0.3em] uppercase font-sans ${isArabic ? 'flex-row-reverse' : ''}`}
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className={`w-3 h-3 ${isArabic ? 'rotate-180' : ''}`} />
           {isArabic ? "الرئيسية" : "Accueil"}
         </Link>
 
@@ -41,31 +42,32 @@ export const Infos = () => {
           initial="hidden"
           animate="visible"
           variants={stagger}
-          className="space-y-20"
+          className="space-y-12"
         >
-          <motion.div variants={fadeUp} transition={{ duration: 1 }} className="text-center space-y-4">
-            <h1 className="text-4xl md:text-5xl font-serif text-gold-gradient">
+          {/* العنوان: Serif فخم وواقف */}
+          <motion.div variants={fadeUp} className="text-center space-y-2">
+            <h1 className="text-3xl md:text-5xl font-serif text-stone-900 tracking-tighter font-medium">
               {t("infos.title")}
             </h1>
-            <p className="text-lg text-muted-foreground font-sans">
+            <p className="text-sm text-stone-500 font-sans tracking-wide">
               {t("infos.subtitle")}
             </p>
           </motion.div>
 
-          <div className="space-y-16">
+          {/* الخطوات: مرتبة بشكل عرضي أو متقارب باش تجمع فصفحة واحدة */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
             {steps.map((step) => (
               <motion.div
                 key={step.num}
                 variants={fadeUp}
-                transition={{ duration: 0.8 }}
-                className="flex gap-8 items-start"
+                className="space-y-4 text-center md:text-left rtl:md:text-right"
               >
-                <span className="text-5xl font-serif text-gold/30 flex-shrink-0 leading-none">
+                <span className="text-3xl font-serif text-amber-600/20 block leading-none">
                   {step.num}
                 </span>
-                <div className="space-y-3">
-                  <h2 className="text-2xl font-serif text-foreground">{step.title}</h2>
-                  <p className="text-base leading-relaxed text-muted-foreground font-sans">
+                <div className="space-y-2">
+                  <h2 className="text-lg font-serif text-stone-800 font-medium">{step.title}</h2>
+                  <p className="text-xs leading-relaxed text-stone-500 font-sans font-light">
                     {step.desc}
                   </p>
                 </div>
@@ -73,15 +75,16 @@ export const Infos = () => {
             ))}
           </div>
 
-          <motion.div variants={fadeUp} transition={{ duration: 0.8 }} className="text-center pt-10 border-t border-border">
-            <h3 className="text-2xl font-serif text-foreground mb-6">{t("infos.contact")}</h3>
+          {/* التذيل: زر واتساب فخم ومركزي */}
+          <motion.div variants={fadeUp} className="text-center pt-8 border-t border-stone-100">
+            <h3 className="text-sm font-serif text-stone-400 mb-6 italic tracking-tight">{t("infos.contact")}</h3>
             <a
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 px-8 py-4 bg-gold text-white font-sans text-sm tracking-widest uppercase rounded-lg hover:bg-gold-dark transition-colors"
+              className="group inline-flex items-center gap-4 px-10 py-4 bg-stone-900 text-white font-sans text-[10px] tracking-[0.4em] uppercase rounded-full hover:bg-amber-900 transition-all duration-700 shadow-lg shadow-stone-200"
             >
-              <MessageCircle className="w-4 h-4" />
+              <MessageCircle className="w-4 h-4 transition-transform group-hover:scale-110" />
               {t("infos.whatsapp")}
             </a>
           </motion.div>
