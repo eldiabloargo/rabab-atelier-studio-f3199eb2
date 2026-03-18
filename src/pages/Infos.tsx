@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { MessageCircle, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useEffect } from "react"; // إضافة الـ useEffect
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -14,6 +15,21 @@ const stagger = {
 
 export const Infos = () => {
   const { t, isArabic } = useLanguage();
+
+  // الكود اللي كيخبي الـ Navbar ويرجعو
+  useEffect(() => {
+    const navbar = document.querySelector('nav');
+    if (navbar) {
+      navbar.style.display = 'none';
+    }
+    
+    // هادي كترجع الـ Navbar ملي كتخرج من الصفحة
+    return () => {
+      if (navbar) {
+        navbar.style.display = 'flex'; // تأكدت أنها 'flex' حيت غالبا هكا داير ليها فـ Navbar.tsx
+      }
+    };
+  }, []);
 
   const steps = [
     { title: t("infos.step1.title"), desc: t("infos.step1.desc"), num: "01" },
@@ -29,7 +45,6 @@ export const Infos = () => {
   return (
     <main className="h-screen w-full bg-[#fafaf9] overflow-hidden flex flex-col justify-center">
       <div className="max-w-4xl mx-auto px-8 w-full">
-        {/* زر العودة صغار باش ما ياخدش مساحة */}
         <Link
           to="/"
           className={`inline-flex items-center gap-2 text-[10px] text-stone-400 hover:text-stone-900 transition-colors mb-8 tracking-[0.3em] uppercase font-sans ${isArabic ? 'flex-row-reverse' : ''}`}
@@ -44,7 +59,6 @@ export const Infos = () => {
           variants={stagger}
           className="space-y-12"
         >
-          {/* العنوان: Serif فخم وواقف */}
           <motion.div variants={fadeUp} className="text-center space-y-2">
             <h1 className="text-3xl md:text-5xl font-serif text-stone-900 tracking-tighter font-medium">
               {t("infos.title")}
@@ -54,7 +68,6 @@ export const Infos = () => {
             </p>
           </motion.div>
 
-          {/* الخطوات: مرتبة بشكل عرضي أو متقارب باش تجمع فصفحة واحدة */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
             {steps.map((step) => (
               <motion.div
@@ -75,7 +88,6 @@ export const Infos = () => {
             ))}
           </div>
 
-          {/* التذيل: زر واتساب فخم ومركزي */}
           <motion.div variants={fadeUp} className="text-center pt-8 border-t border-stone-100">
             <h3 className="text-sm font-serif text-stone-400 mb-6 italic tracking-tight">{t("infos.contact")}</h3>
             <a
