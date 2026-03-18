@@ -2,6 +2,7 @@ import { Hero } from "@/components/Hero";
 import { Collection } from "@/components/Collection";
 import { Artisane } from "@/components/Artisane";
 import { Footer } from "@/components/Footer";
+import { Atelier} from "@/components/Atelier";
 import { motion } from "framer-motion";
 
 const Index = () => {
