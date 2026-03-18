@@ -1,20 +1,23 @@
 import { Hero } from "@/components/Hero";
-import { ProductDetail } from "@/pages/ProductDetail";
-import { CategoryPage} from "@/pages/CategoryPage";
+import { Collection } from "@/components/Collection";
 import { Artisane } from "@/components/Artisane";
 import { Footer } from "@/components/Footer";
+import { motion } from "framer-motion";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-[#fafaf9]">
+    <motion.div 
+      initial={{ opacity: 0 }} 
+      animate={{ opacity: 1 }} 
+      className="min-h-screen bg-[#fafaf9]"
+    >
       <Hero />
-      <div className="space-y-16 md:space-y-24">
-        <CategoryPage />
-        <ProductDetail />
+      <div className="space-y-16 md:space-y-32">
+        <Collection /> 
         <Artisane />
       </div>
       <Footer />
-    </div>
+    </motion.div>
   );
 };
 
