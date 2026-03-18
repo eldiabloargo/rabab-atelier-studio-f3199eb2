@@ -20,8 +20,8 @@ export const Admin = () => {
   const [activeTab, setActiveTab] = useState<"products" | "categories">("products");
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingCatId, setEditingCatId] = useState<string | null>(null);
 
-  // فورم البروداكت كاملة بجميع الخصائص
   const [form, setForm] = useState({
     title: "", title_ar: "", price: "", description: "", description_ar: "",
     image_url: "", category: "", images_gallery: [] as string[],
@@ -32,7 +32,6 @@ export const Admin = () => {
   const [newColorHex, setNewColorHex] = useState("#C5A059");
   const { toast } = useToast();
 
-  // 1. إخفاء Navbar و Footer الموقع الأصلي فاش نكونو ف صفحة الأدمن
   useEffect(() => {
     const nav = document.querySelector('nav');
     const footer = document.querySelector('footer');
@@ -44,7 +43,6 @@ export const Admin = () => {
     };
   }, []);
 
-  // 2. التحقق من الجلسة (Login Check)
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => { setSession(session); setAppReady(true); });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => setSession(session));
@@ -70,7 +68,6 @@ export const Admin = () => {
 
   if (!appReady) return null;
 
-  // واجهة تسجيل الدخول
   if (!session) return (
     <div className="min-h-screen flex items-center justify-center bg-[#fafaf9] p-6">
       <motion.form initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} onSubmit={handleLogin} className="bg-white p-8 rounded-[2rem] shadow-2xl border border-stone-100 w-full max-w-sm space-y-4">
@@ -88,14 +85,11 @@ export const Admin = () => {
   return (
     <div className="min-h-screen bg-[#fafaf9] pt-6 pb-20 px-4">
       <div className="max-w-5xl mx-auto space-y-8">
-        
-        {/* Header: View Site & Tabs & Logout */}
         <div className="flex items-center justify-between bg-white/80 backdrop-blur-md p-2 rounded-2xl border border-stone-100 shadow-sm sticky top-4 z-50">
           <Link to="/" className="flex items-center gap-2 px-4 py-2 rounded-xl bg-stone-50 text-stone-500 hover:text-stone-900 transition-all">
             <ExternalLink className="w-3.5 h-3.5" />
             <span className="text-[8px] font-black uppercase tracking-widest">Site</span>
           </Link>
-
           <div className="flex bg-stone-100 p-1 rounded-xl">
             <button onClick={() => setActiveTab("products")} className={`flex items-center gap-2 px-6 py-2 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all ${activeTab === 'products' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-400'}`}>
               <LayoutGrid className="w-3.5 h-3.5" /> Inventaire
@@ -104,7 +98,6 @@ export const Admin = () => {
               <Layers className="w-3.5 h-3.5" /> Collections
             </button>
           </div>
-
           <button onClick={() => supabase.auth.signOut()} className="p-2 text-stone-300 hover:text-red-500 transition-colors">
             <LogOut className="w-4 h-4" />
           </button>
@@ -114,9 +107,8 @@ export const Admin = () => {
           {activeTab === "products" ? (
             <motion.div key="prod" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               {!showForm ? (
-                 /* Grid تصغير الصور (3 في الموبايل) */
                  <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
-                   <button onClick={() => { setEditingId(null); setForm({ title: "", title_ar: "", price: "", description: "", description_ar: "", image_url: "", category: "", images_gallery: [""], video_url: "", colors: [] }); setShowForm(true); }} className="aspect-[4/5] border-2 border-dashed border-stone-200 rounded-2xl flex flex-col items-center justify-center text-stone-300 bg-white hover:border-stone-400 transition-all">
+                   <button onClick={() => { setEditingId(null); setForm({ title: "", title_ar: "", price: "", description: "", description_ar: "", image_url: "", category: "", images_gallery: [], video_url: "", colors: [] }); setShowForm(true); }} className="aspect-[4/5] border-2 border-dashed border-stone-200 rounded-2xl flex flex-col items-center justify-center text-stone-300 bg-white hover:border-stone-400 transition-all">
                      <Plus className="w-6 h-6 mb-2" />
                      <span className="text-[8px] font-black uppercase tracking-widest">New Art</span>
                    </button>
@@ -124,7 +116,7 @@ export const Admin = () => {
                      <div key={p.id} className="relative aspect-[4/5] bg-white rounded-2xl overflow-hidden border border-stone-100 shadow-sm group">
                        <img src={p.image_url} className="w-full h-full object-cover" />
                        <div className="absolute inset-0 bg-stone-900/40 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-2 transition-all backdrop-blur-[1px]">
-                         <Button size="icon" className="w-8 h-8 rounded-full bg-white text-stone-900" onClick={() => { setForm({...p, images_gallery: p.images_gallery || [""]}); setEditingId(p.id); setShowForm(true); }}><Pencil className="w-3.5 h-3.5" /></Button>
+                         <Button size="icon" className="w-8 h-8 rounded-full bg-white text-stone-900" onClick={() => { setForm({...p, images_gallery: p.images_gallery || []}); setEditingId(p.id); setShowForm(true); }}><Pencil className="w-3.5 h-3.5" /></Button>
                          <Button size="icon" variant="destructive" className="w-8 h-8 rounded-full" onClick={() => { if(confirm('Supprimer?')) supabase.from("products").delete().eq("id", p.id).then(fetchAll) }}><Trash2 className="w-3.5 h-3.5" /></Button>
                        </div>
                        <div className="absolute bottom-2 left-2 right-2 bg-white/90 backdrop-blur-md p-2 rounded-xl"><p className="text-[7px] font-black truncate uppercase text-stone-800 tracking-wider text-center">{p.title}</p></div>
@@ -132,7 +124,6 @@ export const Admin = () => {
                    ))}
                  </div>
               ) : (
-                  /* Form Edition الكامل */
                   <motion.form initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} onSubmit={async (e) => {
                       e.preventDefault();
                       setLoading(true);
@@ -145,8 +136,6 @@ export const Admin = () => {
                           <h2 className="font-serif italic text-xl">Détails de l'œuvre</h2>
                           <button type="button" onClick={() => setShowForm(false)} className="p-2 bg-stone-50 rounded-full"><X className="w-5 h-5 text-stone-400" /></button>
                       </div>
-
-                      {/* FR & AR Fields */}
                       <div className="grid md:grid-cols-2 gap-6">
                           <div className="space-y-4">
                               <Label className="text-[8px] font-black uppercase opacity-40">Section Française</Label>
@@ -159,8 +148,6 @@ export const Admin = () => {
                               <textarea placeholder="الوصف (AR)" className="w-full h-28 p-4 rounded-xl bg-stone-50 border-none text-xs" value={form.description_ar} onChange={e => setForm({...form, description_ar: e.target.value})} />
                           </div>
                       </div>
-
-                      {/* Pricing & Category & Video */}
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-t pt-6">
                           <div className="space-y-2"><Label className="text-[8px] font-black uppercase opacity-40">Prix MAD</Label><Input value={form.price} onChange={e => setForm({...form, price: e.target.value})} className="rounded-xl font-bold" /></div>
                           <div className="space-y-2">
@@ -173,26 +160,31 @@ export const Admin = () => {
                           <div className="space-y-2"><Label className="text-[8px] font-black uppercase opacity-40 flex items-center gap-1"><Video className="w-3 h-3" /> URL Vidéo</Label><Input value={form.video_url} onChange={e => setForm({...form, video_url: e.target.value})} className="rounded-xl" placeholder="Lien MP4" /></div>
                       </div>
 
-                      {/* Gallery Logic (الخانات التلقائية) */}
+                      {/* Galerie Photos مع التعديل المطلوب */}
                       <div className="space-y-4 border-t pt-6">
                           <Label className="text-[8px] font-black uppercase opacity-40 flex items-center gap-1"><ImageIcon className="w-3 h-3" /> Galerie Photos</Label>
                           <Input placeholder="Lien Photo Principale" value={form.image_url} onChange={e => setForm({...form, image_url: e.target.value})} className="rounded-xl border-stone-200" />
-                          <div className="grid grid-cols-1 gap-2">
-                              {form.images_gallery.map((url, index) => (
-                                  <div key={index} className="flex gap-2">
-                                      <Input placeholder={`Lien Photo ${index + 1}`} value={url} onChange={e => {
-                                          const newG = [...form.images_gallery];
-                                          newG[index] = e.target.value;
-                                          if (index === form.images_gallery.length - 1 && e.target.value !== "") newG.push("");
-                                          setForm({...form, images_gallery: newG});
-                                      }} className="rounded-xl bg-stone-50 border-none text-[10px]" />
-                                      {index < form.images_gallery.length - 1 && <Button type="button" variant="ghost" className="text-red-400" onClick={() => setForm({...form, images_gallery: form.images_gallery.filter((_, i) => i !== index)})}><Trash2 className="w-4 h-4" /></Button>}
-                                  </div>
-                              ))}
+                          
+                          <div className="space-y-2">
+                            {form.images_gallery.map((url, index) => (
+                                <div key={index} className="flex gap-2 items-center bg-stone-50 p-2 rounded-xl animate-in fade-in slide-in-from-top-1">
+                                    <Input value={url} readOnly className="rounded-lg bg-transparent border-none text-[9px] h-8 flex-1" />
+                                    <Button type="button" variant="ghost" className="h-8 w-8 text-red-400" onClick={() => setForm({...form, images_gallery: form.images_gallery.filter((_, i) => i !== index)})}><Trash2 className="w-3.5 h-3.5" /></Button>
+                                </div>
+                            ))}
+                          </div>
+
+                          <div className="flex gap-2">
+                              <Input 
+                                  id="newGalleryUrl"
+                                  placeholder="Coller un lien et appuyer sur +" 
+                                  className="rounded-xl bg-white border-dashed border-2 border-stone-200 h-10 text-[10px]"
+                                  onKeyDown={(e) => { if(e.key === 'Enter') { e.preventDefault(); const val = (e.target as HTMLInputElement).value; if(val) { setForm({...form, images_gallery: [...form.images_gallery, val]}); (e.target as HTMLInputElement).value = ""; } } }}
+                              />
+                              <Button type="button" onClick={() => { const input = document.getElementById('newGalleryUrl') as HTMLInputElement; if(input.value) { setForm({...form, images_gallery: [...form.images_gallery, input.value]}); input.value = ""; } }} className="h-10 w-10 bg-stone-900 rounded-xl"><Plus className="w-5 h-5" /></Button>
                           </div>
                       </div>
 
-                      {/* Colors Section */}
                       <div className="space-y-4 border-t pt-6">
                           <Label className="text-[8px] font-black uppercase opacity-40 flex items-center gap-1"><Palette className="w-3 h-3" /> Couleurs Disponibles</Label>
                           <div className="flex flex-wrap gap-2 mb-2">
@@ -210,24 +202,32 @@ export const Admin = () => {
                               <Button type="button" onClick={() => { if(newColorName) { setForm({...form, colors: [...(form.colors || []), {name: newColorName, hex: newColorHex}]}); setNewColorName(""); } }} className="bg-stone-900 rounded-xl"><Plus className="w-4 h-4" /></Button>
                           </div>
                       </div>
-
                       <Button type="submit" disabled={loading} className="w-full h-14 bg-stone-900 hover:bg-stone-800 rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.3em] shadow-xl">Enregistrer l'œuvre</Button>
                   </motion.form>
               )}
             </motion.div>
           ) : (
-            /* Collections Section (List & Actions) */
             <motion.div key="cat" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-2xl mx-auto space-y-6">
               <div className="bg-white p-6 rounded-[2rem] border border-stone-100 shadow-xl space-y-4">
-                <h2 className="font-serif italic text-lg">Nouvelle Collection</h2>
+                <h2 className="font-serif italic text-lg">{editingCatId ? "Modifier la collection" : "Nouvelle Collection"}</h2>
                 <div className="grid gap-3">
-                    <Input placeholder="Nom de la collection" id="catName" className="rounded-xl" />
-                    <Input placeholder="URL Image de couverture" id="catImg" className="rounded-xl" />
-                    <Button onClick={async () => {
-                        const name = (document.getElementById('catName') as HTMLInputElement).value;
-                        const img = (document.getElementById('catImg') as HTMLInputElement).value;
-                        if(name) { await supabase.from("categories").insert([{ name, image_url: img }]); fetchAll(); toast({ title: "Collection ajoutée" }); }
-                    }} className="bg-stone-900 rounded-xl h-12">Créer la collection</Button>
+                    <Input placeholder="Nom de la collection" id="catName" className="rounded-xl" defaultValue={editingCatId ? categories.find(c => c.id === editingCatId)?.name : ""} />
+                    <Input placeholder="URL Image de couverture" id="catImg" className="rounded-xl" defaultValue={editingCatId ? categories.find(c => c.id === editingCatId)?.image_url : ""} />
+                    <div className="flex gap-2">
+                      <Button onClick={async () => {
+                          const name = (document.getElementById('catName') as HTMLInputElement).value;
+                          const img = (document.getElementById('catImg') as HTMLInputElement).value;
+                          if(name) {
+                            setLoading(true);
+                            if(editingCatId) { await supabase.from("categories").update({ name, image_url: img }).eq("id", editingCatId); setEditingCatId(null); }
+                            else { await supabase.from("categories").insert([{ name, image_url: img }]); }
+                            (document.getElementById('catName') as HTMLInputElement).value = "";
+                            (document.getElementById('catImg') as HTMLInputElement).value = "";
+                            fetchAll(); setLoading(false); toast({ title: "Succès" });
+                          }
+                      }} className="bg-stone-900 rounded-xl h-12 flex-1">{editingCatId ? "Enregistrer" : "Créer"}</Button>
+                      {editingCatId && <Button variant="ghost" onClick={() => setEditingCatId(null)} className="h-12">Annuler</Button>}
+                    </div>
                 </div>
               </div>
 
@@ -238,7 +238,10 @@ export const Admin = () => {
                       <img src={c.image_url} className="w-12 h-12 rounded-xl object-cover shadow-inner" />
                       <span className="text-[10px] font-black uppercase tracking-widest text-stone-700">{c.name}</span>
                     </div>
-                    <Button size="icon" variant="ghost" className="text-stone-300 hover:text-red-500 hover:bg-red-50" onClick={async () => { if(confirm('Supprimer cette collection ?')) { await supabase.from("categories").delete().eq("id", c.id); fetchAll(); } }}><Trash2 className="w-4 h-4" /></Button>
+                    <div className="flex gap-1">
+                      <Button size="icon" variant="ghost" className="text-stone-300 hover:text-stone-900" onClick={() => { setEditingCatId(c.id); window.scrollTo({ top: 0, behavior: 'smooth' }); }}><Pencil className="w-4 h-4" /></Button>
+                      <Button size="icon" variant="ghost" className="text-stone-300 hover:text-red-500" onClick={async () => { if(confirm('Supprimer?')) { await supabase.from("categories").delete().eq("id", c.id); fetchAll(); } }}><Trash2 className="w-4 h-4" /></Button>
+                    </div>
                   </div>
                 ))}
               </div>
