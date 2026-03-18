@@ -1,7 +1,7 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Link } from "react-router-dom";
-import { ArrowUpRight, Hammer, Sparkles } from "lucide-react";
+import { ArrowUpRight, Hammer, MapPin } from "lucide-react";
 import atelierImage from "@/assets/atelier.jpg";
 
 export const Ateliers = () => {
@@ -20,14 +20,15 @@ export const Ateliers = () => {
             whileInView={{ opacity: 1 }}
             className="w-10 h-10 flex items-center justify-center mb-4"
           >
-            <Hammer className="w-4 h-4 text-amber-600/40" />
+            <Hammer className="w-4 h-4 text-amber-600/30" />
           </motion.div>
 
+          {/* العنوان بستايل Serif فخم بلا Italic */}
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-3xl md:text-5xl font-serif text-stone-900 italic tracking-tighter"
+            className="text-3xl md:text-5xl font-serif text-stone-900 font-medium tracking-tighter"
           >
             {t("ateliers.title")}
           </motion.h2>
@@ -36,7 +37,7 @@ export const Ateliers = () => {
         <div className="relative">
           <motion.div
             style={{ scale }}
-            className="relative aspect-[21/9] rounded-[2rem] overflow-hidden shadow-sm mb-6"
+            className="relative aspect-[21/9] rounded-[2rem] overflow-hidden shadow-sm mb-6 bg-stone-100"
           >
             <img
               src={atelierImage}
@@ -45,30 +46,32 @@ export const Ateliers = () => {
             />
           </motion.div>
 
-          {/* التعديل الجديد: التاغ تحت التصويرة بلون أصفر خفيف وصغير */}
-          <div className={`flex items-center gap-2 mb-12 ${isArabic ? 'justify-start' : 'justify-end'}`}>
-            <Sparkles className="w-3 h-3 text-amber-500/60" />
-            <span className="text-[9px] font-medium uppercase tracking-[0.4em] text-amber-600/80">
+          {/* التعديل: أيقونة Localisation عوض النجمة */}
+          <div className={`flex items-center gap-2 mb-12 ${isArabic ? 'flex-row-reverse justify-end' : 'justify-end'}`}>
+            <MapPin className="w-3 h-3 text-amber-600/60" />
+            <span className="text-[9px] font-bold uppercase tracking-[0.4em] text-amber-700/80">
               Atelier à Tan-Tan
             </span>
           </div>
 
           <div className="max-w-3xl mx-auto space-y-12 text-center">
-            {/* النص بستايل أنيق وغير متعب للعين */}
             <motion.div
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               className="space-y-6"
             >
-              <p className="text-lg md:text-xl font-serif text-stone-700 leading-relaxed italic opacity-90">
+              {/* النص الأول: رزين وفخم بلا Italic */}
+              <p className="text-xl md:text-2xl font-serif text-stone-800 leading-snug tracking-tight">
                 {t("ateliers.p1")}
               </p>
-              <p className="text-sm text-stone-500 font-light leading-relaxed max-w-2xl mx-auto">
+              
+              {/* النص الثاني: نقي بستايل Sans-serif مريح للعين */}
+              <p className="text-sm md:text-base text-stone-500 font-light leading-relaxed max-w-2xl mx-auto font-sans">
                 {t("ateliers.p2")}
               </p>
             </motion.div>
 
-            {/* الزر الفخم في الوسط ومرتبط بصفحة Infos */}
+            {/* الزر الفخم */}
             <div className="flex justify-center pt-8">
               <Link
                 to="/infos"
@@ -79,7 +82,6 @@ export const Ateliers = () => {
                 </span>
                 <ArrowUpRight className="w-4 h-4 relative z-10 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
                 
-                {/* تأثير الإضاءة عند التحويم */}
                 <div className="absolute inset-0 bg-gradient-to-r from-amber-800 to-stone-900 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
               </Link>
             </div>
