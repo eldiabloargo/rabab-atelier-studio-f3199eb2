@@ -6,18 +6,17 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { CartProvider } from "@/contexts/CartContext";
 import { lazy, Suspense, useEffect } from "react";
-// تأكد أن LoadingSpinner موجود فعلا في هذا المسار
-import { LoadingSpinner } from "./components/LoadingSpinner"; 
-import { Navbar } from "./components/Navbar";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { Navbar } from "@/components/Navbar";
 import { AnimatePresence, motion } from "framer-motion";
 
-// تصحيح المسارات وزيادة .tsx لضمان القراءة في Vercel
-const Index = lazy(() => import("./pages/Index.tsx"));
-const Expositions = lazy(() => import("./pages/Expositions.tsx").then(m => ({ default: m.Expositions })));
-const SurMesure = lazy(() => import("./pages/SurMesure.tsx").then(m => ({ default: m.SurMesure })));
-const Checkout = lazy(() => import("./pages/Checkout.tsx").then(m => ({ default: m.Checkout })));
-const ProductDetail = lazy(() => import("./pages/ProductDetail.tsx").then(m => ({ default: m.ProductDetail })));
-const CategoryPage = lazy(() => import("./pages/CategoryPage.tsx").then(m => ({ default: m.CategoryPage })));
+// تصحيح الـ Imports لضمان التوافق التام
+const Index = lazy(() => import("./pages/Index"));
+const Expositions = lazy(() => import("./pages/Expositions").then(m => ({ default: m.Expositions })));
+const SurMesure = lazy(() => import("./pages/SurMesure").then(m => ({ default: m.SurMesure })));
+const Checkout = lazy(() => import("./pages/Checkout").then(m => ({ default: m.Checkout })));
+const ProductDetail = lazy(() => import("./pages/ProductDetail").then(m => ({ default: m.ProductDetail })));
+const CategoryPage = lazy(() => import("./pages/CategoryPage").then(m => ({ default: m.CategoryPage })));
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -26,10 +25,10 @@ const ScrollToTop = () => {
 };
 
 const PageTransition = ({ children }: { children: React.ReactNode }) => (
-  <motion.div 
-    initial={{ opacity: 0 }} 
-    animate={{ opacity: 1 }} 
-    exit={{ opacity: 0 }} 
+  <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
     transition={{ duration: 0.3 }}
   >
     {children}
@@ -62,7 +61,7 @@ const App = () => (
           <BrowserRouter>
             <ScrollToTop />
             <Navbar />
-            <Suspense fallback={<div className="h-screen w-full flex items-center justify-center">Loading...</div>}>
+            <Suspense fallback={<LoadingSpinner />}>
               <AnimatedRoutes />
             </Suspense>
             <Toaster />
