@@ -7,7 +7,7 @@ export const Hero = () => {
   const { t, isArabic } = useLanguage();
   const { scrollY } = useScroll();
 
-  // تعديل: الصورة غتبقى باينة حتى لـ 800px عاد تبدا تغبر وتطلع
+ 
   const y = useTransform(scrollY, [0, 800], [0, 150]);
   const opacity = useTransform(scrollY, [400, 800], [1, 0]);
 
@@ -19,7 +19,7 @@ export const Hero = () => {
 
       <div className="relative z-10 w-full max-w-5xl mx-auto flex flex-col items-center">
         
-        {/* Main Artwork Container - كيتأثر بالسكرول مع تأخير */}
+        
         <motion.div 
           style={{ y, opacity }}
           initial={{ opacity: 0, scale: 0.9 }}
@@ -48,7 +48,7 @@ export const Hero = () => {
           </motion.div>
         </motion.div>
 
-        {/* Text Content - حيدنا ليه الـ style باش ما يغبرش فاش تسكرولي */}
+        
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
