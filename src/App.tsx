@@ -10,7 +10,7 @@ import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { Navbar } from "@/components/Navbar";
 import { AnimatePresence, motion } from "framer-motion";
 
-// تصحيح الـ Imports لضمان التوافق التام
+
 const Index = lazy(() => import("./pages/Index"));
 const Expositions = lazy(() => import("./pages/Expositions").then(m => ({ default: m.Expositions })));
 const SurMesure = lazy(() => import("./pages/SurMesure").then(m => ({ default: m.SurMesure })));
@@ -18,6 +18,8 @@ const Infos = lazy(() => import("./pages/Infos"));
 const Checkout = lazy(() => import("./pages/Checkout").then(m => ({ default: m.Checkout })));
 const ProductDetail = lazy(() => import("./pages/ProductDetail").then(m => ({ default: m.ProductDetail })));
 const CategoryPage = lazy(() => import("./pages/CategoryPage").then(m => ({ default: m.CategoryPage })));
+// إضافة الـ Admin (تأكد أن اسم الملف فـ pages هو Admin.tsx)
+const Admin = lazy(() => import("./pages/Admin").then(m => ({ default: m.Admin })));
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -49,6 +51,8 @@ const AnimatedRoutes = () => {
         <Route path="/checkout" element={<PageTransition><Checkout /></PageTransition>} />
         <Route path="/product/:id" element={<PageTransition><ProductDetail /></PageTransition>} />
         <Route path="/category/:slug" element={<PageTransition><CategoryPage /></PageTransition>} />
+      
+        <Route path="/admin" element={<PageTransition><Admin /></PageTransition>} />
       </Routes>
     </AnimatePresence>
   );
