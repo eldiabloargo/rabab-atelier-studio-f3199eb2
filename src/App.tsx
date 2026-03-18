@@ -14,6 +14,7 @@ import { AnimatePresence, motion } from "framer-motion";
 const Index = lazy(() => import("./pages/Index"));
 const Expositions = lazy(() => import("./pages/Expositions").then(m => ({ default: m.Expositions })));
 const SurMesure = lazy(() => import("./pages/SurMesure").then(m => ({ default: m.SurMesure })));
+const Infos = lazy(() => import("./pages/Infos"));
 const Checkout = lazy(() => import("./pages/Checkout").then(m => ({ default: m.Checkout })));
 const ProductDetail = lazy(() => import("./pages/ProductDetail").then(m => ({ default: m.ProductDetail })));
 const CategoryPage = lazy(() => import("./pages/CategoryPage").then(m => ({ default: m.CategoryPage })));
@@ -42,6 +43,8 @@ const AnimatedRoutes = () => {
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<PageTransition><Index /></PageTransition>} />
         <Route path="/expositions" element={<PageTransition><Expositions /></PageTransition>} />
+        <Route path="/infos" element={<PageTransition><Infos /></PageTransition>} />
+
         <Route path="/sur-mesure" element={<PageTransition><SurMesure /></PageTransition>} />
         <Route path="/checkout" element={<PageTransition><Checkout /></PageTransition>} />
         <Route path="/product/:id" element={<PageTransition><ProductDetail /></PageTransition>} />
