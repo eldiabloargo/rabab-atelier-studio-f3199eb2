@@ -6,23 +6,22 @@ import { Palette, Sparkles } from "lucide-react";
 export const Hero = () => {
   const { t, isArabic } = useLanguage();
   const { scrollY } = useScroll();
-  
-  // تأثير اختفاء تدريجي عند النزول (Parallax & Fade)
-  const y = useTransform(scrollY, [0, 500], [0, 100]);
-  const opacity = useTransform(scrollY, [0, 300], [1, 0]);
+
+  // تعديل: الصورة غتبقى باينة حتى لـ 800px عاد تبدا تغبر وتطلع
+  const y = useTransform(scrollY, [0, 800], [0, 150]);
+  const opacity = useTransform(scrollY, [400, 800], [1, 0]);
 
   return (
     <section className="relative min-h-[110vh] flex flex-col items-center justify-center px-6 overflow-hidden bg-[#fafaf9]">
-      
-      {/* Background Glow - لمسة فنية خفيفة */}
+
+      {/* Background Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-100/30 blur-[120px] rounded-full pointer-events-none" />
 
-      <motion.div
-        style={{ y, opacity }}
-        className="relative z-10 w-full max-w-5xl mx-auto flex flex-col items-center"
-      >
-        {/* Main Artwork Container */}
+      <div className="relative z-10 w-full max-w-5xl mx-auto flex flex-col items-center">
+        
+        {/* Main Artwork Container - كيتأثر بالسكرول مع تأخير */}
         <motion.div 
+          style={{ y, opacity }}
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1] }}
@@ -39,8 +38,7 @@ export const Hero = () => {
               alt="Rabab Atelier Artwork"
             />
           </div>
-          
-          {/* Decorative Sparkle */}
+
           <motion.div 
             animate={{ opacity: [0.3, 0.6, 0.3], scale: [1, 1.1, 1] }}
             transition={{ duration: 4, repeat: Infinity }}
@@ -50,7 +48,7 @@ export const Hero = () => {
           </motion.div>
         </motion.div>
 
-        {/* Text Content */}
+        {/* Text Content - حيدنا ليه الـ style باش ما يغبرش فاش تسكرولي */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
@@ -66,12 +64,12 @@ export const Hero = () => {
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-serif tracking-tighter leading-[0.9] text-stone-900 italic">
             {t("hero.title")}
           </h1>
-          
+
           <p className="max-w-md mx-auto text-stone-500 text-sm md:text-base font-light tracking-[0.1em] leading-relaxed italic opacity-80">
             {t("hero.subtitle")}
           </p>
         </motion.div>
-      </motion.div>
+      </div>
 
       {/* Luxury Minimal Nav */}
       <motion.nav
