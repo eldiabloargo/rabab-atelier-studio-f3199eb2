@@ -57,7 +57,7 @@ export const Ateliers = () => {
             {/* Information Tag */}
             <div className={`absolute bottom-8 ${isArabic ? 'left-8' : 'right-8'} flex items-center gap-3 bg-white/10 backdrop-blur-md px-6 py-3 rounded-full border border-white/20`}>
               <Sparkles className="w-3 h-3 text-white/80" />
-              <span className="text-[9px] font-black uppercase tracking-[0.3em] text-white">Meknès Studio</span>
+              <span className="text-[9px] font-black uppercase tracking-[0.3em] text-white">Atelier a Tantan</span>
             </div>
           </motion.div>
 
