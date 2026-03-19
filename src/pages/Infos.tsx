@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+wimport { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { MessageCircle, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -40,34 +40,50 @@ export const Infos = () => {
   const whatsappUrl = `https://wa.me/212679697964?text=${encodeURIComponent(whatsappMsg)}`;
 
   return (
-    <main className="h-screen w-full bg-[#fafaf9] overflow-hidden flex flex-col justify-center">
-      <div className="max-w-4xl mx-auto px-8 w-full">
-        {/* نقصت الفراغ تحت زر العودة من mb-8 لـ mb-4 */}
+    <main className="h-screen w-full relative overflow-hidden flex flex-col justify-center">
+      
+     
+      <div className="absolute inset-0 -z-20">
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="w-full h-full object-cover"
+        >
+          
+          <source src="/assets/workshop-bg.mp4" type="video/mp4" />
+        </video>
+      </div>
+
+      
+      <div className="absolute inset-0 bg-stone-900/60 backdrop-blur-[2px] -z-10" />
+
+      <div className="max-w-4xl mx-auto px-8 w-full relative z-10">
         <Link
           to="/"
-          className={`inline-flex items-center gap-2 text-[10px] text-stone-400 hover:text-stone-900 transition-colors mb-4 tracking-[0.3em] uppercase font-sans ${isArabic ? 'flex-row-reverse' : ''}`}
+          className={`inline-flex items-center gap-2 text-[10px] text-white/60 hover:text-white transition-colors mb-4 tracking-[0.3em] uppercase font-sans ${isArabic ? 'flex-row-reverse' : ''}`}
         >
           <ArrowLeft className={`w-3 h-3 ${isArabic ? 'rotate-180' : ''}`} />
           {isArabic ? "الرئيسية" : "Accueil"}
         </Link>
 
-        {/* نقصت الفراغ بين الأقسام من space-y-12 لـ space-y-8 */}
         <motion.div
           initial="hidden"
           animate="visible"
           variants={stagger}
           className="space-y-8"
         >
+         
           <motion.div variants={fadeUp} className="text-center space-y-1">
-            <h1 className="text-3xl md:text-5xl font-serif text-stone-900 tracking-tighter font-medium">
+            <h1 className="text-3xl md:text-5xl font-serif text-white tracking-tighter font-medium">
               {t("infos.title")}
             </h1>
-            <p className="text-sm text-stone-500 font-sans tracking-wide">
+            <p className="text-sm text-stone-200 font-sans tracking-wide">
               {t("infos.subtitle")}
             </p>
           </motion.div>
 
-          {/* نقصت الفراغات بين الخطوات */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10">
             {steps.map((step) => (
               <motion.div
@@ -75,12 +91,13 @@ export const Infos = () => {
                 variants={fadeUp}
                 className="space-y-3 text-center md:text-left rtl:md:text-right"
               >
-                <span className="text-3xl font-serif text-amber-600/20 block leading-none">
+               
+                <span className="text-3xl font-serif text-amber-500/40 block leading-none">
                   {step.num}
                 </span>
                 <div className="space-y-1">
-                  <h2 className="text-lg font-serif text-stone-800 font-medium">{step.title}</h2>
-                  <p className="text-xs leading-relaxed text-stone-500 font-sans font-light">
+                  <h2 className="text-lg font-serif text-white font-medium">{step.title}</h2>
+                  <p className="text-xs leading-relaxed text-stone-300 font-sans font-light">
                     {step.desc}
                   </p>
                 </div>
@@ -88,14 +105,13 @@ export const Infos = () => {
             ))}
           </div>
 
-          {/* نقصت الفراغ فوق زر الواتساب من pt-8 لـ pt-6 */}
-          <motion.div variants={fadeUp} className="text-center pt-6 border-t border-stone-100">
-            <h3 className="text-sm font-serif text-stone-400 mb-4 italic tracking-tight">{t("infos.contact")}</h3>
+          <motion.div variants={fadeUp} className="text-center pt-6 border-t border-white/10">
+            <h3 className="text-sm font-serif text-stone-300 mb-4 italic tracking-tight">{t("infos.contact")}</h3>
             <a
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="group inline-flex items-center gap-4 px-10 py-4 bg-stone-900 text-white font-sans text-[10px] tracking-[0.4em] uppercase rounded-full hover:bg-amber-900 transition-all duration-700 shadow-lg shadow-stone-200"
+              className="group inline-flex items-center gap-4 px-10 py-4 bg-white text-stone-900 font-sans text-[10px] tracking-[0.4em] uppercase rounded-full hover:bg-amber-600 hover:text-white transition-all duration-700 shadow-xl shadow-black/20"
             >
               <MessageCircle className="w-4 h-4 transition-transform group-hover:scale-110" />
               {t("infos.whatsapp")}
