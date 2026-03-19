@@ -21,17 +21,15 @@ export const ProductDetail = () => {
 
   useEffect(() => {
     const fetchProduct = async () => {
-      // الربط مع الداتاباز: كنأكدو أننا كنجيبو كاع الحقول بما فيها الكاتيكوري
       const { data, error } = await supabase
         .from("products")
         .select("*")
         .eq("id", id)
         .single();
-      
+
       if (data) {
         setProduct(data);
         setActiveImage(data.image_url);
-        // تأكد أن اللون الأول هو اللي كيكون مختار أوتوماتيكياً
         if (data.colors && data.colors.length > 0) {
           setSelectedColor(data.colors[0]);
         }
@@ -53,14 +51,13 @@ export const ProductDetail = () => {
   const currentDesc = isArabic && product.description_ar ? product.description_ar : product.description;
 
   const handleAddToCart = () => {
-    // تمرير البيانات كاملة للـ CartContext وللأدمين بانل من بعد
     addToCart({
       id: product.id,
       title: product.title,
       title_ar: product.title_ar,
       price: product.price,
       image: product.image_url,
-      selectedColor: selectedColor, // هنا كيدوز الـ hex والسمية (name_ar/name_en)
+      selectedColor: selectedColor,
       quantity: 1
     });
 
@@ -72,7 +69,7 @@ export const ProductDetail = () => {
 
   return (
     <main className="min-h-screen bg-white">
-      {/* Nav: رشيقة جداً */}
+      {/* Nav: ثابتة وأنيقة */}
       <nav className="fixed top-0 w-full z-50 px-4 py-3 flex justify-between items-center bg-white/90 backdrop-blur-md border-b border-stone-50">
         <button 
           onClick={() => navigate(-1)} 
@@ -84,7 +81,8 @@ export const ProductDetail = () => {
         <span className="text-[8px] font-bold tracking-[0.3em] text-amber-800 uppercase">Atelier Rabab</span>
       </nav>
 
-      <div className="max-w-5xl mx-auto pt-16 md:pt-24 pb-12 px-4 md:px-8">
+      {/* التعديل هنا: زدنا pt-20 للهاتف و pt-28 للحاسوب باش المحتوى يبان كامل تحت النافبار */}
+      <div className="max-w-5xl mx-auto pt-20 md:pt-28 pb-12 px-4 md:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-start">
 
           {/* Media Section */}
@@ -190,7 +188,6 @@ export const ProductDetail = () => {
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </main>
