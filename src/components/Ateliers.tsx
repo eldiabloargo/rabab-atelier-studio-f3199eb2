@@ -10,7 +10,8 @@ export const Ateliers = () => {
   const scale = useTransform(scrollYProgress, [0.4, 0.6], [1, 1.03]);
 
   return (
-    <section id="ateliers" className="py-32 px-6 bg-white relative overflow-hidden">
+    
+    <section id="ateliers" className="py-12 px-6 bg-white relative overflow-hidden">
       <div className="absolute top-0 right-0 w-1/3 h-full bg-[#fafaf9] -z-10" />
 
       <div className="max-w-5xl mx-auto">
@@ -23,7 +24,6 @@ export const Ateliers = () => {
             <Hammer className="w-4 h-4 text-amber-600/30" />
           </motion.div>
 
-          {/* العنوان بستايل Serif فخم بلا Italic */}
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -46,7 +46,6 @@ export const Ateliers = () => {
             />
           </motion.div>
 
-          {/* التعديل: أيقونة Localisation عوض النجمة */}
           <div className={`flex items-center gap-2 mb-12 ${isArabic ? 'flex-row-reverse justify-end' : 'justify-end'}`}>
             <MapPin className="w-3 h-3 text-amber-600/60" />
             <span className="text-[9px] font-bold uppercase tracking-[0.4em] text-amber-700/80">
@@ -60,18 +59,15 @@ export const Ateliers = () => {
               whileInView={{ opacity: 1 }}
               className="space-y-6"
             >
-              {/* النص الأول: رزين وفخم بلا Italic */}
               <p className="text-xl md:text-2xl font-serif text-stone-800 leading-snug tracking-tight">
                 {t("ateliers.p1")}
               </p>
-              
-              {/* النص الثاني: نقي بستايل Sans-serif مريح للعين */}
+
               <p className="text-sm md:text-base text-stone-500 font-light leading-relaxed max-w-2xl mx-auto font-sans">
                 {t("ateliers.p2")}
               </p>
             </motion.div>
 
-            {/* الزر الفخم */}
             <div className="flex justify-center pt-8">
               <Link
                 to="/infos"
@@ -81,7 +77,7 @@ export const Ateliers = () => {
                   {t("ateliers.cta")}
                 </span>
                 <ArrowUpRight className="w-4 h-4 relative z-10 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
-                
+
                 <div className="absolute inset-0 bg-gradient-to-r from-amber-800 to-stone-900 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
               </Link>
             </div>
