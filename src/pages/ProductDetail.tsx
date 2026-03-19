@@ -18,28 +18,6 @@ export const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
   const [selectedColor, setSelectedColor] = useState<any>(null);
   const [activeImage, setActiveImage] = useState<string>("");
-  
-  // State باش نتحكمو فالنافبار واش تبان ولا لا
-  const [showNav, setShowNav] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      // إذا كنا فالفوق (أقل من 50px) تبان النافبار، غير ذلك تختفي فاش نهبطو
-      if (currentScrollY < 50) {
-        setShowNav(true);
-      } else if (currentScrollY > lastScrollY) {
-        setShowNav(false); // نهبطو: تختفي
-      } else {
-        setShowNav(true); // نطلعو: ترجع تبان
-      }
-      setLastScrollY(currentScrollY);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -90,25 +68,19 @@ export const ProductDetail = () => {
   };
 
   return (
-    <main className="min-h-screen bg-white">
-      {/* 1. الأزرار لي بغيتيهم ديما باينين (Fixed) */}
-      <div className="fixed top-0 w-full z-[110] px-4 py-4 flex justify-between items-center pointer-events-none">
+    <main className="min-h-screen bg-white relative">
+      {/* 1. زر الرجوع العائم (بلا نافبار) */}
+      <div className="fixed top-6 left-4 z-50">
         <button 
           onClick={() => navigate(-1)} 
-          className="pointer-events-auto group flex items-center gap-2 text-[9px] font-bold uppercase tracking-widest text-stone-900 bg-white/50 backdrop-blur-sm p-2 rounded-full transition-all"
+          className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-stone-900 bg-white/80 backdrop-blur-md px-4 py-2 rounded-full border border-stone-100 shadow-sm transition-all active:scale-95"
         >
           <ArrowLeft className={`w-3 h-3 ${isArabic ? 'rotate-180' : ''}`} />
           {t("category.back")}
         </button>
-        <span className="text-[9px] font-bold tracking-[0.3em] text-amber-800 uppercase leading-none">
-          Atelier Rabab
-        </span>
       </div>
 
-      {/* 2. النافبار لي كتحرك وككتختافي */}
-      <nav className={`fixed top-0 w-full z-[100] h-16 bg-white/95 backdrop-blur-md border-b border-stone-50 transition-transform duration-300 ${showNav ? 'translate-y-0' : '-translate-y-full'}`} />
-
-      {/* المحتوى دبا غيبدا مرتاح ومغطي من طرف النافبار غير فالبداية */}
+      {/* 2. المحتوى كيبدا من الفوق تماماً */}
       <div className="max-w-5xl mx-auto pt-20 pb-12 px-4 md:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-start">
 
