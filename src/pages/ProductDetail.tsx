@@ -69,8 +69,8 @@ export const ProductDetail = () => {
 
   return (
     <main className="min-h-screen bg-white flex flex-col">
-      {/* Nav: Fixed */}
-      <nav className="fixed top-0 w-full z-[60] px-4 py-3 flex justify-between items-center bg-white/95 backdrop-blur-md border-b border-stone-50">
+      {/* التعديل الجذري: رديناها sticky باش المحتوى يبدا من تحتها بالظبط */}
+      <nav className="sticky top-0 w-full z-[60] px-4 py-3 flex justify-between items-center bg-white/95 backdrop-blur-md border-b border-stone-50">
         <button 
           onClick={() => navigate(-1)} 
           className="group flex items-center gap-2 text-[8px] font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 transition-all"
@@ -81,11 +81,8 @@ export const ProductDetail = () => {
         <span className="text-[8px] font-bold tracking-[0.3em] text-amber-800 uppercase">Atelier Rabab</span>
       </nav>
 
-      
-      <div className="h-[60px] md:h-[70px] w-full flex-shrink-0" />
-
-      
-      <div className="flex-1 max-w-5xl mx-auto py-8 md:py-12 px-4 md:px-8 w-full">
+      {/* حيدنا الـ Spacer اليدوي حيت الـ sticky كيتكلف بالمساحة بوحده */}
+      <div className="flex-1 max-w-5xl mx-auto py-6 md:py-10 px-4 md:px-8 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-start">
 
           {/* Media Section */}
