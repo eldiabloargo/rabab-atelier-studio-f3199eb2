@@ -81,8 +81,11 @@ export const ProductDetail = () => {
         <span className="text-[8px] font-bold tracking-[0.3em] text-amber-800 uppercase">Atelier Rabab</span>
       </nav>
 
-      {/* التعديل هنا: زدنا pt-20 للهاتف و pt-28 للحاسوب باش المحتوى يبان كامل تحت النافبار */}
-      <div className="max-w-5xl mx-auto pt-20 md:pt-28 pb-12 px-4 md:px-8">
+      
+      <div className="h-16 md:h-20" /> 
+
+   
+<div className="max-w-5xl mx-auto pt-20 md:pt-28 pb-12 px-4 md:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-start">
 
           {/* Media Section */}
@@ -118,7 +121,7 @@ export const ProductDetail = () => {
             </div>
           </div>
 
-          {/* Content Section */}
+          
           <div className="flex flex-col h-full justify-center">
             <header className="space-y-3">
               <div className={`flex items-center gap-2 text-stone-300 ${isArabic ? 'flex-row-reverse' : ''}`}>
@@ -135,7 +138,7 @@ export const ProductDetail = () => {
               </div>
             </header>
 
-            {/* Colors */}
+            
             {product.colors?.length > 0 && (
               <div className="mt-6 pt-6 border-t border-stone-50 space-y-3">
                 <div className={`flex justify-between items-center ${isArabic ? 'flex-row-reverse' : ''}`}>
@@ -159,14 +162,14 @@ export const ProductDetail = () => {
               </div>
             )}
 
-            {/* Description */}
+            
             <div className="mt-6 py-6 border-t border-stone-50">
               <p className={`text-stone-500 font-light leading-relaxed text-sm ${isArabic ? 'text-right' : 'text-left'}`}>
                 {currentDesc}
               </p>
             </div>
 
-            {/* CTA */}
+            
             <div className="mt-auto pt-6 space-y-6">
               <Button 
                 onClick={handleAddToCart}
