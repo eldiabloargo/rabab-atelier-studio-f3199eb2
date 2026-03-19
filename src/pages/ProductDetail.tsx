@@ -69,7 +69,7 @@ export const ProductDetail = () => {
 
   return (
     <main className="min-h-screen bg-white flex flex-col">
-      {/* الحل النهائي: حيدنا fixed و sticky. دبا النافبار عنصر طبيعي كياخد بلاصتو الفوق */}
+      {/* النافبار كتبقى كيف هي */}
       <nav className="w-full px-4 py-6 flex justify-between items-center bg-white border-b border-stone-50">
         <button 
           onClick={() => navigate(-1)} 
@@ -81,8 +81,8 @@ export const ProductDetail = () => {
         <span className="text-[9px] font-bold tracking-[0.3em] text-amber-800 uppercase leading-none">Atelier Rabab</span>
       </nav>
 
-      {/* المحتوى كيبدا دبا من تحت النافبار بوضوح تام */}
-      <div className="flex-1 max-w-5xl mx-auto py-8 md:py-12 px-4 md:px-8 w-full">
+      {/* التعديل هنا: زدنا mt-12 فالموبايل باش تهبط الكتابة وتفوت النافبار بوضوح */}
+      <div className="flex-1 max-w-5xl mx-auto mt-12 md:mt-0 py-8 md:py-12 px-4 md:px-8 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-start">
 
           {/* Media Section */}
