@@ -1,125 +1,158 @@
-Import { useCart } from "@/contexts/CartContext";
+import { useCart } from "@/contexts/CartContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ShoppingBag, Truck, MapPin, Phone, ArrowLeft } from "lucide-react";
+import { ShoppingBag, Truck, ArrowLeft, MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 export const Checkout = () => {
-  const { items, total, subtotal, shipping } = useCart();
+  const { items, total, subtotal } = useCart();
   const { isArabic } = useLanguage();
   const navigate = useNavigate();
 
+  // الحالة لتخزين معلومات الكليان
+  const [formData, setFormData] = useState({
+    fullName: "",
+    phone: "",
+    address: ""
+  });
+
+  // ثمن التوصيل اللي طلبتي
+  const shippingFee = 40;
+
   const handleConfirmOrder = (e: React.FormEvent) => {
     e.preventDefault();
-    const message = `طلب جديد من Atelier Rabab:\n` + 
-      items.map(i => `- ${i.title} (${i.selectedColor.name_en}) x${i.quantity}`).join('\n') +
-      `\n\nالمجموع: ${total} MAD`;
+    const phoneNumber = "212679697964";
+    
+    // صياغة تفاصيل المنتجات
+    const orderDetails = items.map((i, index) => {
+      const title = isArabic ? (i.title_ar || i.title) : i.title;
+      const color = isArabic ? i.selectedColor?.name_ar : i.selectedColor?.name_en;
+      return `📦 *${index + 1}. ${title}*\n   🎨 ${isArabic ? 'اللون' : 'Couleur'}: ${color}\n   🔢 x${i.quantity}\n   💰 ${i.price * i.quantity} MAD`;
+    }).join('\n\n');
 
-    window.open(`https://wa.me/212679697964?text=${encodeURIComponent(message)}`, '_blank');
+    // الرسالة النهائية شاملة لمعلومات الكليان
+    const message = isArabic 
+      ? `✨ *طلب جديد - Atelier Rabab*\n\n👤 *الزبون:* ${formData.fullName}\n📞 *الهاتف:* ${formData.phone}\n📍 *العنوان:* ${formData.address}\n\n━━━━━━━━━━━━━━\n${orderDetails}\n\n━━━━━━━━━━━━━━\n🚚 *التوصيل:* ${shippingFee} MAD\n⭐ *المجموع النهائي: ${total + shippingFee} MAD*\n\n🙏 يرجى تأكيد الطلب للبدء في التحضير.`
+      : `✨ *Nouvelle Commande - Atelier Rabab*\n\n👤 *Client:* ${formData.fullName}\n📞 *Tél:* ${formData.phone}\n📍 *Adresse:* ${formData.address}\n\n━━━━━━━━━━━━━━\n${orderDetails}\n\n━━━━━━━━━━━━━━\n🚚 *Livraison:* ${shippingFee} MAD\n⭐ *TOTAL FINAL: ${total + shippingFee} MAD*\n\n🙏 Veuillez confirmer pour lancer la préparation.`;
+
+    window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank');
   };
 
   return (
     <main className={`min-h-screen bg-[#fafaf9] pt-24 md:pt-32 pb-20 ${isArabic ? 'text-right' : 'text-left'}`} dir={isArabic ? 'rtl' : 'ltr'}>
-      <div className="max-w-6xl mx-auto px-4 md:px-8">
+      <div className="max-w-5xl mx-auto px-4 md:px-8">
 
-        {/* Back Button */}
+        {/* Back Button - تصغير وحذف الـ Italic */}
         <button 
           onClick={() => navigate(-1)}
-          className="mb-8 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-stone-400 hover:text-stone-900 transition-all"
+          className="mb-8 flex items-center gap-2 text-[9px] font-bold uppercase tracking-[0.2em] text-stone-400 hover:text-stone-900 transition-all"
         >
-          <ArrowLeft size={14} className={isArabic ? 'rotate-180' : ''} />
-          {isArabic ? "العودة" : "Retour"}
+          <ArrowLeft size={12} className={isArabic ? 'rotate-180' : ''} />
+          {isArabic ? "العودة للحقيبة" : "Retour au panier"}
         </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
 
-          {/* ملخص السلة - كيطلع هو الأول فالموبايل بفضل order-1 */}
+          {/* معلومات التوصيل - Form */}
+          <div className="lg:col-span-7 space-y-10 order-2 lg:order-1">
+            <header className="space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-white border border-stone-100 rounded-full shadow-sm">
+                <Truck size={10} className="text-amber-600" />
+                <span className="text-[8px] font-black uppercase tracking-widest text-stone-500">Expédition Sécurisée</span>
+              </div>
+              <h1 className="text-2xl md:text-3xl font-medium text-stone-900 tracking-tight uppercase">
+                {isArabic ? "إتمام الطلب" : "Finaliser la Commande"}
+              </h1>
+              <p className="text-stone-400 text-xs font-medium uppercase tracking-wide opacity-70">
+                {isArabic ? "يرجى إدخال معلومات التوصيل" : "Coordonnées d'expédition"}
+              </p>
+            </header>
+
+            <form onSubmit={handleConfirmOrder} className="space-y-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-bold uppercase tracking-widest text-stone-400 px-1">{isArabic ? "الاسم الكامل" : "Nom Complet"}</label>
+                  <Input 
+                    required 
+                    value={formData.fullName}
+                    onChange={(e) => setFormData({...formData, fullName: e.target.value})}
+                    className="h-12 rounded-xl border-stone-100 bg-white shadow-sm text-xs" 
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-bold uppercase tracking-widest text-stone-400 px-1">{isArabic ? "رقم الهاتف" : "Téléphone"}</label>
+                  <Input 
+                    required 
+                    type="tel" 
+                    value={formData.phone}
+                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                    className="h-12 rounded-xl border-stone-100 bg-white shadow-sm text-xs" 
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[9px] font-bold uppercase tracking-widest text-stone-400 px-1">{isArabic ? "العنوان والمدينة" : "Adresse et Ville"}</label>
+                <Input 
+                  required 
+                  value={formData.address}
+                  onChange={(e) => setFormData({...formData, address: e.target.value})}
+                  placeholder={isArabic ? "المدينة، الحي..." : "Ville, Quartier..."} 
+                  className="h-12 rounded-xl border-stone-100 bg-white shadow-sm text-xs" 
+                />
+              </div>
+
+              <div className="pt-6">
+                <Button type="submit" className="w-full h-16 bg-stone-900 rounded-xl text-[10px] font-bold uppercase tracking-[0.3em] hover:bg-black transition-all shadow-xl gap-3">
+                   <MessageCircle size={16} />
+                   {isArabic ? "تأكيد الطلب عبر واتساب" : "Confirmer via WhatsApp"}
+                </Button>
+              </div>
+            </form>
+          </div>
+
+          {/* ملخص السلة - ملخص أنيق وصغير */}
           <div className="lg:col-span-5 order-1 lg:order-2">
-            <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-stone-100 shadow-sm sticky top-24">
-              <h2 className="text-xl font-serif italic mb-8 border-b border-stone-50 pb-4">
-                {isArabic ? "ملخص الحقيبة" : "Résumé du Panier"}
+            <div className="bg-white p-6 rounded-2xl border border-stone-100 shadow-sm sticky top-24">
+              <h2 className="text-xs font-bold uppercase tracking-widest mb-6 text-stone-900">
+                {isArabic ? "ملخص الحقيبة" : "Résumé"}
               </h2>
 
-              <div className="space-y-6 max-h-[40vh] overflow-y-auto pr-2 scrollbar-hide">
+              <div className="space-y-4 max-h-[30vh] overflow-y-auto pr-2 custom-scrollbar">
                 {items.map((item) => (
                   <div key={item.id + item.selectedColor.hex} className="flex gap-4 items-center">
-                    <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-stone-50 flex-shrink-0">
+                    <div className="w-12 h-16 rounded-lg overflow-hidden bg-stone-50 flex-shrink-0">
                       <img src={item.image} className="w-full h-full object-cover" alt={item.title} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h4 className="text-xs font-bold text-stone-800 truncate">{isArabic ? item.title_ar : item.title}</h4>
-                      <p className="text-[10px] text-stone-400 uppercase tracking-tighter">
-                        {isArabic ? item.selectedColor.name_ar : item.selectedColor.name_en} — x{item.quantity}
+                      <h4 className="text-[10px] font-bold text-stone-800 uppercase truncate">{isArabic ? item.title_ar : item.title}</h4>
+                      <p className="text-[9px] text-stone-400 font-medium">
+                        x{item.quantity} — {isArabic ? item.selectedColor.name_ar : item.selectedColor.name_en}
                       </p>
                     </div>
-                    <span className="text-xs font-serif font-medium">{item.price * item.quantity} MAD</span>
+                    <span className="text-[10px] font-bold">{item.price * item.quantity} MAD</span>
                   </div>
                 ))}
               </div>
 
-              <div className="mt-8 pt-6 border-t border-stone-100 space-y-3">
-                <div className="flex justify-between text-[11px] uppercase tracking-widest text-stone-400">
-                  <span>{isArabic ? "المجموع الفرعي" : "Subtotal"}</span>
+              <div className="mt-6 pt-4 border-t border-stone-50 space-y-2">
+                <div className="flex justify-between text-[9px] uppercase font-medium text-stone-400 tracking-widest">
+                  <span>{isArabic ? "المجموع الفرعي" : "Sous-total"}</span>
                   <span>{subtotal} MAD</span>
                 </div>
-                <div className="flex justify-between text-[11px] uppercase tracking-widest text-stone-400">
+                <div className="flex justify-between text-[9px] uppercase font-medium text-stone-400 tracking-widest">
                   <span>{isArabic ? "التوصيل" : "Livraison"}</span>
-                  <span className="text-amber-700 font-bold">{shipping === 0 ? (isArabic ? 'مجاني' : 'Gratuit') : `${shipping} MAD`}</span>
+                  <span className="text-stone-900 font-bold">{shippingFee} MAD</span>
                 </div>
-                <div className="flex justify-between text-xl font-serif pt-4 text-stone-900 border-t border-stone-50">
-                  <span>Total</span>
-                  <span className="text-amber-800">{total} MAD</span>
+                <div className="flex justify-between items-end pt-4 border-t border-stone-50">
+                  <span className="text-[11px] font-bold text-stone-900 uppercase tracking-widest">Total</span>
+                  <span className="text-xl font-medium text-stone-900">{total + shippingFee} MAD</span>
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* معلومات التوصيل - كتهبط هي التانية فالموبايل order-2 */}
-          <div className="lg:col-span-7 space-y-10 order-2 lg:order-1">
-            <header className="space-y-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-white border border-stone-100 rounded-full shadow-sm">
-                <Truck size={12} className="text-amber-600" />
-                <span className="text-[9px] font-black uppercase tracking-widest text-stone-500">Expédition Sécurisée</span>
-              </div>
-              <h1 className="text-3xl md:text-5xl font-serif italic text-stone-900 tracking-tight leading-tight">
-                {isArabic ? "إتمام الطلب" : "Finaliser la Commande"}
-              </h1>
-              <p className="text-stone-400 text-sm font-light max-w-md">
-                {isArabic ? "يرجى إدخال معلومات التوصيل لنتمكن من إرسال قطعتك الفنية." : "Veuillez entrer vos coordonnées pour l'expédition."}
-              </p>
-            </header>
-
-            <form onSubmit={handleConfirmOrder} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-stone-400 px-1">{isArabic ? "الاسم الكامل" : "Nom Complet"}</label>
-                  <Input required className="h-14 rounded-2xl border-stone-100 bg-white focus:ring-amber-500/20 shadow-sm" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-stone-400 px-1">{isArabic ? "رقم الهاتف" : "Téléphone"}</label>
-                  <Input required type="tel" className="h-14 rounded-2xl border-stone-100 bg-white shadow-sm" />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-stone-400 px-1">{isArabic ? "العنوان" : "Adresse"}</label>
-                <Input required placeholder={isArabic ? "المدينة، الحي، رقم المنزل..." : "Ville, Quartier..."} className="h-14 rounded-2xl border-stone-100 bg-white shadow-sm" />
-              </div>
-
-              <div className="pt-6">
-                <Button type="submit" className="w-full h-18 py-8 bg-stone-900 rounded-[2rem] text-[11px] font-black uppercase tracking-[0.4em] hover:bg-amber-900 transition-all duration-700 shadow-2xl shadow-stone-200 group">
-                  <div className="flex items-center gap-4">
-                     <ShoppingBag size={18} className="group-hover:scale-110 transition-transform" />
-                     {isArabic ? "تأكيد الطلب عبر واتساب" : "Confirmer via WhatsApp"}
-                  </div>
-                </Button>
-                <p className="text-center mt-6 text-[9px] text-stone-300 font-medium uppercase tracking-[0.2em]">
-                  {isArabic ? "سيفتح الواتساب لإرسال تفاصيل طلبك تلقائياً" : "WhatsApp s'ouvrira pour envoyer vos détails"}
-                </p>
-              </div>
-            </form>
           </div>
 
         </div>
