@@ -4,12 +4,11 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ShoppingBag, Truck, ArrowLeft, MessageCircle } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 export const Checkout = () => {
   const { items, total, subtotal, shipping } = useCart();
   const { isArabic } = useLanguage();
-  
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({ fullName: "", phone: "", address: "" });
 
   const handleConfirmOrder = (e: React.FormEvent) => {
