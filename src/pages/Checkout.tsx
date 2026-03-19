@@ -17,10 +17,15 @@ export const Checkout = () => {
     const phoneNumber = "212679697964";
 
     const orderDetails = items.map((i, index) => {
-      const title = isArabic ? (i.title_ar || i.title) : i.title;
-      const color = isArabic ? i.selectedColor?.name_ar : i.selectedColor?.name_en;
-      return `📦 *${index + 1}. ${title}*\n   🎨 ${isArabic ? 'اللون' : 'Couleur'}: ${color}\n   🔢 x${i.quantity}\n   💰 ${i.price * i.quantity} MAD`;
-    }).join('\n\n');
+  const title = isArabic ? (i.title_ar || i.title) : i.title;
+  
+  const colorName = isArabic 
+    ? (i.selectedColor?.name_ar || i.selectedColor?.name_en || "لون أصلي") 
+    : (i.selectedColor?.name_en || i.selectedColor?.name_ar || "Couleur Standard");
+
+  return `📦 *${index + 1}. ${title}*\n   🎨 ${isArabic ? 'اللون' : 'Couleur'}: ${colorName}\n   🔢 x${i.quantity}\n   💰 ${i.price * i.quantity} MAD`;
+}).join('\n\n');
+
 
     const message = isArabic 
       ? `✨ *طلب جديد - Atelier Rabab*\n\n👤 *الزبون:* ${formData.fullName}\n📞 *الهاتف:* ${formData.phone}\n📍 *العنوان:* ${formData.address}\n\n━━━━━━━━━━━━━━\n${orderDetails}\n\n━━━━━━━━━━━━━━\n🚚 *التوصيل:* ${shipping} MAD\n⭐ *المجموع النهائي: ${total} MAD*`
