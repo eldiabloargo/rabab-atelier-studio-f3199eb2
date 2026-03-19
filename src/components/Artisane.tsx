@@ -8,7 +8,7 @@ export const Artisane = () => {
 
   return (
    
-    <section id="artisane" className="py-12 md:py-20 px-4 md:px-6 bg-[#fafaf9] overflow-hidden relative">
+    <section id="artisane" className="py-10 md:py-24 px-4 md:px-6 bg-[#fafaf9] overflow-hidden relative">
 
       <div className="absolute top-0 left-0 w-64 h-64 bg-amber-50/50 blur-[100px] rounded-full -z-10" />
 
