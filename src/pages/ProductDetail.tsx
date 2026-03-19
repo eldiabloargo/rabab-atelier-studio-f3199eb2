@@ -68,20 +68,26 @@ export const ProductDetail = () => {
   };
 
   return (
-    <main className="min-h-screen bg-white relative">
-      {/* 1. زر الرجوع العائم (بلا نافبار) */}
-      <div className="fixed top-6 left-4 z-50">
+    <main className="min-h-screen bg-white">
+      {/* 1. البار الجديد Sticky: كيجي تحت النافبار الأصلية (كنفترضو علوها 64px) */}
+      <div className="sticky top-[64px] z-[90] w-full px-6 py-4 flex justify-between items-center bg-white/95 backdrop-blur-md border-b border-stone-50 transition-all duration-300">
+        {/* اسم المشروع على اليسار */}
+        <span className="text-[10px] font-bold tracking-[0.3em] text-amber-800 uppercase leading-none">
+          Atelier Rabab
+        </span>
+
+        {/* زر الرجوع على اليمين */}
         <button 
           onClick={() => navigate(-1)} 
-          className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-stone-900 bg-white/80 backdrop-blur-md px-4 py-2 rounded-full border border-stone-100 shadow-sm transition-all active:scale-95"
+          className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-stone-900 transition-all active:scale-95"
         >
-          <ArrowLeft className={`w-3 h-3 ${isArabic ? 'rotate-180' : ''}`} />
           {t("category.back")}
+          <ArrowLeft className={`w-3.5 h-3.5 ${isArabic ? '' : 'rotate-180'}`} />
         </button>
       </div>
 
-      {/* 2. المحتوى كيبدا من الفوق تماماً */}
-      <div className="max-w-5xl mx-auto pt-20 pb-12 px-4 md:px-8">
+      {/* 2. المحتوى: pt-4 كافية دبا حيت البار Sticky واخد بلاصتو */}
+      <div className="max-w-5xl mx-auto pt-6 pb-12 px-4 md:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-start">
 
           {/* Media Section */}
