@@ -34,13 +34,7 @@ export const ProductDetail = () => {
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-[#fafaf9]">
-      <motion.div 
-        animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.7, 0.3] }} 
-        transition={{ duration: 2, repeat: Infinity }}
-        className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center"
-      >
-        <div className="w-6 h-6 border-2 border-amber-600 border-t-transparent rounded-full animate-spin" />
-      </motion.div>
+      <div className="w-6 h-6 border-2 border-amber-600 border-t-transparent rounded-full animate-spin" />
     </div>
   );
 
@@ -61,155 +55,127 @@ export const ProductDetail = () => {
     });
     toast({ 
       title: isArabic ? "أضيف للحقيبة" : "Ajouté au panier",
-      description: currentTitle,
-      className: "bg-white border-stone-100 rounded-2xl shadow-xl"
+      className: "bg-white border-stone-100 rounded-xl"
     });
   };
 
   return (
-    <main className="min-h-screen bg-white selection:bg-amber-50">
-      {/* Dynamic Nav */}
-      <nav className="fixed top-0 w-full z-50 px-6 py-6 flex justify-between items-center bg-white/50 backdrop-blur-xl border-b border-stone-50">
+    <main className="min-h-screen bg-white">
+      {/* Nav مصغرة وأنيقة */}
+      <nav className="fixed top-0 w-full z-50 px-6 py-4 flex justify-between items-center bg-white/80 backdrop-blur-md border-b border-stone-50">
         <button 
           onClick={() => navigate(-1)} 
-          className="group flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] text-stone-500 hover:text-stone-900 transition-all"
+          className="group flex items-center gap-2 text-[9px] font-bold uppercase tracking-[0.2em] text-stone-400 hover:text-stone-900 transition-all"
         >
-          <ArrowLeft className={`w-4 h-4 transition-transform group-hover:-translate-x-1 ${isArabic ? 'rotate-180 group-hover:translate-x-1' : ''}`} />
+          <ArrowLeft className="w-3 h-3" />
           {t("category.back")}
         </button>
-        <div className="flex flex-col items-center">
-          <span className="text-[10px] font-serif italic text-amber-800 tracking-tighter">Edition Limitée</span>
-        </div>
+        <span className="text-[9px] font-medium tracking-[0.3em] text-amber-800 uppercase">Pièce Artisanale</span>
       </nav>
 
-      <div className="max-w-[1440px] mx-auto pt-32 pb-24 px-6 md:px-12">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 xl:gap-28">
+      {/* تقليص الـ pt من 32 لـ 20 لربح المساحة */}
+      <div className="max-w-6xl mx-auto pt-20 pb-16 px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 md:gap-16 items-start">
 
-          {/* Media Section: The Cinematic Frame */}
-          <div className="lg:col-span-7 space-y-10">
+          {/* Media Section: Frame أصغر شوية */}
+          <div className="lg:col-span-6 space-y-6">
             <motion.div 
               layoutId={`image-${product.id}`}
-              className="relative aspect-[4/5] rounded-[3rem] overflow-hidden bg-[#f3f3f2] group cursor-zoom-in"
+              className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-[#f8f8f7]"
             >
               <AnimatePresence mode="wait">
                 <motion.img
                   key={activeImage}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.8 }}
                   src={activeImage}
-                  className="w-full h-full object-cover transition-transform duration-[1.5s] group-hover:scale-110"
+                  className="w-full h-full object-cover"
                   alt={currentTitle}
                 />
               </AnimatePresence>
-              
-              <div className="absolute top-8 right-8">
-                <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30 text-white">
-                   <Sparkles size={18} />
-                </div>
-              </div>
             </motion.div>
 
-            {/* Gallery: Thumbnail Scroller */}
-            <div className="flex gap-5 overflow-visible">
+            {/* Gallery: أحجام أصغر */}
+            <div className="flex gap-3">
               {[product.image_url, ...(product.images_gallery || [])].map((img: string, i: number) => (
-                <motion.button
+                <button
                   key={i}
-                  whileHover={{ y: -5 }}
                   onClick={() => setActiveImage(img)}
-                  className={`relative w-24 h-32 rounded-2xl overflow-hidden flex-shrink-0 transition-all duration-500 border-2
-                    ${activeImage === img ? 'border-amber-600 scale-105' : 'border-transparent opacity-60 hover:opacity-100'}`}
+                  className={`w-16 h-20 rounded-lg overflow-hidden border transition-all 
+                    ${activeImage === img ? 'border-amber-600' : 'border-transparent opacity-50'}`}
                 >
-                  <img src={img} className="w-full h-full object-cover" alt="Gallery thumbnail" />
-                </motion.button>
+                  <img src={img} className="w-full h-full object-cover" alt="Gallery" />
+                </button>
               ))}
             </div>
           </div>
 
-          {/* Content Section: Editorial Style */}
-          <div className="lg:col-span-5 flex flex-col pt-4">
-            <div className="flex-1 space-y-12">
-              <header className="space-y-6">
-                <div className={`flex items-center gap-4 text-stone-400 ${isArabic ? 'flex-row-reverse' : ''}`}>
-                   <span className="text-[9px] font-black uppercase tracking-[0.5em]">Meknès, Maroc</span>
-                   <div className="h-[1px] w-12 bg-stone-100" />
-                </div>
-
-                <h1 className="text-5xl md:text-6xl font-serif text-stone-900 tracking-tighter italic leading-tight">
-                  {currentTitle}
-                </h1>
-
-                <div className={`flex items-baseline gap-3 ${isArabic ? 'flex-row-reverse' : ''}`}>
-                  <span className="text-4xl font-light text-stone-900 tracking-tighter">{product.price}</span>
-                  <span className="text-xs font-black text-stone-300 uppercase tracking-widest">MAD</span>
-                </div>
-              </header>
-
-              {/* Artisan Colors */}
-              {product.colors?.length > 0 && (
-                <div className="space-y-6">
-                  <div className={`flex justify-between items-center ${isArabic ? 'flex-row-reverse' : ''}`}>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-stone-400 italic">Nuance de l'Art</span>
-                    <span className="text-[10px] font-serif text-amber-700 tracking-widest">{selectedColor?.name}</span>
-                  </div>
-                  <div className="flex gap-5">
-                    {product.colors.map((color: any, i: number) => (
-                      <button
-                        key={i}
-                        onClick={() => setSelectedColor(color)}
-                        className="relative w-12 h-12 rounded-full border border-stone-100 flex items-center justify-center p-1 transition-all group"
-                      >
-                        <div 
-                          className="w-full h-full rounded-full shadow-inner"
-                          style={{ backgroundColor: color.hex }}
-                        />
-                        {selectedColor?.hex === color.hex && (
-                          <motion.div 
-                            layoutId="color-ring"
-                            className="absolute -inset-1 border-2 border-amber-600 rounded-full"
-                          />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Story/Description */}
-              <div className="space-y-6 py-10 border-y border-stone-50">
-                <p className={`text-stone-500 font-light leading-loose text-lg ${isArabic ? 'text-right' : 'text-left'}`}>
-                  {currentDesc}
-                </p>
+          {/* Content Section: Editorial & Minimalist */}
+          <div className="lg:col-span-6 space-y-8">
+            <header className="space-y-4">
+              <div className={`flex items-center gap-3 text-stone-300 ${isArabic ? 'flex-row-reverse' : ''}`}>
+                 <span className="text-[8px] font-bold uppercase tracking-[0.4em]">Maroc</span>
+                 <div className="h-[1px] w-8 bg-stone-100" />
               </div>
+
+              {/* العنوان: حيدنا الـ italic ورديناه أنيق وبسيط */}
+              <h1 className="text-3xl md:text-4xl font-serif text-stone-900 tracking-tight leading-tight">
+                {currentTitle}
+              </h1>
+
+              <div className={`flex items-baseline gap-2 ${isArabic ? 'flex-row-reverse' : ''}`}>
+                <span className="text-2xl font-light text-stone-900 tracking-tighter">{product.price}</span>
+                <span className="text-[10px] font-bold text-stone-300 uppercase tracking-widest">MAD</span>
+              </div>
+            </header>
+
+            {/* Colors: أزرار أصغر وراقية */}
+            {product.colors?.length > 0 && (
+              <div className="space-y-4 pt-4 border-t border-stone-50">
+                <div className={`flex justify-between items-center ${isArabic ? 'flex-row-reverse' : ''}`}>
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-stone-400">Nuances</span>
+                  <span className="text-[9px] font-medium text-amber-700">{selectedColor?.name}</span>
+                </div>
+                <div className="flex gap-3">
+                  {product.colors.map((color: any, i: number) => (
+                    <button
+                      key={i}
+                      onClick={() => setSelectedColor(color)}
+                      className={`w-8 h-8 rounded-full border p-0.5 transition-all
+                        ${selectedColor?.hex === color.hex ? 'border-amber-600 scale-110' : 'border-stone-100 opacity-60'}`}
+                    >
+                      <div className="w-full h-full rounded-full" style={{ backgroundColor: color.hex }} />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Description: خط رقيق ومقروء */}
+            <div className="py-6 border-t border-stone-50">
+              <p className={`text-stone-500 font-light leading-relaxed text-sm md:text-base ${isArabic ? 'text-right' : 'text-left'}`}>
+                {currentDesc}
+              </p>
             </div>
 
-            {/* Buying Controls */}
-            <div className="mt-12 space-y-8">
+            {/* Buttons: لمسة عصرية بـ Border رقيق */}
+            <div className="pt-6 space-y-6">
               <Button 
                 onClick={handleAddToCart}
-                className="w-full h-20 bg-stone-900 hover:bg-amber-900 text-white rounded-[2rem] text-[11px] font-black uppercase tracking-[0.4em] transition-all duration-700 relative overflow-hidden group"
+                className="w-full h-14 bg-stone-900 hover:bg-amber-900 text-white rounded-xl text-[10px] font-bold uppercase tracking-[0.3em] transition-all"
               >
-                <div className="relative z-10 flex items-center gap-4">
-                  <ShoppingBag size={18} />
-                  <span>{isArabic ? "اقتناء الآن" : "Commander la Pièce"}</span>
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-r from-amber-700 to-amber-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <ShoppingBag size={14} className="mr-3 inline-block" />
+                {isArabic ? "اقتناء الآن" : "Ajouter au Panier"}
               </Button>
 
-              {/* Trust & Craft Indicators */}
-              <div className="grid grid-cols-2 gap-8 border-t border-stone-50 pt-10">
-                <div className="flex items-center gap-4 group">
-                  <div className="w-10 h-10 rounded-full bg-stone-50 flex items-center justify-center text-stone-400 group-hover:bg-amber-50 group-hover:text-amber-700 transition-colors">
-                    <Star size={14} />
-                  </div>
-                  <span className="text-[9px] font-black uppercase tracking-widest text-stone-400 leading-tight">Pièce Unique<br/>Signée</span>
+              <div className="flex justify-between border-t border-stone-50 pt-6">
+                <div className="flex items-center gap-3">
+                  <Star size={12} className="text-stone-300" />
+                  <span className="text-[8px] font-bold uppercase tracking-widest text-stone-400">Pièce Signée</span>
                 </div>
-                <div className="flex items-center gap-4 group">
-                  <div className="w-10 h-10 rounded-full bg-stone-50 flex items-center justify-center text-stone-400 group-hover:bg-amber-50 group-hover:text-amber-700 transition-colors">
-                    <ShieldCheck size={14} />
-                  </div>
-                  <span className="text-[9px] font-black uppercase tracking-widest text-stone-400 leading-tight">Emballage<br/>Sécurisé</span>
+                <div className="flex items-center gap-3">
+                  <ShieldCheck size={12} className="text-stone-300" />
+                  <span className="text-[8px] font-bold uppercase tracking-widest text-stone-400">Livraison Sécurisée</span>
                 </div>
               </div>
             </div>
