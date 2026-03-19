@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCart } from "@/contexts/CartContext";
-import { ArrowLeft, ShoppingBag, Sparkles, Star, ShieldCheck } from "lucide-react";
+import { ArrowLeft, ShoppingBag, Star, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 
@@ -21,11 +21,20 @@ export const ProductDetail = () => {
 
   useEffect(() => {
     const fetchProduct = async () => {
-      const { data } = await supabase.from("products").select("*").eq("id", id).single();
+      // الربط مع الداتاباز: كنأكدو أننا كنجيبو كاع الحقول بما فيها الكاتيكوري
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .eq("id", id)
+        .single();
+      
       if (data) {
         setProduct(data);
         setActiveImage(data.image_url);
-        if (data.colors?.length > 0) setSelectedColor(data.colors[0]);
+        // تأكد أن اللون الأول هو اللي كيكون مختار أوتوماتيكياً
+        if (data.colors && data.colors.length > 0) {
+          setSelectedColor(data.colors[0]);
+        }
       }
       setLoading(false);
     };
@@ -33,8 +42,8 @@ export const ProductDetail = () => {
   }, [id]);
 
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-[#fafaf9]">
-      <div className="w-6 h-6 border-2 border-amber-600 border-t-transparent rounded-full animate-spin" />
+    <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="w-5 h-5 border-2 border-amber-600 border-t-transparent rounded-full animate-spin" />
     </div>
   );
 
@@ -44,44 +53,45 @@ export const ProductDetail = () => {
   const currentDesc = isArabic && product.description_ar ? product.description_ar : product.description;
 
   const handleAddToCart = () => {
+    // تمرير البيانات كاملة للـ CartContext وللأدمين بانل من بعد
     addToCart({
       id: product.id,
       title: product.title,
       title_ar: product.title_ar,
       price: product.price,
       image: product.image_url,
-      selectedColor: selectedColor,
+      selectedColor: selectedColor, // هنا كيدوز الـ hex والسمية (name_ar/name_en)
       quantity: 1
     });
+
     toast({ 
-      title: isArabic ? "أضيف للحقيبة" : "Ajouté au panier",
-      className: "bg-white border-stone-100 rounded-xl"
+      title: isArabic ? "تمت الإضافة للحقيبة" : "Ajouté au panier",
+      className: "bg-white border-stone-100 rounded-xl font-serif italic"
     });
   };
 
   return (
     <main className="min-h-screen bg-white">
-      {/* Nav مصغرة وأنيقة */}
-      <nav className="fixed top-0 w-full z-50 px-6 py-4 flex justify-between items-center bg-white/80 backdrop-blur-md border-b border-stone-50">
+      {/* Nav: رشيقة جداً */}
+      <nav className="fixed top-0 w-full z-50 px-4 py-3 flex justify-between items-center bg-white/90 backdrop-blur-md border-b border-stone-50">
         <button 
           onClick={() => navigate(-1)} 
-          className="group flex items-center gap-2 text-[9px] font-bold uppercase tracking-[0.2em] text-stone-400 hover:text-stone-900 transition-all"
+          className="group flex items-center gap-2 text-[8px] font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 transition-all"
         >
-          <ArrowLeft className="w-3 h-3" />
+          <ArrowLeft className={`w-3 h-3 ${isArabic ? 'rotate-180' : ''}`} />
           {t("category.back")}
         </button>
-        <span className="text-[9px] font-medium tracking-[0.3em] text-amber-800 uppercase">Pièce Artisanale</span>
+        <span className="text-[8px] font-bold tracking-[0.3em] text-amber-800 uppercase">Atelier Rabab</span>
       </nav>
 
-      {/* تقليص الـ pt من 32 لـ 20 لربح المساحة */}
-      <div className="max-w-6xl mx-auto pt-20 pb-16 px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 md:gap-16 items-start">
+      <div className="max-w-5xl mx-auto pt-16 md:pt-24 pb-12 px-4 md:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-start">
 
-          {/* Media Section: Frame أصغر شوية */}
-          <div className="lg:col-span-6 space-y-6">
+          {/* Media Section */}
+          <div className="space-y-4">
             <motion.div 
               layoutId={`image-${product.id}`}
-              className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-[#f8f8f7]"
+              className="relative aspect-[4/5] md:aspect-[3/4] rounded-xl overflow-hidden bg-[#fbfbfb]"
             >
               <AnimatePresence mode="wait">
                 <motion.img
@@ -95,14 +105,14 @@ export const ProductDetail = () => {
               </AnimatePresence>
             </motion.div>
 
-            {/* Gallery: أحجام أصغر */}
-            <div className="flex gap-3">
+            {/* Gallery Thumbnails */}
+            <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
               {[product.image_url, ...(product.images_gallery || [])].map((img: string, i: number) => (
                 <button
                   key={i}
                   onClick={() => setActiveImage(img)}
-                  className={`w-16 h-20 rounded-lg overflow-hidden border transition-all 
-                    ${activeImage === img ? 'border-amber-600' : 'border-transparent opacity-50'}`}
+                  className={`w-14 h-18 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all 
+                    ${activeImage === img ? 'border-amber-600' : 'border-transparent opacity-40'}`}
                 >
                   <img src={img} className="w-full h-full object-cover" alt="Gallery" />
                 </button>
@@ -110,39 +120,39 @@ export const ProductDetail = () => {
             </div>
           </div>
 
-          {/* Content Section: Editorial & Minimalist */}
-          <div className="lg:col-span-6 space-y-8">
-            <header className="space-y-4">
-              <div className={`flex items-center gap-3 text-stone-300 ${isArabic ? 'flex-row-reverse' : ''}`}>
-                 <span className="text-[8px] font-bold uppercase tracking-[0.4em]">Maroc</span>
-                 <div className="h-[1px] w-8 bg-stone-100" />
+          {/* Content Section */}
+          <div className="flex flex-col h-full justify-center">
+            <header className="space-y-3">
+              <div className={`flex items-center gap-2 text-stone-300 ${isArabic ? 'flex-row-reverse' : ''}`}>
+                 <span className="text-[7px] font-bold uppercase tracking-[0.4em]">{product.category || 'Collection'}</span>
+                 <div className="h-[1px] w-6 bg-stone-100" />
               </div>
 
-              {/* العنوان: حيدنا الـ italic ورديناه أنيق وبسيط */}
-              <h1 className="text-3xl md:text-4xl font-serif text-stone-900 tracking-tight leading-tight">
+              <h1 className="text-2xl md:text-3xl font-serif text-stone-900 tracking-tight">
                 {currentTitle}
               </h1>
 
               <div className={`flex items-baseline gap-2 ${isArabic ? 'flex-row-reverse' : ''}`}>
-                <span className="text-2xl font-light text-stone-900 tracking-tighter">{product.price}</span>
-                <span className="text-[10px] font-bold text-stone-300 uppercase tracking-widest">MAD</span>
+                <span className="text-xl font-light text-stone-900 tracking-tighter">{product.price} MAD</span>
               </div>
             </header>
 
-            {/* Colors: أزرار أصغر وراقية */}
+            {/* Colors */}
             {product.colors?.length > 0 && (
-              <div className="space-y-4 pt-4 border-t border-stone-50">
+              <div className="mt-6 pt-6 border-t border-stone-50 space-y-3">
                 <div className={`flex justify-between items-center ${isArabic ? 'flex-row-reverse' : ''}`}>
-                  <span className="text-[9px] font-bold uppercase tracking-widest text-stone-400">Nuances</span>
-                  <span className="text-[9px] font-medium text-amber-700">{selectedColor?.name}</span>
+                  <span className="text-[8px] font-bold uppercase tracking-widest text-stone-400">Sélection de Couleur</span>
+                  <span className="text-[9px] font-medium text-amber-700">
+                    {isArabic ? (selectedColor?.name_ar || selectedColor?.name) : (selectedColor?.name_en || selectedColor?.name)}
+                  </span>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex gap-2">
                   {product.colors.map((color: any, i: number) => (
                     <button
                       key={i}
                       onClick={() => setSelectedColor(color)}
-                      className={`w-8 h-8 rounded-full border p-0.5 transition-all
-                        ${selectedColor?.hex === color.hex ? 'border-amber-600 scale-110' : 'border-stone-100 opacity-60'}`}
+                      className={`w-7 h-7 rounded-full border p-0.5 transition-all
+                        ${selectedColor?.hex === color.hex ? 'border-amber-600' : 'border-stone-100 opacity-70'}`}
                     >
                       <div className="w-full h-full rounded-full" style={{ backgroundColor: color.hex }} />
                     </button>
@@ -151,35 +161,36 @@ export const ProductDetail = () => {
               </div>
             )}
 
-            {/* Description: خط رقيق ومقروء */}
-            <div className="py-6 border-t border-stone-50">
-              <p className={`text-stone-500 font-light leading-relaxed text-sm md:text-base ${isArabic ? 'text-right' : 'text-left'}`}>
+            {/* Description */}
+            <div className="mt-6 py-6 border-t border-stone-50">
+              <p className={`text-stone-500 font-light leading-relaxed text-sm ${isArabic ? 'text-right' : 'text-left'}`}>
                 {currentDesc}
               </p>
             </div>
 
-            {/* Buttons: لمسة عصرية بـ Border رقيق */}
-            <div className="pt-6 space-y-6">
+            {/* CTA */}
+            <div className="mt-auto pt-6 space-y-6">
               <Button 
                 onClick={handleAddToCart}
-                className="w-full h-14 bg-stone-900 hover:bg-amber-900 text-white rounded-xl text-[10px] font-bold uppercase tracking-[0.3em] transition-all"
+                className="w-full h-12 bg-stone-900 hover:bg-amber-900 text-white rounded-lg text-[9px] font-bold uppercase tracking-[0.2em] transition-all"
               >
-                <ShoppingBag size={14} className="mr-3 inline-block" />
-                {isArabic ? "اقتناء الآن" : "Ajouter au Panier"}
+                <ShoppingBag size={14} className={`${isArabic ? 'ml-2' : 'mr-2'}`} />
+                {isArabic ? "أضف للحقيبة" : "Ajouter au Panier"}
               </Button>
 
-              <div className="flex justify-between border-t border-stone-50 pt-6">
-                <div className="flex items-center gap-3">
-                  <Star size={12} className="text-stone-300" />
-                  <span className="text-[8px] font-bold uppercase tracking-widest text-stone-400">Pièce Signée</span>
+              <div className="flex justify-between items-center opacity-60">
+                <div className="flex items-center gap-2">
+                  <Star size={10} />
+                  <span className="text-[7px] font-bold uppercase tracking-widest text-stone-500">Authentique</span>
                 </div>
-                <div className="flex items-center gap-3">
-                  <ShieldCheck size={12} className="text-stone-300" />
-                  <span className="text-[8px] font-bold uppercase tracking-widest text-stone-400">Livraison Sécurisée</span>
+                <div className="flex items-center gap-2">
+                  <ShieldCheck size={10} />
+                  <span className="text-[7px] font-bold uppercase tracking-widest text-stone-500">Sécurisé</span>
                 </div>
               </div>
             </div>
           </div>
+
         </div>
       </div>
     </main>
