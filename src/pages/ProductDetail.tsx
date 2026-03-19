@@ -81,13 +81,11 @@ export const ProductDetail = () => {
         <span className="text-[8px] font-bold tracking-[0.3em] text-amber-800 uppercase">Atelier Rabab</span>
       </nav>
 
-      
-      <div className="h-16 md:h-20" /> 
+      {/* التعديل هنا: زدنا pt-20 للهاتف و pt-28 للحاسوب باش المحتوى يبان كامل تحت النافبار */}
+      <div className="max-w-5xl mx-auto pt-20 md:pt-28 pb-12 px-4 md:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-start">
 
-    <div className="max-w-5xl mx-auto pt-6 md:pt-10 pb-12 px-4 md:px-8">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-start">>
-
-         
+          {/* Media Section */}
           <div className="space-y-4">
             <motion.div 
               layoutId={`image-${product.id}`}
