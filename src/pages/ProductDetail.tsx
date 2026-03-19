@@ -69,7 +69,7 @@ export const ProductDetail = () => {
 
   return (
     <main className="min-h-screen bg-white">
-      {/* رجعنا الـ Navbar تكون fixed باش تبقى زوينة فـ Scroll */}
+      {/* النافبار كتبقى كيفما هي fixed */}
       <nav className="fixed top-0 w-full z-[100] px-4 py-4 flex justify-between items-center bg-white/90 backdrop-blur-md border-b border-stone-50">
         <button 
           onClick={() => navigate(-1)} 
@@ -81,11 +81,11 @@ export const ProductDetail = () => {
         <span className="text-[9px] font-bold tracking-[0.3em] text-amber-800 uppercase leading-none">Atelier Rabab</span>
       </nav>
 
-      {/* هاد الـ Spacer هو اللي غيحل المشكل: كيدفع المحتوى بـ 80 بيكسل فالموبايل */}
-      <div className="h-20 md:h-24 w-full" />
+      {/* الـ Spacer الجديد: زدنا فالعلو ديالو باش يهبط المحتوى 100% تحت النافبار */}
+      <div className="h-24 md:h-32 w-full flex-shrink-0" />
 
-      {/* دبا المحتوى غيبدا من تحت الـ Navbar بوضوح */}
-      <div className="max-w-5xl mx-auto pt-4 md:pt-10 pb-12 px-4 md:px-8">
+      {/* المحتوى دابا غيبدا نقي وتحت الأزرار ديال النافبار */}
+      <div className="max-w-5xl mx-auto pt-2 md:pt-6 pb-12 px-4 md:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-start">
 
           {/* Media Section */}
