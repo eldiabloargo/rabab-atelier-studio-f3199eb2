@@ -18,6 +18,28 @@ export const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
   const [selectedColor, setSelectedColor] = useState<any>(null);
   const [activeImage, setActiveImage] = useState<string>("");
+  
+  // State باش نتحكمو فالنافبار واش تبان ولا لا
+  const [showNav, setShowNav] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      // إذا كنا فالفوق (أقل من 50px) تبان النافبار، غير ذلك تختفي فاش نهبطو
+      if (currentScrollY < 50) {
+        setShowNav(true);
+      } else if (currentScrollY > lastScrollY) {
+        setShowNav(false); // نهبطو: تختفي
+      } else {
+        setShowNav(true); // نطلعو: ترجع تبان
+      }
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -68,21 +90,26 @@ export const ProductDetail = () => {
   };
 
   return (
-    <main className="min-h-screen bg-white flex flex-col">
-      {/* النافبار كتبقى كيف هي */}
-      <nav className="w-full px-4 py-6 flex justify-between items-center bg-white border-b border-stone-50">
+    <main className="min-h-screen bg-white">
+      {/* 1. الأزرار لي بغيتيهم ديما باينين (Fixed) */}
+      <div className="fixed top-0 w-full z-[110] px-4 py-4 flex justify-between items-center pointer-events-none">
         <button 
           onClick={() => navigate(-1)} 
-          className="group flex items-center gap-2 text-[9px] font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 transition-all"
+          className="pointer-events-auto group flex items-center gap-2 text-[9px] font-bold uppercase tracking-widest text-stone-900 bg-white/50 backdrop-blur-sm p-2 rounded-full transition-all"
         >
           <ArrowLeft className={`w-3 h-3 ${isArabic ? 'rotate-180' : ''}`} />
           {t("category.back")}
         </button>
-        <span className="text-[9px] font-bold tracking-[0.3em] text-amber-800 uppercase leading-none">Atelier Rabab</span>
-      </nav>
+        <span className="text-[9px] font-bold tracking-[0.3em] text-amber-800 uppercase leading-none">
+          Atelier Rabab
+        </span>
+      </div>
 
-      {/* التعديل هنا: زدنا mt-12 فالموبايل باش تهبط الكتابة وتفوت النافبار بوضوح */}
-      <div className="flex-1 max-w-5xl mx-auto mt-12 md:mt-0 py-8 md:py-12 px-4 md:px-8 w-full">
+      {/* 2. النافبار لي كتحرك وككتختافي */}
+      <nav className={`fixed top-0 w-full z-[100] h-16 bg-white/95 backdrop-blur-md border-b border-stone-50 transition-transform duration-300 ${showNav ? 'translate-y-0' : '-translate-y-full'}`} />
+
+      {/* المحتوى دبا غيبدا مرتاح ومغطي من طرف النافبار غير فالبداية */}
+      <div className="max-w-5xl mx-auto pt-20 pb-12 px-4 md:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-start">
 
           {/* Media Section */}
@@ -119,7 +146,7 @@ export const ProductDetail = () => {
           </div>
 
           {/* Content Section */}
-          <div className="flex flex-col h-full">
+          <div className="flex flex-col h-full justify-center">
             <header className="space-y-3">
               <div className={`flex items-center gap-2 text-stone-300 ${isArabic ? 'flex-row-reverse' : ''}`}>
                  <span className="text-[7px] font-bold uppercase tracking-[0.4em] leading-none">{product.category || 'Collection'}</span>
