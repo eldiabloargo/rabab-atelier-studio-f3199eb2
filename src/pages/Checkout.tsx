@@ -9,7 +9,7 @@ import { useState } from "react";
 export const Checkout = () => {
   const { items, total, subtotal, shipping } = useCart();
   const { isArabic } = useLanguage();
-  const navigate = useNavigate();
+  
   const [formData, setFormData] = useState({ fullName: "", phone: "", address: "" });
 
   const handleConfirmOrder = (e: React.FormEvent) => {
