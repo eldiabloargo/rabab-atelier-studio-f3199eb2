@@ -68,9 +68,9 @@ export const ProductDetail = () => {
   };
 
   return (
-    <main className="min-h-screen bg-white">
-      {/* Nav: ثابتة وأنيقة */}
-      <nav className="fixed top-0 w-full z-50 px-4 py-3 flex justify-between items-center bg-white/90 backdrop-blur-md border-b border-stone-50">
+    <main className="min-h-screen bg-white flex flex-col">
+      {/* Nav: Fixed */}
+      <nav className="fixed top-0 w-full z-[60] px-4 py-3 flex justify-between items-center bg-white/95 backdrop-blur-md border-b border-stone-50">
         <button 
           onClick={() => navigate(-1)} 
           className="group flex items-center gap-2 text-[8px] font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 transition-all"
@@ -81,17 +81,18 @@ export const ProductDetail = () => {
         <span className="text-[8px] font-bold tracking-[0.3em] text-amber-800 uppercase">Atelier Rabab</span>
       </nav>
 
-     
+      
+      <div className="h-[60px] md:h-[70px] w-full flex-shrink-0" />
 
-   
-<div className="max-w-5xl mx-auto pt-20 md:pt-28 pb-12 px-4 md:px-8">
+      
+      <div className="flex-1 max-w-5xl mx-auto py-8 md:py-12 px-4 md:px-8 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-start">
 
           {/* Media Section */}
           <div className="space-y-4">
             <motion.div 
               layoutId={`image-${product.id}`}
-              className="relative aspect-[4/5] md:aspect-[3/4] rounded-xl overflow-hidden bg-[#fbfbfb]"
+              className="relative aspect-[4/5] md:aspect-[3/4] rounded-xl overflow-hidden bg-[#fbfbfb] shadow-sm"
             >
               <AnimatePresence mode="wait">
                 <motion.img
@@ -105,7 +106,7 @@ export const ProductDetail = () => {
               </AnimatePresence>
             </motion.div>
 
-            {/* Gallery Thumbnails */}
+            {/* Gallery */}
             <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
               {[product.image_url, ...(product.images_gallery || [])].map((img: string, i: number) => (
                 <button
@@ -120,7 +121,7 @@ export const ProductDetail = () => {
             </div>
           </div>
 
-          
+          {/* Content Section */}
           <div className="flex flex-col h-full justify-center">
             <header className="space-y-3">
               <div className={`flex items-center gap-2 text-stone-300 ${isArabic ? 'flex-row-reverse' : ''}`}>
@@ -137,7 +138,7 @@ export const ProductDetail = () => {
               </div>
             </header>
 
-            
+            {/* Colors */}
             {product.colors?.length > 0 && (
               <div className="mt-6 pt-6 border-t border-stone-50 space-y-3">
                 <div className={`flex justify-between items-center ${isArabic ? 'flex-row-reverse' : ''}`}>
@@ -161,14 +162,12 @@ export const ProductDetail = () => {
               </div>
             )}
 
-            
             <div className="mt-6 py-6 border-t border-stone-50">
               <p className={`text-stone-500 font-light leading-relaxed text-sm ${isArabic ? 'text-right' : 'text-left'}`}>
                 {currentDesc}
               </p>
             </div>
 
-            
             <div className="mt-auto pt-6 space-y-6">
               <Button 
                 onClick={handleAddToCart}
@@ -194,4 +193,4 @@ export const ProductDetail = () => {
       </div>
     </main>
   );
-}; 
+};
