@@ -68,9 +68,9 @@ export const ProductDetail = () => {
   };
 
   return (
-    <main className="min-h-screen bg-white">
-      {/* النافبار كتبقى كيفما هي fixed */}
-      <nav className="fixed top-0 w-full z-[100] px-4 py-4 flex justify-between items-center bg-white/90 backdrop-blur-md border-b border-stone-50">
+    <main className="min-h-screen bg-white flex flex-col">
+      {/* الحل النهائي: حيدنا fixed و sticky. دبا النافبار عنصر طبيعي كياخد بلاصتو الفوق */}
+      <nav className="w-full px-4 py-6 flex justify-between items-center bg-white border-b border-stone-50">
         <button 
           onClick={() => navigate(-1)} 
           className="group flex items-center gap-2 text-[9px] font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 transition-all"
@@ -81,11 +81,8 @@ export const ProductDetail = () => {
         <span className="text-[9px] font-bold tracking-[0.3em] text-amber-800 uppercase leading-none">Atelier Rabab</span>
       </nav>
 
-      {/* الـ Spacer الجديد: زدنا فالعلو ديالو باش يهبط المحتوى 100% تحت النافبار */}
-      <div className="h-24 md:h-32 w-full flex-shrink-0" />
-
-      {/* المحتوى دابا غيبدا نقي وتحت الأزرار ديال النافبار */}
-      <div className="max-w-5xl mx-auto pt-2 md:pt-6 pb-12 px-4 md:px-8">
+      {/* المحتوى كيبدا دبا من تحت النافبار بوضوح تام */}
+      <div className="flex-1 max-w-5xl mx-auto py-8 md:py-12 px-4 md:px-8 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-start">
 
           {/* Media Section */}
@@ -122,7 +119,7 @@ export const ProductDetail = () => {
           </div>
 
           {/* Content Section */}
-          <div className="flex flex-col h-full justify-center">
+          <div className="flex flex-col h-full">
             <header className="space-y-3">
               <div className={`flex items-center gap-2 text-stone-300 ${isArabic ? 'flex-row-reverse' : ''}`}>
                  <span className="text-[7px] font-bold uppercase tracking-[0.4em] leading-none">{product.category || 'Collection'}</span>
