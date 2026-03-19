@@ -1,4 +1,3 @@
-Import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/contexts/CartContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -8,7 +7,8 @@ import { Button } from "./ui/button";
 export const CartDrawer = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
   const { items, removeFromCart, updateQuantity, subtotal, shipping, total } = useCart();
   const { isArabic } = useLanguage();
-   
+   const navigate = useNavigate();
+
 
   return (
     <AnimatePresence>
