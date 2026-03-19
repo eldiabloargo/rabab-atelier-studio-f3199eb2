@@ -22,8 +22,8 @@ export const Artisane = () => {
           className="flex flex-col items-center mb-16 text-center"
         >
                    <div className="flex items-center gap-3 mb-2">
-            <Sparkles size={12} className="text-amber-600/40" />
-            <span className="text-[10px] font-black tracking-[0.6em] text-stone-400 uppercase">Portrait</span>
+            < size={12} className="text-amber-600/40" />
+            <span className="text-[10px] font-black tracking-[0.6em] text-stone-400 uppercase">About</span>
           </div>
           <h2 className="text-4xl md:text-5xl font-serif italic text-stone-900 tracking-tighter capitalize">
              L'Artisane
