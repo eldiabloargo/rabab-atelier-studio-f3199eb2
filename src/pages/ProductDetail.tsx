@@ -112,7 +112,7 @@ export const ProductDetail = () => {
               ${isScrolled ? 'shadow-sm' : ''} ${isArabic ? 'ml-auto' : 'mr-auto'}`}
           >
             <span className="text-[10px] font-bold tracking-[0.3em] text-amber-800 uppercase leading-none">
-              Atelier Rabab
+              Rabab Atelier 
             </span>
           </motion.div>
 
