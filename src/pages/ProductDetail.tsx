@@ -195,4 +195,4 @@ export const ProductDetail = () => {
       </div>
     </main>
   );
-};
+}; 
