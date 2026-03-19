@@ -8,7 +8,7 @@ import { Button } from "./ui/button";
 export const CartDrawer = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
   const { items, removeFromCart, updateQuantity, subtotal, shipping, total } = useCart();
   const { isArabic } = useLanguage();
-  const navigate = useNavigate(); 
+   
 
   return (
     <AnimatePresence>
