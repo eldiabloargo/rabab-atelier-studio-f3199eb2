@@ -81,8 +81,7 @@ export const ProductDetail = () => {
         <span className="text-[8px] font-bold tracking-[0.3em] text-amber-800 uppercase">Atelier Rabab</span>
       </nav>
 
-      
-      <div className="h-16 md:h-20" /> 
+     
 
    
 <div className="max-w-5xl mx-auto pt-20 md:pt-28 pb-12 px-4 md:px-8">
