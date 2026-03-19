@@ -19,12 +19,12 @@ export const ProductDetail = () => {
   const [selectedColor, setSelectedColor] = useState<any>(null);
   const [activeImage, setActiveImage] = useState<string>("");
 
-  
+  // 1. State باش نراقبو السكرول ونحركو العناصر
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-     
+      // فاش نفوتو 100px، العناصر كتجمع
       if (window.scrollY > 100) {
         setIsScrolled(true);
       } else {
@@ -86,19 +86,19 @@ export const ProductDetail = () => {
 
   return (
     <main className="min-h-screen bg-white" dir={isArabic ? 'rtl' : 'ltr'}>
-      
+      {/* 2. البار الجديد Sticky: هبطناه بـ top-[72px] */}
       <nav 
         className={`sticky top-[72px] z-[90] w-full px-6 transition-all duration-300 pointer-events-none 
           ${isArabic ? 'flex-row-reverse' : ''}`}
       >
-        
+        {/* الحاوية اللي كتجمع الأزرار: pointer-events-auto باش نخدموهم */}
         <div className={`flex justify-between items-center w-full max-w-7xl mx-auto py-2`}>
           
-          
+          {/* اسم المشروع (Floating): كياخد إطار بوحده فالسكرول */}
           <motion.div 
             animate={{ 
               scale: isScrolled ? 0.9 : 1, 
-             
+              // فاش نسكروليو يولي عنده إطار بيض وبوردر كيف طلبتي
               backgroundColor: isScrolled ? "rgba(255, 255, 255, 0.9)" : "rgba(255, 255, 255, 0)",
               border: isScrolled ? "1px solid #f2f2f2" : "1px solid transparent",
               borderRadius: isScrolled ? "20px" : "0px",
@@ -112,12 +112,151 @@ export const ProductDetail = () => {
               ${isScrolled ? 'shadow-sm' : ''} ${isArabic ? 'ml-auto' : 'mr-auto'}`}
           >
             <span className="text-[10px] font-bold tracking-[0.3em] text-amber-800 uppercase leading-none">
-              Rabab Atelier 
+              Atelier Rabab
             </span>
           </motion.div>
 
-         
+          {/* زر الرجوع (Floating): حتى هو كياخد إطار بيض بوحده */}
           <motion.button 
             onClick={() => navigate(-1)} 
             animate={{ 
-              scale: isScrolled ? 0.9
+              scale: isScrolled ? 0.9 : 1, 
+              backgroundColor: isScrolled ? "rgba(255, 255, 255, 0.9)" : "rgba(255, 255, 255, 0)",
+              border: isScrolled ? "1px solid #f2f2f2" : "1px solid transparent",
+              borderRadius: isScrolled ? "20px" : "0px",
+              paddingLeft: isScrolled ? "16px" : "0px",
+              paddingRight: isScrolled ? "16px" : "0px",
+              paddingTop: isScrolled ? "6px" : "0px",
+              paddingBottom: isScrolled ? "6px" : "0px",
+            }}
+            transition={{ duration: 0.3 }}
+            className={`pointer-events-auto flex items-center gap-2 backdrop-blur-sm transition-all active:scale-95 shadow-stone-50 
+              ${isScrolled ? 'shadow-sm' : ''}`}
+          >
+            {isArabic ? (
+               // بالعربية: الرجوع على اليمين والسهم لليمين
+              <>
+                {t("category.back")}
+                <ArrowLeft className={`w-3.5 h-3.5`} />
+              </>
+            ) : (
+               // بالفرنسية: الرجوع على اليسار والسهم لليسار
+              <>
+                <ArrowLeft className={`w-3.5 h-3.5`} />
+                {t("category.back")}
+              </>
+            )}
+          </motion.button>
+        </div>
+      </nav>
+
+      {/* 3. المحتوى: هبطناه بـ pt-8 حيت البار Sticky */}
+      <div className="max-w-5xl mx-auto pt-8 pb-12 px-4 md:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-start">
+
+          {/* Media Section */}
+          <div className="space-y-4">
+            <motion.div 
+              layoutId={`image-${product.id}`}
+              className="relative aspect-[4/5] md:aspect-[3/4] rounded-xl overflow-hidden bg-[#fbfbfb] shadow-sm"
+            >
+              <AnimatePresence mode="wait">
+                <motion.img
+                  key={activeImage}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  src={activeImage}
+                  className="w-full h-full object-cover"
+                  alt={currentTitle}
+                />
+              </AnimatePresence>
+            </motion.div>
+
+            {/* Gallery */}
+            <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+              {[product.image_url, ...(product.images_gallery || [])].map((img: string, i: number) => (
+                <button
+                  key={i}
+                  onClick={() => setActiveImage(img)}
+                  className={`w-14 h-18 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all 
+                    ${activeImage === img ? 'border-amber-600' : 'border-transparent opacity-40'}`}
+                >
+                  <img src={img} className="w-full h-full object-cover" alt="Gallery" />
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Content Section */}
+          <div className="flex flex-col h-full justify-center">
+            <header className="space-y-3">
+              <div className={`flex items-center gap-2 text-stone-300 ${isArabic ? 'flex-row-reverse' : ''}`}>
+                 <span className="text-[7px] font-bold uppercase tracking-[0.4em] leading-none">{product.category || 'Collection'}</span>
+                 <div className="h-[1px] w-6 bg-stone-100" />
+              </div>
+
+              <h1 className="text-2xl md:text-3xl font-serif text-stone-900 tracking-tight leading-tight">
+                {currentTitle}
+              </h1>
+
+              <div className={`flex items-baseline gap-2 ${isArabic ? 'flex-row-reverse' : ''}`}>
+                <span className="text-xl font-light text-stone-900 tracking-tighter">{product.price} MAD</span>
+              </div>
+            </header>
+
+            {/* Colors */}
+            {product.colors?.length > 0 && (
+              <div className="mt-6 pt-6 border-t border-stone-50 space-y-3">
+                <div className={`flex justify-between items-center ${isArabic ? 'flex-row-reverse' : ''}`}>
+                  <span className="text-[8px] font-bold uppercase tracking-widest text-stone-400">Sélection de Couleur</span>
+                  <span className="text-[9px] font-medium text-amber-700">
+                    {isArabic ? (selectedColor?.name_ar || selectedColor?.name) : (selectedColor?.name_en || selectedColor?.name)}
+                  </span>
+                </div>
+                <div className="flex gap-2">
+                  {product.colors.map((color: any, i: number) => (
+                    <button
+                      key={i}
+                      onClick={() => setSelectedColor(color)}
+                      className={`w-7 h-7 rounded-full border p-0.5 transition-all
+                        ${selectedColor?.hex === color.hex ? 'border-amber-600' : 'border-stone-100 opacity-70'}`}
+                    >
+                      <div className="w-full h-full rounded-full" style={{ backgroundColor: color.hex }} />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="mt-6 py-6 border-t border-stone-50">
+              <p className={`text-stone-500 font-light leading-relaxed text-sm ${isArabic ? 'text-right' : 'text-left'}`}>
+                {currentDesc}
+              </p>
+            </div>
+
+            <div className="mt-auto pt-6 space-y-6">
+              <Button 
+                onClick={handleAddToCart}
+                className="w-full h-12 bg-stone-900 hover:bg-amber-900 text-white rounded-lg text-[9px] font-bold uppercase tracking-[0.2em] transition-all"
+              >
+                <ShoppingBag size={14} className={`${isArabic ? 'ml-2' : 'mr-2'}`} />
+                {isArabic ? "أضف للحقيبة" : "Ajouter au Panier"}
+              </Button>
+
+              <div className="flex justify-between items-center opacity-60">
+                <div className="flex items-center gap-2">
+                  <Star size={10} />
+                  <span className="text-[7px] font-bold uppercase tracking-widest text-stone-500">Authentique</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <ShieldCheck size={10} />
+                  <span className="text-[7px] font-bold uppercase tracking-widest text-stone-500">Sécurisé</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+};
