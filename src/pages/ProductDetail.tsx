@@ -69,8 +69,8 @@ export const ProductDetail = () => {
 
   return (
     <main className="min-h-screen bg-white">
-      {/* التعديل الجذري: حيدنا fixed و sticky باش ترجع Nav عادية كتاخد بلاصتها الحقيقية */}
-      <nav className="relative w-full z-10 px-4 py-5 flex justify-between items-center bg-white border-b border-stone-50">
+      {/* رجعنا الـ Navbar تكون fixed باش تبقى زوينة فـ Scroll */}
+      <nav className="fixed top-0 w-full z-[100] px-4 py-4 flex justify-between items-center bg-white/90 backdrop-blur-md border-b border-stone-50">
         <button 
           onClick={() => navigate(-1)} 
           className="group flex items-center gap-2 text-[9px] font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 transition-all"
@@ -81,7 +81,10 @@ export const ProductDetail = () => {
         <span className="text-[9px] font-bold tracking-[0.3em] text-amber-800 uppercase leading-none">Atelier Rabab</span>
       </nav>
 
-      {/* دبا pt-4 كافية جداً حيت المحتوى كيبدا من مورا Nav حقيقية */}
+      {/* هاد الـ Spacer هو اللي غيحل المشكل: كيدفع المحتوى بـ 80 بيكسل فالموبايل */}
+      <div className="h-20 md:h-24 w-full" />
+
+      {/* دبا المحتوى غيبدا من تحت الـ Navbar بوضوح */}
       <div className="max-w-5xl mx-auto pt-4 md:pt-10 pb-12 px-4 md:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-start">
 
