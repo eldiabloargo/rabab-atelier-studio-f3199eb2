@@ -1,9 +1,10 @@
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/contexts/CartContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { X, Trash2, Plus, Minus, Gift, MessageCircle, ShoppingBag, ArrowRight, Sparkles } from "lucide-react";
-import { useState } from "react";
-import { Button } from "./ui/button";
+import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
 export const CartDrawer = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
   const { items, removeFromCart, updateQuantity, subtotal, shipping, total } = useCart();
   const { isArabic } = useLanguage();
