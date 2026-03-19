@@ -68,21 +68,21 @@ export const ProductDetail = () => {
   };
 
   return (
-    <main className="min-h-screen bg-white flex flex-col">
-      {/* التعديل الجذري: رديناها sticky باش المحتوى يبدا من تحتها بالظبط */}
-      <nav className="sticky top-0 w-full z-[60] px-4 py-3 flex justify-between items-center bg-white/95 backdrop-blur-md border-b border-stone-50">
+    <main className="min-h-screen bg-white">
+      {/* التعديل الجذري: حيدنا fixed و sticky باش ترجع Nav عادية كتاخد بلاصتها الحقيقية */}
+      <nav className="relative w-full z-10 px-4 py-5 flex justify-between items-center bg-white border-b border-stone-50">
         <button 
           onClick={() => navigate(-1)} 
-          className="group flex items-center gap-2 text-[8px] font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 transition-all"
+          className="group flex items-center gap-2 text-[9px] font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 transition-all"
         >
           <ArrowLeft className={`w-3 h-3 ${isArabic ? 'rotate-180' : ''}`} />
           {t("category.back")}
         </button>
-        <span className="text-[8px] font-bold tracking-[0.3em] text-amber-800 uppercase">Atelier Rabab</span>
+        <span className="text-[9px] font-bold tracking-[0.3em] text-amber-800 uppercase leading-none">Atelier Rabab</span>
       </nav>
 
-      {/* حيدنا الـ Spacer اليدوي حيت الـ sticky كيتكلف بالمساحة بوحده */}
-      <div className="flex-1 max-w-5xl mx-auto py-6 md:py-10 px-4 md:px-8 w-full">
+      {/* دبا pt-4 كافية جداً حيت المحتوى كيبدا من مورا Nav حقيقية */}
+      <div className="max-w-5xl mx-auto pt-4 md:pt-10 pb-12 px-4 md:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-start">
 
           {/* Media Section */}
@@ -122,11 +122,11 @@ export const ProductDetail = () => {
           <div className="flex flex-col h-full justify-center">
             <header className="space-y-3">
               <div className={`flex items-center gap-2 text-stone-300 ${isArabic ? 'flex-row-reverse' : ''}`}>
-                 <span className="text-[7px] font-bold uppercase tracking-[0.4em]">{product.category || 'Collection'}</span>
+                 <span className="text-[7px] font-bold uppercase tracking-[0.4em] leading-none">{product.category || 'Collection'}</span>
                  <div className="h-[1px] w-6 bg-stone-100" />
               </div>
 
-              <h1 className="text-2xl md:text-3xl font-serif text-stone-900 tracking-tight">
+              <h1 className="text-2xl md:text-3xl font-serif text-stone-900 tracking-tight leading-tight">
                 {currentTitle}
               </h1>
 
