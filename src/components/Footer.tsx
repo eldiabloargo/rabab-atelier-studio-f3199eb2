@@ -80,7 +80,7 @@ export const Footer = () => {
         {/* Minimal Copyright */}
         <div className="pt-6 border-t border-stone-50 max-w-[200px] mx-auto space-y-1">
           <p className="text-[9px] text-stone-300 font-medium uppercase tracking-[0.2em]">
-            © 2026 Studio Rabab
+            © 2026 Rabab Atelier 
           </p>
           <p className="text-[7px] text-stone-200 uppercase tracking-[0.1em]">
             {isArabic ? "جميع الحقوق محفوظة للفن" : "All Rights Reserved to Art"}
