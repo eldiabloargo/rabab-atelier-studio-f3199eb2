@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { ArrowLeft, Plus, ShoppingBag, Sparkles } from "lucide-react";
+import { ArrowLeft, ShoppingBag, Sparkles } from "lucide-react";
 
 interface Product {
   id: string;
@@ -25,11 +25,8 @@ export const CategoryPage = () => {
     const fetchCategoryAndProducts = async () => {
       setLoading(true);
       const isAll = slug === 'all';
-      
-      // تحويل الـ slug لعنوان مقروء (مثلا ramadan-collection تولي Ramadan Collection)
       const formattedSlug = slug?.split('-').join(' ');
 
-      // 1. جلب بيانات الكاتيغوري
       if (!isAll && formattedSlug) {
         const { data: catData } = await supabase
           .from("categories")
@@ -50,15 +47,14 @@ export const CategoryPage = () => {
         });
       }
 
-      // 2. جلب المنتجات بديناميكية
       let query = supabase.from("products").select("*");
       if (!isAll && formattedSlug) {
         query = query.ilike("category", formattedSlug);
       }
 
-      const { data, error } = await query.order("created_at", { ascending: false });
+      const { data } = await query.order("created_at", { ascending: false });
       if (data) setProducts(data as any);
-      
+
       setLoading(false);
     };
 
@@ -72,34 +68,33 @@ export const CategoryPage = () => {
   };
 
   return (
-    <main className="min-h-screen bg-[#fafaf9] selection:bg-amber-50">
-      
-      {/* Header Section - Cinematic Height */}
-      <div className="relative h-[60vh] flex items-center justify-center overflow-hidden bg-stone-900">
+    <main className="min-h-screen bg-[#fafaf9] selection:bg-stone-200">
+
+      <div className="relative h-[50vh] flex items-center justify-center overflow-hidden bg-stone-900">
         <motion.div 
-          initial={{ scale: 1.2, opacity: 0 }}
-          animate={{ scale: 1, opacity: 0.5 }}
-          transition={{ duration: 1.5 }}
+          initial={{ scale: 1.1, opacity: 0 }}
+          animate={{ scale: 1, opacity: 0.4 }}
+          transition={{ duration: 1.2 }}
           className="absolute inset-0"
         >
           {categoryData?.image_url && (
             <img 
               src={categoryData.image_url} 
-              className="w-full h-full object-cover blur-[2px]"
+              className="w-full h-full object-cover"
               alt=""
             />
           )}
-          <div className="absolute inset-0 bg-gradient-to-b from-stone-900/40 via-transparent to-[#fafaf9]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-stone-900/60 via-stone-900/20 to-[#fafaf9]" />
         </motion.div>
 
-        <div className="relative z-10 text-center space-y-8 px-6">
+        <div className="relative z-10 text-center space-y-6 px-6 pt-12">
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
           >
             <Link
               to="/"
-              className={`inline-flex items-center gap-3 text-[10px] font-black text-white/70 hover:text-white transition-all uppercase tracking-[0.5em] ${isArabic ? 'flex-row-reverse' : ''}`}
+              className={`inline-flex items-center gap-2 text-[9px] font-bold text-white/80 hover:text-white transition-all uppercase tracking-[0.4em] ${isArabic ? 'flex-row-reverse' : ''}`}
             >
               <ArrowLeft className={`w-3 h-3 ${isArabic ? 'rotate-180' : ''}`} />
               {t("category.back")}
@@ -107,93 +102,87 @@ export const CategoryPage = () => {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
             className="space-y-4"
           >
-            <div className="flex justify-center mb-4">
-               <Sparkles className="w-5 h-5 text-amber-400/50" />
-            </div>
-            <h1 className="text-5xl md:text-8xl font-serif text-white tracking-tighter italic">
+            <h1 className="text-4xl md:text-7xl font-serif text-white tracking-tight leading-none uppercase">
               {getCategoryName()}
             </h1>
-            <p className="text-amber-200/80 text-[11px] font-black uppercase tracking-[0.6em]">
-              {products.length} {isArabic ? "تحفة فنية" : "Pièces d'exception"}
-            </p>
+            <div className="flex items-center justify-center gap-4">
+               <div className="h-[1px] w-8 bg-amber-400/30" />
+               <p className="text-amber-100/90 text-[10px] font-medium uppercase tracking-[0.5em]">
+                {products.length} {isArabic ? "قطعة حصرية" : "Pièces Exclusives"}
+               </p>
+               <div className="h-[1px] w-8 bg-amber-400/30" />
+            </div>
           </motion.div>
         </div>
       </div>
 
-      {/* Grid Section */}
-      <div className="max-w-[1600px] mx-auto px-6 py-32">
+      <div className="max-w-7xl mx-auto px-6 py-16 md:py-24">
         {loading ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
-            {[1, 2, 3, 4, 8].map((n) => (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {[1, 2, 3, 4].map((n) => (
               <div key={n} className="space-y-4">
-                <div className="aspect-[4/5] bg-stone-200/50 rounded-[3rem] animate-pulse" />
-                <div className="h-4 w-2/3 bg-stone-200/50 mx-auto rounded-full animate-pulse" />
+                <div className="aspect-[3/4] bg-stone-200/40 rounded-2xl animate-pulse" />
+                <div className="h-3 w-1/2 bg-stone-200/40 mx-auto rounded-full animate-pulse" />
               </div>
             ))}
           </div>
         ) : products.length === 0 ? (
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-            className="text-center py-40 space-y-8"
+            className="text-center py-32 space-y-6"
           >
-             <ShoppingBag className="w-12 h-12 text-stone-200 mx-auto stroke-[1px]" />
-             <p className="text-stone-400 font-serif italic text-xl">
+             <ShoppingBag className="w-10 h-10 text-stone-200 mx-auto stroke-[1px]" />
+             <p className="text-stone-400 font-serif text-lg tracking-tight">
                {t("category.empty")}
              </p>
-             <Link to="/" className="inline-block px-8 py-4 border border-stone-200 text-[10px] font-black tracking-widest uppercase hover:bg-stone-900 hover:text-white transition-all rounded-full">
-               {isArabic ? "استكشاف المجموعات" : "Explorer les collections"}
+             <Link to="/" className="inline-block px-8 py-3 border border-stone-200 text-[9px] font-bold tracking-widest uppercase hover:bg-stone-900 hover:text-white transition-all rounded-full">
+               {isArabic ? "العودة للمجموعات" : "Retour aux collections"}
              </Link>
           </motion.div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-10 gap-y-24">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12">
             {products.map((item, index) => {
               const title = getProductTitle(item);
               return (
                 <motion.div
                   key={item.id}
-                  initial={{ opacity: 0, y: 30 }}
+                  initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-100px" }}
-                  transition={{ duration: 0.8, delay: (index % 4) * 0.1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: (index % 4) * 0.1 }}
                 >
                   <Link to={`/product/${item.id}`} className="group block">
-                    <div className="relative space-y-8">
-                      {/* Image Container with Luxury Shadow */}
-                      <div className="aspect-[4/5] overflow-hidden rounded-[3.5rem] bg-stone-100 relative shadow-[0_30px_60px_-15px_rgba(0,0,0,0.05)] transition-all duration-700 group-hover:shadow-[0_40px_80px_-15px_rgba(0,0,0,0.12)] group-hover:-translate-y-3">
+                    <div className="space-y-5">
+                      <div className="aspect-[3/4] overflow-hidden rounded-2xl bg-[#f5f5f4] relative transition-all duration-700">
                         <img
                           src={item.image_url || "/placeholder.svg"}
                           alt={title}
-                          className="w-full h-full object-cover transition-transform duration-[2s] cubic-bezier(0.16, 1, 0.3, 1) group-hover:scale-110"
+                          className="w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-105"
                         />
-                        <div className="absolute inset-0 bg-stone-900/0 group-hover:bg-stone-900/10 transition-colors duration-700" />
                         
-                        {/* Hover Overlay Button */}
-                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                           <div className="bg-white/90 backdrop-blur-md px-8 py-4 rounded-full shadow-2xl scale-90 group-hover:scale-100 transition-transform duration-500">
-                              <span className="text-[10px] font-black tracking-[0.2em] text-stone-900 uppercase">
-                                {isArabic ? "تفاصيل" : "Découvrir"}
+                        <div className="absolute inset-0 bg-stone-900/0 group-hover:bg-stone-900/5 transition-colors duration-500" />
+                        
+                        <div className="absolute bottom-4 left-4 right-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+                           <div className="bg-white/95 backdrop-blur-md py-3 text-center rounded-xl shadow-lg border border-stone-100">
+                              <span className="text-[9px] font-black tracking-[0.2em] text-stone-900 uppercase">
+                                {isArabic ? "رؤية المنتج" : "Voir le Produit"}
                               </span>
                            </div>
                         </div>
                       </div>
 
-                      {/* Info Section */}
-                      <div className="text-center space-y-3">
-                        <h3 className="text-lg md:text-xl font-serif text-stone-800 tracking-tight italic group-hover:text-amber-900 transition-colors">
+                      <div className="text-center space-y-2">
+                        <h3 className="text-sm md:text-base font-serif text-stone-800 tracking-tight font-medium uppercase group-hover:text-amber-800 transition-colors">
                           {title}
                         </h3>
-                        <div className="flex items-center justify-center gap-4">
-                          <div className="h-[1px] w-6 bg-stone-100" />
-                          <p className="text-[12px] font-black text-amber-800 tracking-[0.15em]">
-                            {item.price ? `${item.price} MAD` : t("collection.onDemand")}
-                          </p>
-                          <div className="h-[1px] w-6 bg-stone-100" />
-                        </div>
+                        <p className="text-[11px] font-bold text-amber-900/80 tracking-widest">
+                          {item.price ? `${item.price} MAD` : t("collection.onDemand")}
+                        </p>
                       </div>
                     </div>
                   </Link>
