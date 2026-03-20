@@ -44,7 +44,7 @@ export const Infos = () => {
       
       <div className="absolute inset-0 -z-20">
         <img
-          src="/assets/workshop-bg.jpg"
+          src="https://i.supaimg.com/23bbe892-53d3-41aa-b696-dcdb610fd822/8f4f6313-487d-46e5-9532-88d0e7bb8d31.jpg"
           alt="Atelier Background"
           className="w-full h-full object-cover"
         />
