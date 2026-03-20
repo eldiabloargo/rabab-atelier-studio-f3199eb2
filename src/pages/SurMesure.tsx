@@ -42,7 +42,7 @@ export const SurMesure = () => {
           className="text-center space-y-4 md:space-y-6 mb-12 md:mb-20"
         >
           <div className="inline-flex items-center gap-2 md:gap-3 px-3 py-1.5 md:px-4 md:py-2 bg-amber-50 rounded-full text-amber-700 mb-2">
-            <Sparkles size={12} className="md:w-[14px]" />
+           
             <span className="text-[8px] md:text-[9px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em]">Exclusive Service</span>
           </div>
 
