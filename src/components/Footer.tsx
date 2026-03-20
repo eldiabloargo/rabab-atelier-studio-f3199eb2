@@ -31,7 +31,7 @@ export const Footer = () => {
               <div className="flex items-center gap-3 text-stone-400">
                 <MapPin size={10} />
                 <p className="text-[10px] font-bold uppercase tracking-[0.3em]">
-                  Meknès — Morocco
+                  Tan-Tan — Morocco
                 </p>
               </div>
             </div>
