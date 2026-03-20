@@ -1,4 +1,4 @@
-wimport { motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { MessageCircle, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -42,7 +42,6 @@ export const Infos = () => {
   return (
     <main className="h-screen w-full relative overflow-hidden flex flex-col justify-center">
       
-     
       <div className="absolute inset-0 -z-20">
         <video
           autoPlay
@@ -51,12 +50,10 @@ export const Infos = () => {
           playsInline
           className="w-full h-full object-cover"
         >
-          
           <source src="/assets/workshop-bg.mp4" type="video/mp4" />
         </video>
       </div>
 
-      
       <div className="absolute inset-0 bg-stone-900/60 backdrop-blur-[2px] -z-10" />
 
       <div className="max-w-4xl mx-auto px-8 w-full relative z-10">
@@ -74,7 +71,6 @@ export const Infos = () => {
           variants={stagger}
           className="space-y-8"
         >
-         
           <motion.div variants={fadeUp} className="text-center space-y-1">
             <h1 className="text-3xl md:text-5xl font-serif text-white tracking-tighter font-medium">
               {t("infos.title")}
@@ -91,7 +87,6 @@ export const Infos = () => {
                 variants={fadeUp}
                 className="space-y-3 text-center md:text-left rtl:md:text-right"
               >
-               
                 <span className="text-3xl font-serif text-amber-500/40 block leading-none">
                   {step.num}
                 </span>
