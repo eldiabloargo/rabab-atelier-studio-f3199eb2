@@ -101,4 +101,8 @@ export const Hero = () => {
       </motion.nav>
 
       <div className="absolute bottom-6 flex flex-col items-center opacity-20">
-        <div className="w-[1px] h-8 bg-stone-400 animate
+        <div className="w-[1px] h-8 bg-stone-400 animate-pulse" />
+      </div>
+    </section>
+  );
+};
