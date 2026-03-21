@@ -7,20 +7,22 @@ export const Hero = () => {
   const { t, isArabic } = useLanguage();
   const { scrollY } = useScroll();
 
-  
   const y = useTransform(scrollY, [0, 500], [0, 800]);
   const opacity = useTransform(scrollY, [0, 400], [1, 0]);
 
-  return (
-   
-    <section className="relative min-h-screen flex flex-col items-center justify-center px-6 overflow-hidden bg-[#fafaf9]">
+  const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    e.preventDefault();
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
-      {/* Background Glow */}
+  return (
+    <section className="relative min-h-screen flex flex-col items-center justify-center px-6 overflow-hidden bg-[#fafaf9]">
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-amber-100/20 blur-[100px] rounded-full pointer-events-none" />
 
       <div className="relative z-10 w-full max-w-5xl mx-auto flex flex-col items-center">
-        
-        
         <motion.div 
           style={{ y, opacity }}
           initial={{ opacity: 0, y: 20 }}
@@ -33,7 +35,6 @@ export const Hero = () => {
               src="https://i.supaimg.com/23bbe892-53d3-41aa-b696-dcdb610fd822/83b7d020-9045-4460-b6a0-330c267a7fe1.png" 
               className="object-contain w-full h-auto block drop-shadow-xl" 
               style={{
-               
                 maskImage: 'linear-gradient(to bottom, black 60%, transparent 95%)',
                 WebkitMaskImage: 'linear-gradient(to bottom, black 60%, transparent 95%)',
               }}
@@ -50,12 +51,11 @@ export const Hero = () => {
           </motion.div>
         </motion.div>
 
-        
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, delay: 0.5 }}
-          className="mt-4 text-center space-y-4" // نقصنا الـ mt
+          className="mt-4 text-center space-y-4"
         >
           <div className="flex items-center justify-center gap-3 mb-1">
             <div className="h-[1px] w-6 bg-stone-200" />
@@ -73,7 +73,6 @@ export const Hero = () => {
         </motion.div>
       </div>
 
-     
       <motion.nav
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -84,10 +83,10 @@ export const Hero = () => {
           <a 
             key={item}
             href={`#${item}`} 
+            onClick={(e) => scrollToSection(e, item)}
             className="text-[11px] font-bold uppercase tracking-[0.3em] text-amber-700/80 hover:text-amber-900 transition-colors relative group py-1"
           >
             {t(`nav.${item}`)}
-           
             <span className="absolute bottom-0 left-0 w-full h-[1px] bg-amber-600/40 scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-right" />
           </a>
         ))}
@@ -101,10 +100,5 @@ export const Hero = () => {
         </Link>
       </motion.nav>
 
-      {/* Scroll Indicator */}
       <div className="absolute bottom-6 flex flex-col items-center opacity-20">
-        <div className="w-[1px] h-8 bg-stone-400 animate-pulse" />
-      </div>
-    </section>
-  );
-};
+        <div className="w-[1px] h-8 bg-stone-400 animate
