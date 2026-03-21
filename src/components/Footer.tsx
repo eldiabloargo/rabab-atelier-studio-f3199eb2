@@ -16,7 +16,7 @@ export const Footer = () => {
         {/* Brand Section - Centralized */}
         <div className="space-y-4">
           <div className="flex items-center justify-center gap-2 text-amber-800/60">
-            <Sparkles size={8} strokeWidth={3} />
+            
             <span className="text-[8px] font-black uppercase tracking-[0.4em]">
               {isArabic ? "صناعة يدوية مغربية" : "Artisanat Marocain"}
             </span>
