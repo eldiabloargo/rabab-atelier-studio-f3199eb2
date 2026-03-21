@@ -22,8 +22,8 @@ export const Footer = () => {
             </span>
           </div>
 
-          <h4 className="text-3xl md:text-4xl font-serif text-stone-900 tracking-tight uppercase leading-none">
-            Atelier <span className="text-stone-300 font-light">Rabab</span>
+          <h4 className="block font-serif text-3xl md:text-4xl tracking-tighter text-stone-900">
+                    Rabab <span className="text-stone-300 italic font-light">Atelier</span>
           </h4>
 
           <div className="flex items-center justify-center gap-2 text-stone-400">
