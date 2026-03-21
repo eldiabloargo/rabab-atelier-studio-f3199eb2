@@ -1,11 +1,12 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Palette, Sparkles } from "lucide-react";
 
 export const Hero = () => {
   const { t, isArabic } = useLanguage();
   const { scrollY } = useScroll();
+  const navigate = useNavigate();
 
   const y = useTransform(scrollY, [0, 500], [0, 800]);
   const opacity = useTransform(scrollY, [0, 400], [1, 0]);
@@ -84,7 +85,7 @@ export const Hero = () => {
             key={item}
             href={`#${item}`} 
             onClick={(e) => scrollToSection(e, item)}
-            className="text-[11px] font-bold uppercase tracking-[0.3em] text-amber-700/80 hover:text-amber-900 transition-colors relative group py-1"
+            className="text-[11px] font-bold uppercase tracking-[0.3em] text-amber-700/80 hover:text-amber-900 transition-colors relative group py-1 cursor-pointer"
           >
             {t(`nav.${item}`)}
             <span className="absolute bottom-0 left-0 w-full h-[1px] bg-amber-600/40 scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-right" />
@@ -93,6 +94,7 @@ export const Hero = () => {
 
         <Link 
           to="/sur-mesure" 
+          onClick={() => window.scrollTo(0, 0)}
           className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-amber-200 bg-white text-[10px] font-bold uppercase tracking-[0.2em] text-amber-900 hover:bg-amber-900 hover:text-white transition-all duration-500 shadow-sm group"
         >
           <Palette className="w-3 h-3 transition-transform group-hover:rotate-12" />
