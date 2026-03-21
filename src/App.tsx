@@ -62,21 +62,15 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
+    <BrowserRouter>
       <LanguageProvider>
         <CartProvider>
-          <BrowserRouter>
-            <ScrollToTop />
-            <Navbar />
-            <Suspense fallback={<LoadingSpinner />}>
-              <AnimatedRoutes />
-            </Suspense>
-            <Toaster />
-            <Sonner />
-          </BrowserRouter>
+          <TooltipProvider>
+            <AnimatedRoutes />
+          </TooltipProvider>
         </CartProvider>
       </LanguageProvider>
-    </TooltipProvider>
+    </BrowserRouter>
   </QueryClientProvider>
 );
 
